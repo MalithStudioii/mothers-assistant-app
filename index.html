@@ -1,0 +1,2320 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mother's Assistant - අම්මගේ අත්උදව්ව</title>
+    <!-- Google Fonts for premium maternal look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Noto+Sans+Sinhala:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Cute Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React and Babel CDNs for instant running in browser -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- PDF Generation Library html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- PayHere JavaScript SDK -->
+    <script type="text/javascript" src="https://www.payhere.lk/lib/payhere.js"></script>
+    
+    <!-- Firebase SDK (Compat version for simple HTML integration) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <!-- PWA Manifest & Mobile Web App Meta -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#ff85a1">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            pink: '#ff85a1',
+                            darkpink: '#f72585',
+                            cream: '#fff8f6',
+                            chocolate: '#4c2d2d',
+                            slate: '#5c4d4d',
+                            gold: '#fbbf24'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'Noto Sans Sinhala', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #fff5f7 0%, #fbcfe8 100%);
+            font-family: 'Poppins', 'Noto Sans Sinhala', sans-serif;
+            background-attachment: fixed;
+        }
+        /* Mobile Frame simulator to feel like a real PWA App */
+        .app-frame {
+            max-width: 450px;
+            width: 100vw;
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            background-color: #ffffff;
+            box-shadow: 0 25px 50px -12px rgba(219, 39, 119, 0.12), 0 0 50px rgba(0, 0, 0, 0.02);
+            border-left: 1px solid rgba(255, 255, 255, 0.6);
+            border-right: 1px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        /* Ensures the fixed popup centers within the app frame */
+        #root {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        /* Custom scrollbar for clean layout */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ff85a1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen">
+
+    <div id="root" class="w-full flex justify-center"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Firebase Configuration (Mother's Assistant App)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrkTB1Tf7E9J6UKlkenLb7wbjhiHk615E",
+            authDomain: "mothers-assistant.firebaseapp.com",
+            projectId: "mothers-assistant",
+            storageBucket: "mothers-assistant.firebasestorage.app",
+            messagingSenderId: "621868958714",
+            appId: "1:621868958714:web:2db775c5573845e6579a43"
+        };
+        
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        // Monetag Vignette Ad Component
+const MonetagAd = () => {
+    useEffect(() => {
+        
+        if (!document.querySelector('script[data-zone="11298814"]')) {
+            const script = document.createElement('script');
+            script.dataset.zone = '11298814';
+            script.src = 'https://n6wxm.com/vignette.min.js';
+            script.async = true;
+            
+            const target = document.body || document.documentElement;
+            target.appendChild(script);
+        }
+    }, []);
+
+    return null; 
+};
+
+        function App() {
+            // App state management
+            const [activeTab, setActiveTab] = useState('home');
+            
+            
+            const [isSubscribed, setIsSubscribed] = useState(() => {
+                return localStorage.getItem('isProUser') === 'true';
+            });
+            const [showPaywall, setShowPaywall] = useState(false);
+            const [selectedWeek, setSelectedWeek] = useState(1);
+            
+            // 🎶 Audio Player Advanced States
+            const [currentTrack, setCurrentTrack] = useState(0);
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [audioElement, setAudioElement] = useState(null);
+            const [currentTime, setCurrentTime] = useState(0);
+            const [duration, setDuration] = useState(0);
+
+            // LMP Calculator states
+            const [lmpDate, setLmpDate] = useState('');
+            const [edd, setEdd] = useState('');
+            const [gestWeeks, setGestWeeks] = useState(null);
+            const [gestDays, setGestDays] = useState(null);
+
+            // Calculate EDD and Gestational Age
+            const calculatePregnancy = (e) => {
+                e.preventDefault();
+                if (!lmpDate) return;
+                const lmp = new Date(lmpDate);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (lmp > today) {
+                    alert("කරුණාකර අතීත දිනයක් තෝරන්න.");
+                    return;
+                }
+                
+                // Calculate EDD (LMP + 280 days)
+                const eddDate = new Date(lmp);
+                eddDate.setDate(eddDate.getDate() + 280);
+                const formattedEdd = eddDate.toLocaleDateString('si-LK', { year: 'numeric', month: 'long', day: 'numeric' });
+                setEdd(formattedEdd);
+                
+                // Calculate Gestational Age in days
+                const diffTime = today.getTime() - lmp.getTime();
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                
+                const weeks = Math.floor(diffDays / 7);
+                const days = diffDays % 7;
+                
+                setGestWeeks(weeks);
+                setGestDays(days);
+            };
+
+            const saveCalculatedWeek = () => {
+                if (gestWeeks !== null && gestWeeks >= 1 && gestWeeks <= 40) {
+                    handleMarkWeek(gestWeeks);
+                    alert(`ඔබේ වර්තමාන සතිය සති ${gestWeeks} ලෙස සාර්ථකව සටහන් කරගන්නා ලදී!`);
+                }
+            };
+
+            // ⏱️ Baby Kick Counter State
+            const [kickCount, setKickCount] = useState(0);
+
+            // ⏳ Contraction Timer States
+            const [contractions, setContractions] = useState([]);
+            const [isTracking, setIsTracking] = useState(false);
+            const [currentStartTime, setCurrentStartTime] = useState(null);
+            const [elapsedTime, setElapsedTime] = useState(0);
+            
+            // Contraction timer logic
+            useEffect(() => {
+                let interval = null;
+                if (isTracking) {
+                    interval = setInterval(() => {
+                        setElapsedTime(Math.floor((Date.now() - currentStartTime) / 1000));
+                    }, 1000);
+                } else {
+                    clearInterval(interval);
+                }
+                return () => clearInterval(interval);
+            }, [isTracking, currentStartTime]);
+
+            const handleContractionToggle = () => {
+                if (!isTracking) {
+                    setIsTracking(true);
+                    setCurrentStartTime(Date.now());
+                } else {
+                    setIsTracking(false);
+                    const endTime = Date.now();
+                    const duration = Math.floor((endTime - currentStartTime) / 1000);
+                    
+                    let frequency = null;
+                    if (contractions.length > 0) {
+                        const lastContraction = contractions[0];
+                        frequency = Math.floor((currentStartTime - lastContraction.startTime) / 1000);
+                    }
+
+                    setContractions([{
+                        id: Date.now(),
+                        startTime: currentStartTime,
+                        endTime: endTime,
+                        duration: duration,
+                        frequency: frequency
+                    }, ...contractions]);
+                    setElapsedTime(0);
+                }
+            };
+
+            const formatContractionTime = (seconds) => {
+                if (seconds === null) return "-";
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                return `${m}m ${s}s`;
+            };
+
+            // 🧳 Hospital Bag Checklist State
+            const [bagItems, setBagItems] = useState({});
+            const toggleBagItem = (id) => {
+                setBagItems(prev => ({ ...prev, [id]: !prev[id] }));
+            };
+
+            // 💉 Baby Vaccine Calendar State
+            const [babyDob, setBabyDob] = useState('');
+
+            // 🩸 Maternal Weight Tracker States
+            const [prePregnancyWeight, setPrePregnancyWeight] = useState('');
+            const [motherHeight, setMotherHeight] = useState('');
+            const [bmiResult, setBmiResult] = useState(null);
+            const [minWeightGain, setMinWeightGain] = useState(0);
+            const [maxWeightGain, setMaxWeightGain] = useState(0);
+
+            const calculateWeightGainRange = (e) => {
+                e.preventDefault();
+                if (!prePregnancyWeight || !motherHeight) return;
+                
+                const heightInMeters = parseFloat(motherHeight) / 100;
+                const bmi = parseFloat(prePregnancyWeight) / (heightInMeters * heightInMeters);
+                setBmiResult(bmi.toFixed(1));
+
+                // Sri Lankan MOH / WHO Guidelines for Pregnancy Weight Gain based on BMI
+                if (bmi < 18.5) {
+                    setMinWeightGain(12.5); setMaxWeightGain(18.0);
+                } else if (bmi >= 18.5 && bmi < 25) {
+                    setMinWeightGain(11.5); setMaxWeightGain(16.0);
+                } else if (bmi >= 25 && bmi < 30) {
+                    setMinWeightGain(7.0); setMaxWeightGain(11.5);
+                } else {
+                    setMinWeightGain(5.0); setMaxWeightGain(9.0);
+                }
+            };
+
+            // Playlist with actual Google Drive Direct Stream Links
+            const playlist = [
+                { id: 1, title: '01. ඇහැල මලක් පිපිලා', sub: 'අම්මා සහ බිළිඳාගේ ආදරයේ මියැසිය', url: 'https://docs.google.com/uc?export=download&id=1ekLgVMrarivG0sEYf_b36Xl-mF0huIHC', duration: '04:15' },
+                { id: 2, title: '02. උතුම් අංගුලිමාල පිරිත් දේශනාව', sub: 'නිරෝගී දරු ප්‍රසූතියක් සඳහා ආශිර්වාද', url: 'https://docs.google.com/uc?export=download&id=1ikhNSZfGbzzQR3gZ442kqSVVd-FKX7hA', duration: '15:40' },
+                { id: 3, title: '03. බුද්ධි වර්ධන Classical මියැසිය', sub: 'මොළයේ සෛල වර්ධනයට Mozart තනු', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', duration: '05:02' }
+            ];
+
+            // Global Audio Control Logic
+            const togglePlay = (trackIndex = currentTrack) => {
+                if (audioElement) {
+                    if (currentTrack === trackIndex && isPlaying) {
+                        audioElement.pause();
+                        setIsPlaying(false);
+                    } else {
+                        audioElement.pause();
+                        const newAudio = new Audio(playlist[trackIndex].url);
+                        newAudio.play();
+                        setAudioElement(newAudio);
+                        setCurrentTrack(trackIndex);
+                        setIsPlaying(true);
+                    }
+                } else {
+                    const newAudio = new Audio(playlist[trackIndex].url);
+                    newAudio.play();
+                    setAudioElement(newAudio);
+                    setCurrentTrack(trackIndex);
+                    setIsPlaying(true);
+                }
+            };
+
+            // Seek Audio Progress
+            const handleSeek = (e) => {
+                if (!audioElement) return;
+                const newTime = parseFloat(e.target.value);
+                audioElement.currentTime = newTime;
+                setCurrentTime(newTime);
+            };
+
+            // Format Audio Time (MM:SS)
+            const formatTime = (time) => {
+                if (isNaN(time)) return "00:00";
+                const mins = Math.floor(time / 60);
+                const secs = Math.floor(time % 60);
+                return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            };
+
+            // Audio event listeners
+            useEffect(() => {
+                if (!audioElement) return;
+
+                const updateTime = () => setCurrentTime(audioElement.currentTime);
+                const updateDuration = () => setDuration(audioElement.duration || 0);
+                const handleEnded = () => {
+                    const nextTrack = (currentTrack + 1) % playlist.length;
+                    togglePlay(nextTrack);
+                };
+
+                audioElement.addEventListener('timeupdate', updateTime);
+                audioElement.addEventListener('loadedmetadata', updateDuration);
+                audioElement.addEventListener('ended', handleEnded);
+
+                return () => {
+                    audioElement.removeEventListener('timeupdate', updateTime);
+                    audioElement.removeEventListener('loadedmetadata', updateDuration);
+                    audioElement.removeEventListener('ended', handleEnded);
+                };
+            }, [audioElement, currentTrack]);
+
+            // Stop audio instantly if user changes tabs to home/strips
+            useEffect(() => {
+                if (activeTab !== 'music' && audioElement) {
+                    audioElement.pause();
+                    setIsPlaying(false);
+                }
+            }, [activeTab]);
+
+            // PDF Download function for Maternal Diet Plan (Sinhala)
+            const downloadDietPDF = () => {
+                const element = document.createElement('div');
+                element.className = "p-8 text-brand-chocolate space-y-6";
+                element.style.width = "750px";
+                element.style.fontFamily = "'Noto Sans Sinhala', sans-serif";
+                element.innerHTML = `
+                    <div style="text-align: center; border-bottom: 2px solid #ff85a1; padding-bottom: 10px; margin-bottom: 20px;">
+                        <h1 style="font-size: 24px; font-weight: bold; color: #f72585; margin: 0;">ගර්භණී පෝෂණ සැලසුම (Diet Plan)</h1>
+                        <p style="font-size: 12px; color: #5c4d4d; margin: 5px 0 0 0;">Mother's Assistant - අම්මගේ අත්උදව්ව</p>
+                    </div>
+                    
+                    <div style="background-color: #fff8f6; border: 1px solid #ff85a1; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="font-size: 16px; font-weight: bold; margin-top: 0; color: #4c2d2d;">1 වන ත්‍රෛමාසිකය (සති 1 - 12)</h3>
+                        <p style="font-size: 12px; line-height: 1.5; color: #5c4d4d;"><strong>ප්‍රධාන ඉලක්කය:</strong> කළලයේ මොළය සහ ස්නායු පද්ධතිය වර්ධනය වීම. වමනය පාලනය කරමින් පෝෂණය ලබා ගැනීම.</p>
+                        <h4 style="font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #f72585;">අනුමත ආහාර වට්ටෝරු:</h4>
+                        <ul style="font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6; color: #4c2d2d;">
+                            <li><strong>ෆෝලික් ඇසිඩ් බහුල ආහාර:</strong> නිවිති, කංකුං, ගොටුකොළ වැනි තද කොළ පැහැති පලා වර්ග සහ පරිප්පු.</li>
+                            <li><strong>වමනය පාලනයට:</strong> ඉඟුරු තේ, දෙහි යුෂ, බිස්කට් සහ බැදපු කජු/කඩල.</li>
+                            <li><strong>ප්‍රෝටීන:</strong> දිනපතා තැම්බූ බිත්තරයක්, මාළු හෝ කුකුළු මස්.</li>
+                        </ul>
+                    </div>
+
+                    <div style="background-color: #fff8f6; border: 1px solid #ff85a1; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="font-size: 16px; font-weight: bold; margin-top: 0; color: #4c2d2d;">2 වන ත්‍රෛමාසිකය (සති 13 - 27)</h3>
+                        <p style="font-size: 12px; line-height: 1.5; color: #5c4d4d;"><strong>ප්‍රධාන ඉලක්කය:</strong> බබාගේ අස්ථි පද්ධතිය ශක්තිමත් වීම සහ ලේ වර්ධනය සිදුවීම. කැල්සියම් සහ යකඩ බහුල ආහාර අත්‍යවශ්‍ය වේ.</p>
+                        <h4 style="font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #f72585;">අනුමත ආහාර වට්ටෝරු:</h4>
+                        <ul style="font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6; color: #4c2d2d;">
+                            <li><strong>කැල්සියම් බහුල ආහාර:</strong> දිනපතා නැවුම් එළකිරි හෝ මුදවපු kිරි (Curd), හාල්මැස්සන් සහ චීස්.</li>
+                            <li><strong>යකඩ බහුල ආහාර:</strong> රතු පියලි පරිප්පු, සෝයා බෝංචි, නිවිති සහ කුකුළු අක්මා.</li>
+                            <li><strong>විටමින් C:</strong> යකඩ උරාගැනීම වැඩි කිරීමට නෙල්ලි, පේර, දොඩම් වැනි පළතුරු කෑමෙන් පසු ගන්න.</li>
+                        </ul>
+                    </div>
+
+                    <div style="background-color: #fff8f6; border: 1px solid #ff85a1; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="font-size: 16px; font-weight: bold; margin-top: 0; color: #4c2d2d;">3 වන ත්‍රෛමාසිකය (සති 28 - 40)</h3>
+                        <p style="font-size: 12px; line-height: 1.5; color: #5c4d4d;"><strong>ප්‍රධාන ඉලක්කය:</strong> බබාගේ බර වේගයෙන් වැඩිවීම සහ ප්‍රසූතියට සූදානම් වීම. තන්තු සහ දියර වර්ග බහුලව ගැනීම වැදගත්ය.</p>
+                        <h4 style="font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #f72585;">අනුමත ආහාර වට්ටෝරු:</h4>
+                        <ul style="font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.6; color: #4c2d2d;">
+                            <li><strong>බබාගේ බර වැඩිවීමට:</strong> මේදය අඩංගු ඇවකාඩෝ (අලිපේර), kජු, රටකජු සහ රටඉඳි.</li>
+                            <li><strong>තන්තු බහුල ආහාර (මලබද්ධයට):</strong> කොහිල, බණ්ඩක්කා, ගස්ලබු, kෙසෙල් සහ රතු බත්.</li>
+                            <li><strong>දියර වර්ග:</strong> දිනපතා පිරිසිදු වතුර ලීටර් 3ක්, තැඹිලි හෝ කැඳ වර්ග.</li>
+                        </ul>
+                    </div>
+
+                    <div style="background-color: #fef2f2; border: 1px solid #fee2e2; padding: 12px; border-radius: 10px; font-size: 10px; color: #991b1b; line-height: 1.5;">
+                        <strong>සෞඛ්‍ය උපදෙස් සහ තහනම් ආහාර:</strong> ගර්භණී සමයේදී අධික පැණිරස, කෘතිම බීම වර්ග, අඩුවෙන් තැම්බූ මස්/මාළු/බිත්තර සහ අන්නාසි වැනි දේ ආහාරයට ගැනීමෙන් සම්පූර්ණයෙන්ම වැළකී සිටින්න.
+                    </div>
+                `;
+
+                const opt = {
+                    margin:       15,
+                    filename:     'Maternal_Diet_Plan_Sinhala.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().from(element).set(opt).save();
+            };
+
+            
+            // Track the user's marked current week (Saves locally)
+            const [myCurrentWeek, setMyCurrentWeek] = useState(() => {
+                const saved = localStorage.getItem('user_current_week');
+                return saved ? parseInt(saved, 10) : null;
+            });
+
+            // Automatically set selectedWeek to their saved week on fresh open
+            useEffect(() => {
+                if (myCurrentWeek) {
+                    setSelectedWeek(myCurrentWeek);
+                }
+            }, []);
+
+            // Function to handle saving the week
+            const handleMarkWeek = (week) => {
+                setMyCurrentWeek(week);
+                localStorage.setItem('user_current_week', week);
+            };
+            
+            // Baby Names Search & Filter states
+            const [namesFilter, setNamesFilter] = useState('all');
+            const [namesSearch, setNamesSearch] = useState('');
+
+            // Strip Guide State
+            const [stripResult, setStripResult] = useState(null);
+
+            // Mock Monetag Ad state (closeable for testing)
+            const [showAd, setShowAd] = useState(true);
+
+            // Sinhala Baby Names Database
+            const babyNames = [
+                { id: 1, name: 'අභිෂේකා', meaning: 'අභිෂේක ලත්, පූජනීය වූ තැනැත්තිය', gender: 'girl' },
+                { id: 2, name: 'අසංක', meaning: 'සැකයක් නොමැති, ස්ථිර ගති ඇති', gender: 'boy' },
+                { id: 3, name: 'අනුත්තර', meaning: 'සියල්ලටම වඩා උතුම් වූ, අග්‍රගණ්‍ය', gender: 'boy' },
+                { id: 4, name: 'අමායා', meaning: 'නිර්මල වූ, රැවටීමක් නොමැති ආලෝකය', gender: 'girl' },
+                { id: 5, name: 'කල්පන', meaning: 'සිතුවිලි බහුල, නිර්මාණශීලී බුද්ධිය', gender: 'boy' },
+                { id: 6, name: 'කාව්‍යා', meaning: 'කවියක් බඳු වූ, kලාත්මක සුන්දරත්වය', gender: 'girl' },
+                { id: 7, name: 'කසුන්', meaning: 'රත්තරන් වැනි වටිනා, දීප්තිමත්', gender: 'boy' },
+                { id: 8, name: 'කෙලුම්', meaning: 'කීර්තිය පතුරුවන, වාසනාවන්ත', gender: 'boy' },
+                { id: 9, name: 'දිනුලි', meaning: 'ජයග්‍රාහී ආලෝකය පතුරුවන මනාලිය', gender: 'girl' },
+                { id: 10, name: 'දෙව්මිණි', meaning: 'දෙවියන් දුන් මැණිකක් වැනි වටිනා', gender: 'girl' },
+                { id: 11, name: 'නෙත්මිණි', meaning: 'ඇසක් වැනි වටිනා මැණික', gender: 'girl' },
+                { id: 12, name: 'නිනුක', meaning: 'නිවැරදි දැක්මක් ඇති, බුද්ධිමත්', gender: 'boy' },
+                { id: 13, name: 'මිනුක', meaning: 'පැහැදිලි නෙත් ඇති, ඥානවන්ත පැටියා', gender: 'boy' },
+                { id: 14, name: 'මල්ෂා', meaning: 'මලක් මෙන් සුන්දර සහ සුවඳවත්', gender: 'girl' },
+                { id: 15, name: 'ප්‍රවීන්', meaning: 'දක්ෂ, ඕනෑම දෙයකට ශූර වූ', gender: 'boy' },
+                { id: 16, name: 'පබසර', meaning: 'දිලිසෙන සුලු, මනරම් ආලෝකය', gender: 'boy' },
+                { id: 17, name: 'සෙනුර', meaning: 'ලස්සන,කාටත් ප්‍රියමනාප නායකයෙක්', gender: 'boy' },
+                { id: 18, name: 'සහස්‍රා', meaning: 'දහසක් කිරණ විහිදුවන සූර්යයා මෙන්', gender: 'girl' },
+                { id: 19, name: 'විහාරා', meaning: 'ශාන්ත වූ, නිදහස් මනසක් ඇති', gender: 'girl' },
+                { id: 20, name: 'විනුක', meaning: 'විනයගරුක, යහපත් ගතිගුණ ඇති', gender: 'boy' },
+                { id: 21, name: 'ගිහාන්', meaning: 'විශ්වය, ලෝකය ජයගන්නා', gender: 'boy' },
+                { id: 22, name: 'චතුර', meaning: 'කතා කිරීමට දක්ෂ, ඥානාන්විත', gender: 'boy' },
+                { id: 23, name: 'ජනන', meaning: 'උපත දෙන, ජීවය ලබාදෙන', gender: 'boy' },
+                { id: 24, name: 'තාරුකා', meaning: 'අහසේ දිලිසෙන තරුවක් වැනි', gender: 'girl' },
+                { id: 25, name: 'භාග්‍යා', meaning: 'වාසනාවන්ත, පිනැති තැනැත්තිය', gender: 'girl' },
+                { id: 26, name: 'යොෂිත', meaning: 'සැප සම්පත් ඇති, වාසනාවන්ත', gender: 'boy' },
+                { id: 27, name: 'රවිඳු', meaning: 'සූර්යයා සහ චන්ද්‍රයා වැනි දීප්තිමත්', gender: 'boy' },
+                { id: 28, name: 'ලක්මාල්', meaning: 'ශ්‍රී ලංකාවේ මලක් බඳු වටිනා', gender: 'boy' },
+                { id: 29, name: 'හිරුනි', meaning: 'සූර්යයා මෙන් බැබළෙන දියණිය', gender: 'girl' },
+                { id: 30, name: 'සහන්', meaning: 'සැනසීම ගෙන දෙන, නිවහල්', gender: 'boy' }
+            ];
+
+            // 📅 Tracker Data Base to prevent crashes & add Week 6-8+ data
+            const weeksData = {
+                1: { size: 'පොපි ඇටයක්', length: '~ 0.1 mm', weight: '< 1 g', baby: 'මෙම සතියේදී ඔබේ ශරීරය පිළිසිඳ ගැනීමක් සඳහා සූදානම් වේ.', mom: 'බාහිරව කිසිදු වෙනසක් නැත. සෞඛ්‍ය සම්පන්නව සිටීම වැදගත් වේ.', care: 'වෛද්‍ය උපදෙස් මත දිනපතා ෆෝලික් ඇසිඩ් (Folic Acid) පෙත්තක් ගැනීම අරඹන්න.' },
+                2: { size: 'පොපි ඇටයක්', length: '~ 0.2 mm', weight: '< 1 g', baby: 'ඩිම්බ මෝචනය සිදුවී සංසේචිත ඩිම්බය නිර්මාණය වන සති අන්තයයි.', mom: 'හෝමෝන මට්ටම් වෙනස් වීමට පටන් ගනී.', care: 'දුම්පානය, මත්පැන් සහ අනවශ්‍ය බරපතල ඖෂධ ගැනීම් වලින් වළකින්න.' },
+                3: { size: 'තල ඇටයක්', length: '~ 0.5 mm', weight: '< 1 g', baby: 'සංසේචිත සෛල සමූහය ගර්භාෂය වෙත ගමන් කරමින් වේගයෙන් බෙදේ.', mom: 'ශරීරය තුළ hCG හෝමෝනය ශ්‍රාවය වීම ඇරඹේ.', care: 'පෝෂණීය ආහාර වේලක් ගන්න. ශරීරයට අධික වෙහෙසක් දෙන ක්‍රියාවලින් බැහැර වන්න.' },
+                4: { size: 'අබ ඇටයක්', length: '~ 1.0 mm', weight: '< 1 g', baby: 'කළලය ගර්භාෂ බිත්තියේ සාර්ථකව තැන්පත් වේ (Implantation).', mom: 'ඔසප් දිනය මඟ හැරීම සිදුවේ. පියයුරු වල මෘදු බවක් දැනිය හැක.', care: 'ගර්භණී බව ස්ථිර වූ වහාම පවුල් සෞඛ්‍ය සේවා නිලධාරිනිය (Midwife) හමුවන්න.' },
+                5: { size: 'ඇපල් ඇටයක්', length: '~ 2.0 mm', weight: '< 1 g', baby: 'කළලයේ හෘද ස්පන්දනය ඇරඹෙන මුල්ම අවධියයි.', mom: 'නිතර තෙහෙට්ටුව, ක්ලාන්ත ගතිය හෝ වමනය යාම මතු විය හැක.', care: 'නියමිත පරිදි විටමින් පෙති වර්ග ලබා ගන්න. සැහැල්ලු කෑම වේල් ගන්න.' },
+                6: { size: 'මුං ඇටයක්', length: '4 - 5 mm', weight: '< 1 g', baby: 'බබාගේ අත් සහ පාද නිර්මාණය වීමට පටන් ගන්නා අවධියයි. ස්නායු නාලය සම්පූර්ණයෙන්ම වැසී යයි.', mom: 'උදෑසන වමනය ගතිය (Morning Sickness) සහ නිතර මුත්‍රා කිරීමේ අවශ්‍යතාවය වැඩි විය හැක.', care: 'නිතර වතුර බොන්න. තෙල් අධික සහ සැර ආහාර ගැනීමෙන් වළකින්න.' },
+                7: { size: 'බෝංචි ඇටයක්', length: '10 - 13 mm', weight: '< 1 g', baby: 'බබාගේ මුහුණේ කොටස් (ඇස්, නාසය) සහ මොළයේ සෛල වේගයෙන් වර්ධනය වේ. පුංචි වලිගය වැනි කොටස නැති වී යයි.', mom: 'ගර්භාෂය ක්‍රමයෙන් ලොකු වන නිසා යටි බඩේ සුළු ඇදෙන ස්වභාවයක් දැනිය හැක.', care: 'ප්‍රමාණවත් විවේකයක් ගන්න. බර දේවල් එසවීමෙන් සම්පූර්ණයෙන්ම වැළකී සිටින්න.' },
+                8: { size: 'මිදි ගෙඩියක්', length: '1.6 cm', weight: '1 - 2 g', baby: 'පැටියාගේ අත් පා වල ඇඟිලි වෙන වෙනම වර්ධනය වීම ඇරඹේ. කුඩා චලනයන් ආරම්භ වුවත් මවට එය තවම දැනෙන්නේ නැත.', mom: 'ශරීරයේ රුධිර ප්‍රමාණය වැඩි වන අතර, පියයුරු වල ප්‍රමාණය විශාල වීම සිදුවේ.', care: 'පවුල් සෞඛ්‍ය සායනයට (Clinic) ගොස් රජයේ සායන පොත සහ මූලික රුධිර පරීක්ෂණ (Hb, Blood Group) සිදුකර ගන්න.' },
+                9: { size: 'ඔලිව් ගෙඩියක්', length: '2.3 cm', weight: '2 g', baby: 'කළල අවධිය අවසන් වී බිළිඳු (Fetus) අවධිය ඇරඹේ. හෘදයේ කුටීර 4 නිවැරදිව ක්‍රියා කරයි.', mom: 'හෝමෝන උච්චතම අවස්ථාවට පැමිණෙන නිසා මනෝභාවයන් වෙනස් වීම (Mood Swings) බහුල වේ.', care: 'දිනපතා පිරිසිදු වතුර ලීටර් 2-3ක් පානය කර ශරීරය සජලීයව තබාගන්න.' },
+                10: { size: 'නෙල්ලි ගෙඩියක්', length: '3.1 cm', weight: '4 g', baby: 'සියලුම අත්‍යවශ්‍ය අවයව (වකුගඩු, අක්මාව, බඩවැල්) වැඩී ඇත. බබා කුස තුළ ගිලීමේ චලනයන් කරයි.', mom: 'උදරයේ නහර මතු වී පෙනෙන්නට පුළුවන. වමනය ගතිය කෙමෙන් අඩු වේ.', care: 'දන්ත සෞඛ්‍යය ගැන සැලකිලිමත් වන්න. විදුරුමස් ලේ වැගිරීම් ඇත්නම් වෛද්‍යවරයකුට පෙන්වන්න.' },
+                11: { size: 'ස්ට්‍රෝබෙරි ගෙඩියක්', length: '4.1 cm', weight: '7 g', baby: 'බබාගේ බාහිර ලිංගික අවයව සෑදීම ඇරඹේ. දත්වල මූලික සෛල විදුරුමස් ඇතුළත නිර්මාණය වේ.', mom: 'ශරීරයේ පරිවෘත්තීය ක්‍රියා වේගවත් වන නිසා අධික උණුසුමක් හෝ දහඩිය දැමීමක් දැනේ.', care: 'පෝෂ්‍යදායී සමබර ආහාර වේලක් ගන්න. කැල්සියම් අඩංගු කිරි නිෂ්පාදන වැඩිපුර ගන්න.' },
+                12: { size: 'ලෙමන් ගෙඩියක්', length: '5.4 cm', weight: '14 g', baby: 'පළමු ත්‍රෛමාසිකයේ අවසානයයි. බබාගේ ඇඟිලි සලකුණු (Fingerprints) පවා මේ වන විට සෑදී ඇත.', mom: 'ගබ්සා වීමේ අවදානම 65% කින් අඩු වන සන්ධිස්ථානයකි. බඩ තරමක් මතු වේ.', care: 'සති 11-14 අතර කාලයේදී කරන NT Scan පරීක්ෂණය වෛද්‍ය උපදෙස් මත සිදුකර ගන්න.' },
+                13: { size: 'ඇට කජු ගෙඩියක්', length: '7.4 cm', weight: '23 g', baby: 'දෙවැනි ත්‍රෛමාසිකය ඇරඹේ. බබාගේ මුත්‍රා පද්ධතිය වැඩ කරන අතර, ඇම්නියොටික් දියරයට මුත්‍රා පිට කරයි.', mom: 'ශක්තිමත් ගතියක් දැනේ. කෑම රුචිය වර්ධනය වන අතර උදෑසන අපහසුතා පහව යයි.', care: 'යකඩ (Iron) සහ විටමින් C බහුල ආහාර එකට ගන්න. (යකඩ පෙත්ත සමඟ දොඩම් යුෂ බොන්න)' },
+                14: { size: 'ලොකු ටොෆියක්', length: '8.7 cm', weight: '43 g', baby: 'බබාගේ බෙල්ල දිගු වන අතර මුහුණේ මාංශ පේශි ක්‍රියාකාරී වේ. නළල රැලි කිරීම් සිදුවේ.', mom: 'ගර්භාෂය ශ්‍රෝණි කුහරයෙන් ඉහළට පැමිණෙන නිසා මුත්‍රා කිරීමේ තදබදය තරමක් අඩු වේ.', care: 'පහසු සැහැල්ලු ඇඳුම් (Maternity Clothes) භාවිතය ආරම්භ කරන්න.' },
+                15: { size: 'ඇපල් ගෙඩියක්', length: '10.1 cm', weight: '70 g', baby: 'බබාගේ සම ඉතා සිහින් වන අතර රුධිර වාහිනී පෙනේ. ඇස් වසාගෙන ආලෝකය හඳුනාගත හැක.', mom: 'සමේ වර්ණක වෙනස් වීම නිසා උදරය මැද කළු ඉරක් (Linea Nigra) මතු විය හැක.', care: 'සිරුර කෙළින් තබාගෙන නිවැරදි ඉරියව්වෙන් වාඩි වීමට හා ඇවිදීමට පුරුදු වන්න.' },
+                16: { size: 'අලිපේර ගෙඩියක්', length: '11.6 cm', weight: '100 g', baby: 'බබාගේ හිස්කබලේ ඇටකටු ශක්තිමත් වේ. හෘදය දිනකට ලීටර් 25ක ලේ ප්‍රමාණයක් පොම්ප කරයි.', mom: 'දෙවැනි ප්‍රධාන ස්කෑන් පරීක්ෂණයට (Anomaly Scan) කාලය ලඟා වේ.', care: 'වෛද්‍යවරයා නියම කරන යකඩ, කැල්සියම් සහ විටමින් පෙති නොකඩවා ගන්න.' },
+                17: { size: 'කෙසෙල් ගෙඩියක්', length: '13 cm', weight: '140 g', baby: 'බබාගේ සන්ධි චලනය කළ හැක. ශරීරයේ මේද තට්ටුවක් (Adipose Tissue) තැන්පත් වීම ඇරඹේ.', mom: 'උදරය කැසීම සහ සම ඇදීම නිසා Stretch Marks මතු වීමට පටන් ගනී.', care: 'උදරයේ සම වියළි වීම වැළැක්වීමට මොයිස්චරයිසර් ක්‍රීම් එකක් හෝ පොල්තෙල් ගාන්න.' },
+                18: { size: 'පැපොල් ගෙඩියක්', length: '14.2 cm', weight: '190 g', baby: 'බබාගේ ශ්‍රවණ පද්ධතිය වැඩ කරයි. මවගේ හෘද ස්පන්දනය සහ බාහිර තද ශබ්ද බබාට ඇසේ.', mom: 'සමහර අම්මලාට බබාගේ පළමු සියුම් සෙලවීම (Quickening) සමනලයෙකු තටු ගසන්නාක් මෙන් දැනේ.', care: 'බබා සමඟ ආදරයෙන් කතා කරන්න. කුස පිරිමදිමින් සන්සුන් සංගීතයට සවන් දෙන්න.' },
+                19: { size: 'මැංගුස් ගෙඩියක්', length: '15.3 cm', weight: '240 g', baby: 'බබාගේ සම ආරක්ෂා කිරීමට Vernix Caseosa නමැති සුදුවැහැති සෛල තට්ටුවකින් මුළු ඇඟම වැසේ.', mom: 'යටිබඩ හෝ ඉණ දෙපස මාංශ පේශි ඇදීම නිසා සියුම් වේදනාවක් (Round Ligament Pain) දැනේ.', care: 'එකපාරටම ඇඳෙන් නැගිටීමෙන් වළකින්න. මුලින් ඇලයට හැරී පසුව නැගිටින්න.' },
+                20: { size: 'අඹ ගෙඩියක්', length: '25.6 cm', weight: '300 g', baby: 'ගර්භණී කාලයෙන් සති 40න් හරියටම අඩක් (සති 20) අවසන් වේ. බබාගේ ආහාර ජීර්ණ පද්ධතිය Meconium නිපදවයි.', mom: 'ගර්භාෂයේ ඉහළ සීමාව හරියටම ඔබේ බුරිය මට්ටමට පැමිණ ඇත.', care: 'සති 18-22 අතර කාලයේදී බබාගේ ව්‍යුහය බලන <strong>Anomaly Scan</strong> එක අනිවාර්යයෙන්ම කරගන්න.' },
+                21: { size: 'කැරට් අලයක්', length: '26.7 cm', weight: '360 g', baby: 'බබාගේ ඇහිබැම සහ ඇහිපිහාටු හොඳින් වැඩී ඇත. කුස තුළ සිටිමින් ඇඟිලි හැපීම වැනි දේ සිදුකරයි.', mom: 'ලේ ගමනාගමනය වැඩිවීම නිසා සමහර මව්වරුන්ගේ කකුල් ඉදිමීම (Edema) ආරම්භ විය හැක.', care: 'වැඩි වේලාවක් එක දිගට hිටගෙන සිටීමෙන් වළකින්න. වාඩි වී සිටින විට කකුල් මදක් ඉහළින් තබන්න.' },
+                22: { size: 'ලොකු පොල් ගෙඩියක්', length: '27.8 cm', weight: '430 g', baby: 'ළදරුවාගේ රස සංවේදනය (Taste buds) වර්ධනය වේ. අම්මා කන කෑමවල රසය ඇම්නියොටික් දියරය හරහා බබාට දැනේ.', mom: 'සමේ ඇදීම නිසා බඩ සහ පියයුරු අවට තදින් කැසීමක් ඇතිවිය හැක.', care: 'සම කැසීම ඇති තැන්වල සබන් ගෑමෙන් වළකින්න, ඒ වෙනුවට මොයිස්චරයිසර් හෝ ඔලිව් ඔයිල් ගාන්න.' },
+                23: { size: 'ග්‍රේප්ෆෘට් ගෙඩියක්', length: '28.9 cm', weight: '500 g', baby: 'කන් ඇතුළත ඇති සියුම් අස්ථි සම්පූර්ණයෙන්ම ශක්තිමත් වන නිසා දැන් බබාට බාහිර ශබ්ද ඉතා පැහැදිලිව ඇසේ.', mom: 'ගර්භණී සමයේ දියවැඩියාව (Gestational Diabetes) ඇත්දැයි බැලීමට සායනයෙන් පරීක්ෂණ සිදුකරයි.', care: 'සීනි සහ පිෂ්ඨය අධික කෑම පාලනය කරන්න. වෛද්‍ය උපදෙස් මත OGTT පරීක්ෂණය කරගන්න.' },
+                24: { size: 'බඩ ඉරිඟු කරලක්', length: '30 cm', weight: '600 g', baby: 'පෙනහළු ඇතුළත වාතය රඳවා ගන්නා Surfactant නමැති ද්‍රව්‍යය නිපදවීම ඇරඹේ. බබා නිදාගන්නා සහ අවදිවන වේලාවන් රටාවකට සිදුවේ.', mom: 'ගර්භාෂය ඉහළට තල්ලු වන නිසා පපුවේ දැවිල්ල (Heartburn) සහ ඇසිඩ් ගතිය ඇතිවිය හැක.', care: 'එකවර විශාල ආහාර වේල් ගැනීම වෙනුවට කුඩා ආහාර වේල් කිහිපයකට කන්න. කෑ සැනින් නිදාගන්න එපා.' },
+                25: { size: 'රූටාබාගා අලයක්', length: '34.6 cm', weight: '660 g', baby: 'බබාගේ සම යට කේශනාලිකා සෑදෙන නිසා සම රෝස පැහැයක් ගනී. කොන්ද කෙළින් තබාගැනීමේ හැකියාව ලැබේ.', mom: 'කොන්දේ කැක්කුම (Back pain) බහුලව ඇතිවිය හැක. ශරීරයේ බර කේන්ද්‍රය වෙනස් වීම මෙයට හේතුවයි.', care: 'බිම වැටුණු දේ ඇහිදීමේදී කොන්ද නමා නැමෙන්නේ නැතිව, දණහිස් නමා වාඩි වී ඇහිදින්න.' },
+                26: { size: 'කැලේ ගෝවා ගෙඩියක්', length: '35.6 cm', weight: '760 g', baby: 'බබා පළමු වරට ඇස් ඇරීම සිදුකරයි! ශබ්ද ඇසෙන විට හෘද ස්පන්දන වේගය වැඩිවන බව නිරීක්ෂණය කළ හැක.', mom: 'ගර්භාෂය පෙනහළු තද කරන නිසා සුළු වශයෙන් hුස්ම ගැනීමේ අපහසුවක් (Shortness of breath) දැනේ.', care: 'හුස්ම ගැනීමේ අපහසුවක් දැනෙන විට කෙළින් වාඩි වී දිගු හුස්ම (Deep breathing) ගන්න.' },
+                27: { size: 'කන්‍යා ලෙමන් ගෙඩියක්', length: '36.6 cm', weight: '875 g', baby: 'දෙවැනි ත්‍රෛමාසිකයේ අවසාන සතියයි. බබාගේ මොළයේ වර්ධනය ඉතා වේගවත් වන අතර නින්දේදී හීන පවා පෙනේ.', mom: 'රාත්‍රී කාලයේදී කෙණ්ඩ පෙරලීම (Leg cramps) සහ නිදි වැරීම බහුලව සිදුවිය හැක.', care: 'කෙණ්ඩ පෙරලෙන විට පාදය ඉදිරියට දිගු කර ඇඟිලි උඩට නමා සම්බාහනය කරන්න. කැල්සියම් ආහාර ගන්න.' },
+                28: { size: 'ලොකු ගෝවා ගෙඩියක්', length: '37.6 cm', weight: '1 kg', baby: 'තුන්වැනි ත්‍රෛමාසිකය ඇරඹේ! බබාගේ ඇස්වල කාච සම්පූර්ණ වේ. බබා දඟලන වාර ගණන හොඳින් දැනේ.', mom: 'සායන පොතට අනුව බබා දඟලන වාර ගණන (Kick Counts) දිනපතා සටහන් කිරීම ඇරඹිය යුතුය.', care: 'දිනපතා උදේ 9 සිට රෑ 9 දක්වා පැය 12 තුළ බබා අවම 10 වතාවක් දඟලනවාදැයි අපේ Kick Counter එකෙන් මනින්න.' },
+                29: { size: 'බටර්නට් ලබු ගෙඩියක්', length: '38.6 cm', weight: '1.2 kg', baby: 'බබාගේ අස්ථි පද්ධතිය වේගයෙන් කැල්සියම් උරාගනිමින් ශක්තිමත් වේ. මාංශ පේශි වර්ධනය වේ.', mom: 'උදරය විශාල වීම නිසා රෑට නින්ද යාම අපහසු වේ. වම් ඇලයට හැරී නිදාගැනීම අනිවාර්ය වේ.', care: 'නිදාගන්නා විට බඩ යටින් සහ කකුල් දෙක මැදින් කොට්ට තබා (Pregnancy pillow style) පහසුව සලසා ගන්න.' },
+                30: { size: 'ලොකු කොමඩු ගෙඩියක්', length: '39.9 cm', weight: '1.3 kg', baby: 'බබාගේ ඇටමිදුළු (Bone marrow) මගින් රතු රුධිර සෛල නිපදවීම සම්පූර්ණයෙන්ම බාරගනී. හිසකෙස් බහුලව වැඩේ.', mom: 'ශරීරයේ බර වැඩිවීම නිසා ඉක්මනින් මහන්සි ගතිය දැනේ. මනස නොසන්සුන් වීම සිදුවිය හැක.', care: 'මානසික ආතතිය අඩු කරගැනීමට අපේ සංගීත පිටුවෙන් "භාවනා තනු" සහ "අංගුලිමාල පිරිත" ශ්‍රවණය කරන්න.' },
+                31: { size: 'පොල් ගෙඩියක්', length: '41.1 cm', weight: '1.5 kg', baby: 'බබාගේ මුත්‍රාශය හොඳින් වැඩ කරයි. දිනකට ඇම්නියොටික් දියර ලීටර් භාගයක් පමණ බබා පෙරා පිට කරයි.', mom: 'ගර්භාෂය මුත්‍රාශය තද කරන නිසා නැවත වතාවක් නිතර නිතර මුත්‍රා කිරීමේ අවශ්‍යතාවය මතු වේ.', care: 'මුත්‍රා ආසාදන (UTI) වැළැක්වීමට මුත්‍රා තද කරගෙන නොසිටින්න. දියර වර්ග බහුලව ගන්න.' },
+                32: { size: 'ජිකාමා අලයක්', length: '42.4 cm', weight: '1.7 kg', baby: 'බබා උපතින් පසු හුස්ම ගන්නා ආකාරය පුහුණු වීමට කුස තුළදී හුස්ම ගැනීමේ ව්‍යායාම (Practice breaths) කරයි.', mom: 'ගර්භාෂය තද වීම නිසා ඇතිවන ව්‍යාජ ප්‍රසූත වේදනා (Braxton Hicks contractions) සියුම්ව දැනේ.', care: 'උදරය තද වන විට වතුර වීදුරුවක් බොන්න, ඉරියව්ව මාරු කරන්න. වේදනාව දිගටම පවතී නම් රෝහල් ගත වන්න.' },
+                33: { size: 'අන්නාසි ගෙඩියක්', length: '43.7 cm', weight: '1.9 kg', baby: 'බබාගේ ප්‍රතිශක්තිකරණ පද්ධතිය වර්ධනය වේ. අම්මාගේ ඇඟෙන් ප්‍රතිදේහ (Antibodies) බබාට ගලා යයි.', mom: 'බඩේ සම උපරිමයටම ඇදෙන නිසා බුරිය පිටතට නෙරා ඒම සිදුවිය හැක.', care: 'නිතර තන කිරි දීමට සූදානම් වීමක් ලෙස පියයුරු මෘදුව පිරිසිදු කරන්න.' },
+                34: { size: 'කැන්ටලූප් ගෙඩියක්', length: '45 cm', weight: '2.1 kg', baby: 'බබාගේ ස්නායු පද්ධතිය සහ මොළය උපරිම මට්ටමට වැඩී ඇත. දැන් බබා ඇස් ඇරගෙන නිදාගැනීම සහ අවදිවීම කරයි.', mom: 'ශ්‍රෝණි අස්ථි අවට මාංශ පේශි ලිහිල් වන නිසා ඇවිදීමේදී සියුම් අපහසුතාවයක් දැනේ.', care: 'hුදකලා නොවී පවුලේ අය සමඟ සතුටින් කාලය ගත කරන්න. ප්‍රසූතිය පිළිබඳ බිය දුරු කරගන්න.' },
+                35: { size: 'ලොකු පැපොල් ගෙඩියක්', length: '46.2 cm', weight: '2.4 kg', baby: 'කුස තුළ ඉඩකඩ මදි නිසා බබාගේ පෙරලීම් අඩු වන නමුත් අත් පා වලින් තල්ලු කිරීම් හොඳින් දැනේ.', mom: 'ප්‍රසූතිය සඳහා රෝහලට රැගෙන යන "රෝහල් බෑගය" (Hospital Bag) ලෑස්ති කර අවසන් කිරීමට හොඳම කාලයයි.', care: 'අපේ ඇප් එකේ ඇති "රෝහල් බෑගයේ සූදානම" චෙක්ලිස්ට් එක බලා බඩු බාහිරාදිය සියල්ල අසුරා ගන්න.' },
+                36: { size: 'ලොකු රෝස කොමඩු ගෙඩියක්', length: '47.4 cm', weight: '2.6 kg', baby: 'බබාගේ කන්පෙති වල කාටිලේජ හොඳින් වැඩේ. ශරීරයේ මේද තට්ටුව පිරී ඇති නිසා බබා දැන් ලස්සනට පෙනේ.', mom: 'බබා ක්‍රමයෙන් පහළට හැරීම (Lightening) සිදුවේ. පපුවේ දැවිල්ල අඩු වන නමුත් ඇවිදීම අපහසු වේ.', care: 'සතිපතා පවත්වන සායන (Weekly Clinics) සඳහා මඟ හැරීමකින් තොරව සහභාගී වන්න.' },
+                37: { size: 'ශීත කාලීන ලබු ගෙඩියක්', length: '48.6 cm', weight: '2.9 kg', baby: 'බබාගේ වර්ධනය දැන් සම්පූර්ණයි (Early Term). ඕනෑම මොහොතක උපත ලැබුවහොත් බාහිර ලෝකයේ ජීවත් විය හැක.', mom: 'යෝනි මාර්ගයෙන් සුදු පැහැති ශ්‍රාවයන් පිටවීම වැඩි විය හැක. ප්‍රසූත වේදනා ඕනෑම විටක ආ හැක.', care: 'රෝහල් කාඩ්පත, හැඳුනුම්පත සහ රෝහල් බෑගය ලෙහෙසියෙන් ගත හැකි තැනක සූදානම් කර තබන්න.' },
+                38: { size: 'ලොකු ලීක්ස් මිටියක්', length: '49.8 cm', weight: '3.1 kg', baby: 'බබාගේ බඩවැල් තුළ ඇති මුල්ම අසූචි (Meconium) බහුලව තැන්පත් වේ. උපතින් පසු මුල් පැය කිහිපයේදී මේවා පිටවේ.', mom: 'ශරීරය ප්‍රසූතියට හෝමෝනමය වශයෙන් සූදානම් වන නිසා නිතර බඩ බුරුල් වී යාම සිදුවිය හැක.', care: 'උදරයේ දැඩි තද වීම්, කොන්දෙන් පටන් ගන්නා වේදනා විනාඩි 10න් 10ට එයි නම් වහාම රෝහලට යන්න.' },
+                39: { size: 'ලොකු වට්ටක්කා ගෙඩියක්', length: '50.7 cm', weight: '3.3 kg', baby: 'බබාගේ වැදෑමහ (Placenta) මගින් දෙන හෝමෝන නිසා මවගේ පියයුරු වලින් මුල් කිරි (Colostrum) ශ්‍රාවය වීම ඇරඹේ.', mom: 'යෝනි මාර්ගයෙන් රෝස පැහැති ශ්ලේෂ්මල දියරයක් (Show) පිටවීම සිදුවේ නම් එය ප්‍රසූතියේ ලක්ෂණයකි.', care: 'ඇම්නියොටික් දියර බෑගය පිපිරීමක් (වතුර යෑමක්) සිදුවුවහොත් වේදනාවක් නැතත් වහාම රෝහල් ගත වන්න.' },
+                40: { size: 'සර්වසම්පූර්ණ බිළිඳෙක්', length: '51.2 cm', weight: '3.5 kg', baby: 'සුභ පැතුම්! දින 280ක ගමනාන්තයයි. ඔබේ ආදරණීය පැටියා මෙලොව එළිය දැකීමට සියයට සියයක් සූදානම්!', mom: 'නියමිත දිනට (EDD) ප්‍රසූත වේදනා නොආවද, වෛද්‍යවරුන් සති 41 දක්වා බලා සිට ප්‍රසූතිය සිදුකරනු ලබයි.', care: 'ධෛර්යවන්ත වන්න! ඔබ උතුම් මව් පදවිය ලැබීමට සූදානම්. සියලුම වෛද්‍ය වාර්තා සමඟ සන්සුන්ව රෝහලට ඇතුළත් වන්න.' }
+            };
+
+            // Baby Names Favorites State Management
+            const [favorites, setFavorites] = useState(() => {
+                const saved = localStorage.getItem('baby_names_favorites');
+                return saved ? JSON.parse(saved) : [];
+            });
+            const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+
+            const toggleFavorite = (id) => {
+                setFavorites(prev => {
+                    const updated = prev.includes(id) ? prev.filter(fId => fId !== id) : [...prev, id];
+                    localStorage.setItem('baby_names_favorites', JSON.stringify(updated));
+                    return updated;
+                });
+            };
+
+            // Filter names based on search, gender tab and favorites
+            const filteredNames = babyNames.filter(b => {
+                const matchesGender = namesFilter === 'all' || b.gender === namesFilter;
+                const matchesSearch = b.name.includes(namesSearch) || b.meaning.includes(namesSearch);
+                const matchesFavorites = !showFavoritesOnly || favorites.includes(b.id);
+                return matchesGender && matchesSearch && matchesFavorites;
+            });
+
+            // Handle Premium clicks
+            const handlePremiumClick = (actionTab) => {
+                if (isSubscribed) {
+                    setActiveTab(actionTab);
+                } else {
+                    setShowPaywall(true);
+                }
+            };
+
+            const confirmSubscription = () => {
+                    setShowPaywall(true);
+            };
+
+            return (
+                <div className="app-frame relative flex flex-col min-h-screen text-brand-chocolate overflow-y-auto pb-24">
+                    
+                    {/* 📢 Live Monetag Vignette Ad (Only for Free Users) */}
+{!isSubscribed && <MonetagAd />}
+
+                    {/* 🌸 APP HEADER (LUXURY POLISHED VERSION) */}
+                    <header className="p-4 bg-white/80 backdrop-blur-md border-b border-pink-100/50 flex items-center justify-between sticky top-0 z-10 shadow-[0_2px_15px_rgba(219,39,119,0.03)]">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-100 to-rose-50 flex items-center justify-center border border-pink-200/60 shadow-inner">
+                                <i className="fa-solid fa-baby text-brand-darkpink text-xl animate-[wiggle_3s_ease-in-out_infinite]"></i>
+                            </div>
+                            <div className="text-left">
+                                <h1 className="text-base font-black text-brand-chocolate tracking-tight leading-none font-sans">Mother's Assistant</h1>
+                                <span className="text-[10px] text-brand-pink font-bold uppercase tracking-wider block mt-0.5">අම්මගේ අත්උදව්ව</span>
+                            </div>
+                        </div>
+                        <div className="flex items-center">
+                            {isSubscribed ? (
+                                <span className="bg-gradient-to-r from-purple-600 to-brand-darkpink text-white text-[10px] px-3 py-1.5 rounded-xl font-black flex items-center gap-1 shadow-md shadow-pink-200 border border-white/20">
+                                    <i className="fa-solid fa-crown text-amber-300 animate-pulse"></i> PRO ACTIVE
+                                </span>
+                            ) : (
+                                <button 
+                                    onClick={() => setShowPaywall(true)} 
+                                    className="bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-brand-chocolate text-[11px] px-4 py-2 rounded-xl font-black shadow-[0_4px_15px_rgba(251,191,36,0.3)] hover:shadow-[0_4px_20px_rgba(251,191,36,0.5)] transition-all duration-300 active:scale-95 flex items-center gap-1.5 border border-amber-300/40"
+                                >
+                                    <i className="fa-solid fa-crown text-brand-chocolate animate-bounce"></i> 
+                                    <span>PRO යමු</span>
+                                </button>
+                            )}
+                        </div>
+                    </header>
+
+                    {/* 📱 TAB VIEWS RENDERING */}
+
+                    {/* tab 1: HOME SCREEN (UPGRADED MATERNAL DASHBOARD) */}
+                    {activeTab === 'home' && (
+                        <div className="p-5 flex-grow animate-fade-in space-y-5">
+                                                        {/* Premium Welcome Hero Card */}
+                            <div className="bg-gradient-to-br from-pink-400 via-rose-400 to-brand-pink rounded-3xl p-5 text-white border border-pink-300/30 shadow-md relative overflow-hidden group">
+                                <div className="absolute -right-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
+                                <span className="text-[9px] bg-white/25 backdrop-blur-md px-2.5 py-1 rounded-full font-bold uppercase tracking-wider inline-block mb-2">
+                                    Welcome • පිළිගැනීම
+                                </span>
+                                <h2 className="text-xl font-black mb-1.5 drop-shadow-sm leading-tight">ඔබේ ගර්භණී සමයේ සමීපතම සහකරු</h2>
+                                <p className="text-xs text-white/90 mb-4 leading-relaxed font-medium">ගැබ්ගත් මුල්ම දින සිට දරු ප්‍රසූතිය දක්වා ඔබට අවශ්‍ය සියලුම සෞඛ්‍ය උපදෙස් සහ මඟපෙන්වීම් එකම තැනකින් සිංහලෙන්.</p>
+                                <button onClick={() => setActiveTab('strips')} className="bg-white hover:bg-pink-50 text-brand-darkpink font-black text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all active:scale-[0.98] flex items-center gap-1">
+                                    Strips පරීක්ෂාව <i className="fa-solid fa-chevron-right text-[10px]"></i>
+                                </button>
+                            </div>
+
+                            {/* 🗓️ LMP / EDD CALCULATOR (GORGEOUS UI CARD) */}
+                            <div className="bg-white border border-pink-100 rounded-3xl p-5 shadow-sm space-y-4">
+                                <h3 className="font-black text-sm text-brand-chocolate flex items-center gap-2">
+                                    <i className="fa-solid fa-calendar-day text-brand-pink"></i>
+                                    ප්‍රසූත දිනය (EDD) සහ ගර්භණී සතිය ගණනය කරන්න
+                                </h3>
+                                <form onSubmit={calculatePregnancy} className="space-y-3">
+                                    <div>
+                                        <label className="text-[10px] text-brand-slate font-bold block mb-1.5">අවසන් වරට ඔසප් වූ පළමු දිනය (LMP):</label>
+                                        <input 
+                                            type="date" 
+                                            value={lmpDate} 
+                                            onChange={(e) => setLmpDate(e.target.value)} 
+                                            required 
+                                            className="w-full px-3 py-2.5 border border-pink-100 rounded-xl text-xs focus:outline-none focus:border-brand-pink focus:ring-1 focus:ring-brand-pink transition-all"
+                                        />
+                                    </div>
+                                    <button type="submit" className="w-full bg-brand-pink hover:bg-brand-darkpink text-white font-black text-xs py-2.5 rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5">
+                                        <i className="fa-solid fa-calculator"></i> ගණනය කරන්න
+                                    </button>
+                                </form>
+
+                                {edd && (
+                                    <div className="bg-pink-50/50 border border-pink-100 rounded-2xl p-4 space-y-3 animate-fade-in">
+                                        <div className="flex justify-between items-center text-xs">
+                                            <span className="text-brand-slate font-bold">ප්‍රසූත දිනය (EDD):</span>
+                                            <strong className="text-brand-darkpink">{edd}</strong>
+                                        </div>
+                                        {gestWeeks !== null && (
+                                            <div className="flex justify-between items-center text-xs">
+                                                <span className="text-brand-slate font-bold">වත්මන් ගර්භණී කාලය:</span>
+                                                <strong className="text-brand-darkpink">සති {gestWeeks} සහ දින {gestDays}</strong>
+                                            </div>
+                                        )}
+                                        {gestWeeks !== null && gestWeeks >= 1 && gestWeeks <= 40 && (
+                                            <button 
+                                                onClick={saveCalculatedWeek}
+                                                className="w-full bg-white border border-pink-200 hover:border-brand-pink text-brand-darkpink font-black text-[10px] py-2 rounded-lg transition-all shadow-sm flex items-center justify-center gap-1.5"
+                                            >
+                                                <i className="fa-solid fa-thumbtack"></i> මෙය මගේ වර්තමාන සතිය ලෙස සකසන්න
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+
+                            {/* 📱 USER CURRENT STATUS BAR (DYNAMICS) */}
+                            {myCurrentWeek && (
+                                <div className="bg-gradient-to-r from-pink-50 to-white border border-pink-100/80 rounded-2xl p-3.5 shadow-sm flex items-center justify-between px-4 animate-fade-in">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 bg-brand-pink text-white rounded-xl flex items-center justify-center shadow-sm text-sm">
+                                            <i className="fa-solid fa-heart-pulse animate-pulse"></i>
+                                        </div>
+                                        <div>
+                                            <span className="text-[9px] text-brand-slate font-bold block uppercase tracking-wider">වත්මන් තත්ත්වය</span>
+                                            <h4 className="font-black text-xs text-brand-chocolate">ඔබ දැන් පසුවන්නේ <span className="text-brand-darkpink">සතිය {myCurrentWeek}</span> හි ය</h4>
+                                        </div>
+                                    </div>
+                                    <button onClick={() => { setSelectedWeek(myCurrentWeek); setActiveTab('tracker'); }} className="text-[10px] bg-white border border-pink-200 hover:border-brand-pink text-brand-darkpink font-black px-3 py-1.5 rounded-xl transition-all shadow-sm">
+                                        විස්තර බලන්න
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Section Header: Free Services */}
+                            <div>
+                                <h3 className="font-black text-sm mb-2.5 text-brand-chocolate flex items-center gap-1.5 pl-0.5">
+                                    <span className="w-1.5 h-3 bg-brand-pink rounded-full block"></span>
+                                    මූලික සේවාවන් <span className="text-[10px] text-brand-slate font-normal font-sans">(නොමිලේ)</span>
+                                </h3>
+
+                                {/* Grid of Free Services */}
+                                <div className="grid grid-cols-2 gap-3.5">
+                                    <div onClick={() => setActiveTab('strips')} className="bg-white p-4 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex flex-col items-center text-center group">
+                                        <div className="w-12 h-12 rounded-xl bg-pink-50 text-brand-darkpink flex items-center justify-center mb-3 group-hover:scale-105 transition-transform shadow-inner">
+                                            <i className="fa-solid fa-vial-virus text-xl"></i>
+                                        </div>
+                                        <h4 className="font-bold text-xs text-brand-chocolate mb-0.5">Strips කියවනය</h4>
+                                        <p className="text-[10px] text-brand-slate leading-tight">ඉරිවලින් නිවැරදි ප්‍රතිඵලය හඳුනාගන්න</p>
+                                    </div>
+
+                                    <div onClick={() => setActiveTab('names')} className="bg-white p-4 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex flex-col items-center text-center group">
+                                        <div className="w-12 h-12 rounded-xl bg-pink-50 text-brand-darkpink flex items-center justify-center mb-3 group-hover:scale-105 transition-transform shadow-inner">
+                                            <i className="fa-solid fa-address-book text-xl"></i>
+                                        </div>
+                                        <h4 className="font-bold text-xs text-brand-chocolate mb-0.5">ළදරු නම් පොත</h4>
+                                        <p className="text-[10px] text-brand-slate leading-tight">අර්ථ සහ වාසනාවන්ත අංක සහිත නම්</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Section Header: Premium Services */}
+                            <div>
+                                <h3 className="font-black text-sm mb-2.5 text-brand-chocolate flex items-center gap-1.5 pl-0.5">
+                                    <span className="w-1.5 h-3 bg-amber-400 rounded-full block"></span>
+                                    විශේෂ සේවාවන් <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.2 rounded ml-1">PRO</span>
+                                </h3>
+
+                                {/* List of Premium Services */}
+                                <div className="space-y-3">
+                                    <div onClick={() => handlePremiumClick('tracker')} className="bg-white p-3.5 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex items-center justify-between group">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-amber-50/60 text-amber-600 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
+                                                <i className="fa-solid fa-calendar-week text-lg"></i>
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-xs text-brand-chocolate">සතිපතා දරුවාගේ වර්ධනය</h4>
+                                                <p className="text-[10px] text-brand-slate">සතියෙන් සතිය බබා ලොකු වෙන හැටි</p>
+                                            </div>
+                                        </div>
+                                        {!isSubscribed ? (
+                                            <i className="fa-solid fa-lock text-purple-400 text-xs bg-purple-50 p-2 rounded-xl border border-purple-100/30"></i>
+                                        ) : (
+                                            <i className="fa-solid fa-chevron-right text-brand-pink text-xs"></i>
+                                        )}
+                                    </div>
+
+                                    {/* 🤰 NEW PREMIUM FEATURE: DIET & NUTRITION PLAN */}
+                                    <div onClick={() => handlePremiumClick('diet')} className="bg-white p-3.5 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex items-center justify-between group">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-amber-50/60 text-amber-600 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
+                                                <i className="fa-solid fa-utensils text-lg"></i>
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-xs text-brand-chocolate">ගර්භණී පෝෂණ සැලසුම</h4>
+                                                <p className="text-[10px] text-brand-slate">බබාගේ වර්ධනයට මාසික ලාංකීය ආහාර වට්ටෝරු</p>
+                                            </div>
+                                        </div>
+                                        {!isSubscribed ? (
+                                            <i className="fa-solid fa-lock text-purple-400 text-xs bg-purple-50 p-2 rounded-xl border border-purple-100/30"></i>
+                                        ) : (
+                                            <i className="fa-solid fa-chevron-right text-brand-pink text-xs"></i>
+                                        )}
+                                    </div>
+
+                                    {/* 🎶 NEW PREMIUM FEATURE: GARBHA SANSKAR MUSIC THERAPY */}
+                                    <div onClick={() => handlePremiumClick('music')} className="bg-white p-3.5 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex items-center justify-between group">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-amber-50/60 text-amber-600 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
+                                                <i className="fa-solid fa-music text-lg"></i>
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-xs text-brand-chocolate">දරු ගැබට සුවදායී සංගීතය</h4>
+                                                <p className="text-[10px] text-brand-slate">බබාගේ මොළයේ වර්ධනයට මනස නිවන තනු</p>
+                                            </div>
+                                        </div>
+                                        {!isSubscribed ? (
+                                            <i className="fa-solid fa-lock text-purple-400 text-xs bg-purple-50 p-2 rounded-xl border border-purple-100/30"></i>
+                                        ) : (
+                                            <i className="fa-solid fa-chevron-right text-brand-pink text-xs"></i>
+                                        )}
+                                    </div>
+
+                                    {/* ⏱️ NEW PREMIUM FEATURE: BABY KICK COUNTER */}
+                                    <div onClick={() => handlePremiumClick('kicks')} className="bg-white p-3.5 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex items-center justify-between group">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-amber-50/60 text-amber-600 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
+                                                <i className="fa-solid fa-stopwatch text-lg"></i>
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-xs text-brand-chocolate">බිළිඳා දඟලන වාර ගණන</h4>
+                                                <p className="text-[10px] text-brand-slate">සායන පොතට අනුව බබාගේ චලනයන් ගණන් කරන්න</p>
+                                            </div>
+                                        </div>
+                                        {!isSubscribed ? (
+                                            <i className="fa-solid fa-lock text-purple-400 text-xs bg-purple-50 p-2 rounded-xl border border-purple-100/30"></i>
+                                        ) : (
+                                            <i className="fa-solid fa-chevron-right text-brand-pink text-xs"></i>
+                                        )}
+                                    </div>
+
+                                    {/* ⏳ NEW PREMIUM FEATURE: CONTRACTION TIMER */}
+                                    <div onClick={() => handlePremiumClick('contraction')} className="bg-white p-3.5 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex items-center justify-between group">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-amber-50/60 text-amber-600 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
+                                                <i className="fa-solid fa-hourglass-half text-lg"></i>
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-xs text-brand-chocolate">ප්‍රසූත වේදනා මාපකය</h4>
+                                                <p className="text-[10px] text-brand-slate">රෝහලට යා යුතු වෙලාව මනින්න</p>
+                                            </div>
+                                        </div>
+                                        {!isSubscribed ? (
+                                            <i className="fa-solid fa-lock text-purple-400 text-xs bg-purple-50 p-2 rounded-xl border border-purple-100/30"></i>
+                                        ) : (
+                                            <i className="fa-solid fa-chevron-right text-brand-pink text-xs"></i>
+                                        )}
+                                    </div>
+
+                                    {/* 🧳 NEW PREMIUM FEATURE: HOSPITAL BAG CHECKLIST */}
+                                    <div onClick={() => handlePremiumClick('bag')} className="bg-white p-3.5 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex items-center justify-between group">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-amber-50/60 text-amber-600 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
+                                                <i className="fa-solid fa-suitcase text-lg"></i>
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-xs text-brand-chocolate">රෝහල් බෑගයේ සූදානම</h4>
+                                                <p className="text-[10px] text-brand-slate">ප්‍රසූතියට රෝහලට යාමට පෙර අවශ්‍ය දෑ ලැයිස්තුව</p>
+                                            </div>
+                                        </div>
+                                        {!isSubscribed ? (
+                                            <i className="fa-solid fa-lock text-purple-400 text-xs bg-purple-50 p-2 rounded-xl border border-purple-100/30"></i>
+                                        ) : (
+                                            <i className="fa-solid fa-chevron-right text-brand-pink text-xs"></i>
+                                        )}
+                                    </div>
+
+                                    <div onClick={() => handlePremiumClick('clinic')} className="bg-white p-3.5 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex items-center justify-between group">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-amber-50/60 text-amber-600 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
+                                                <i className="fa-solid fa-clipboard-user text-lg"></i>
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-xs text-brand-chocolate">සායන කාඩ්පත් සහයකයා</h4>
+                                                <p className="text-[10px] text-brand-slate">රජයේ සායන පොතේ කෙටි යෙදුම්වල සරල සිංහල තේරුම</p>
+                                            </div>
+                                        </div>
+                                        {!isSubscribed ? (
+                                            <i className="fa-solid fa-lock text-purple-400 text-xs bg-purple-50 p-2 rounded-xl border border-purple-100/30"></i>
+                                        ) : (
+                                            <i className="fa-solid fa-chevron-right text-brand-pink text-xs"></i>
+                                        )}
+                                    </div>
+
+                                    {/* 💉 NEW PRO FEATURE 1: VACCINE CALENDAR */}
+                                    <div onClick={() => handlePremiumClick('vaccine')} className="bg-white p-3.5 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex items-center justify-between group">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-amber-50/60 text-amber-600 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
+                                                <i className="fa-solid fa-syringe text-lg"></i>
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-xs text-brand-chocolate">පැටියාගේ එන්නත් දින දර්ශනය</h4>
+                                                <p className="text-[10px] text-brand-slate">රජයේ (MOH) ක්‍රමයට උපතේ සිට එන්නත් දෙන දින වකවානු</p>
+                                            </div>
+                                        </div>
+                                        {!isSubscribed ? (
+                                            <i className="fa-solid fa-lock text-purple-400 text-xs bg-purple-50 p-2 rounded-xl border border-purple-100/30"></i>
+                                        ) : (
+                                            <i className="fa-solid fa-chevron-right text-brand-pink text-xs"></i>
+                                        )}
+                                    </div>
+
+                                    {/* 🩸 NEW PRO FEATURE 2: WEIGHT TRACKER */}
+                                    <div onClick={() => handlePremiumClick('weight')} className="bg-white p-3.5 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex items-center justify-between group">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-amber-50/60 text-amber-600 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
+                                                <i className="fa-solid fa-weight-scale text-lg"></i>
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-xs text-brand-chocolate">මවගේ බර වැඩිවීම් දර්ශකය</h4>
+                                                <p className="text-[10px] text-brand-slate">සතිපතා බර වැඩිවිය යුතු නිවැරදි සෞඛ්‍ය සම්පන්න සීමාවන්</p>
+                                            </div>
+                                        </div>
+                                        {!isSubscribed ? (
+                                            <i className="fa-solid fa-lock text-purple-400 text-xs bg-purple-50 p-2 rounded-xl border border-purple-100/30"></i>
+                                        ) : (
+                                            <i className="fa-solid fa-chevron-right text-brand-pink text-xs"></i>
+                                        )}
+                                    </div>
+
+                                    {/* 🚨 NEW PRO FEATURE 3: DANGER SIGNS */}
+                                    <div onClick={() => handlePremiumClick('danger')} className="bg-white p-3.5 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex items-center justify-between group">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-amber-50/60 text-amber-600 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
+                                                <i className="fa-solid fa-triangle-exclamation text-lg"></i>
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-xs text-brand-chocolate">අන්තරාදායක ලක්ෂණ (Danger Signs)</h4>
+                                                <p className="text-[10px] text-brand-slate">ගර්භණී සමයේ වහාම රෝහල් ගත විය යුතු බරපතල ලක්ෂණ</p>
+                                            </div>
+                                        </div>
+                                        {!isSubscribed ? (
+                                            <i className="fa-solid fa-lock text-purple-400 text-xs bg-purple-50 p-2 rounded-xl border border-purple-100/30"></i>
+                                        ) : (
+                                            <i className="fa-solid fa-chevron-right text-brand-pink text-xs"></i>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+                        </div>
+                    )}
+
+                    {/* tab 2: STRIP & TESTING GUIDE (UPGRADED VISUAL SIMULATOR) */}
+                    {activeTab === 'strips' && (
+                        <div className="p-5 flex-grow animate-fade-in">
+                            <button onClick={() => { setActiveTab('home'); setStripResult(null); }} className="text-brand-darkpink font-bold text-xs mb-4 flex items-center gap-1 hover:underline">
+                                <i className="fa-solid fa-arrow-left"></i> ආපසු මුල් පිටුවට
+                            </button>
+
+                            <h2 className="text-xl font-bold mb-1 text-brand-chocolate">ගර්භණී පරීක්ෂණ තීරු (Strip) කියවනය</h2>
+                            <p className="text-xs text-brand-slate mb-5">පරීක්ෂණ තීරුවේ ඇති ඉරි (Lines) වල ස්වභාවය අනුව නිවැරදි ප්‍රතිඵලය ලෙහෙසියෙන්ම hඳුනාගන්න.</p>
+
+                            {/* 🔬 INTERACTIVE LIVE STRIP SIMULATOR CARD */}
+                            <div className="bg-gradient-to-b from-pink-50 to-white border border-pink-100 rounded-2xl p-5 mb-6 shadow-sm text-center">
+                                <span className="text-[10px] text-brand-pink font-bold uppercase tracking-wider block mb-3">Live Strip Simulator • සජීවී පෙරදසුන</span>
+                                
+                                {/* Physical Pregnancy Strip Mockup */}
+                                <div className="relative w-full max-w-[280px] h-12 bg-gray-100 rounded-full border-4 border-white shadow-md mx-auto flex items-center justify-between px-6 mb-4">
+                                    {/* Left grip area */}
+                                    <div className="text-[9px] font-bold text-gray-400 select-none">MAX</div>
+                                    
+                                    {/* Middle Reading Window */}
+                                    <div className="flex-1 max-w-[120px] h-6 bg-white rounded-md border border-gray-200 flex justify-around items-center px-4 relative">
+                                        {/* Test Line (T) */}
+                                        <div className="flex flex-col items-center">
+                                            <div className={`w-1.5 h-5 rounded-sm transition-all duration-500 ${
+                                                stripResult === 'positive' ? 'bg-brand-darkpink shadow-[0_0_8px_#f72585]' : 'bg-gray-100'
+                                            }`}></div>
+                                            <span className="text-[8px] font-bold text-gray-400 mt-0.5">T</span>
+                                        </div>
+
+                                        {/* Control Line (C) */}
+                                        <div className="flex flex-col items-center">
+                                            <div className={`w-1.5 h-5 rounded-sm transition-all duration-500 ${
+                                                stripResult === 'positive' || stripResult === 'negative' ? 'bg-brand-darkpink shadow-[0_0_8px_#f72585]' : 
+                                                stripResult === 'invalid' ? 'bg-gray-100' : 'bg-gray-100'
+                                            }`}></div>
+                                            <span className="text-[8px] font-bold text-gray-400 mt-0.5">C</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Right Absorbent pad representation */}
+                                    <div className="w-8 h-8 rounded-full bg-pink-100 border border-pink-200 flex items-center justify-center">
+                                        <i className="fa-solid fa-droplet text-brand-pink text-xs animate-pulse"></i>
+                                    </div>
+                                </div>
+
+                                <p className="text-[11px] text-brand-slate">
+                                    {stripResult === null && "පහතින් විකල්පයක් තෝරා ප්‍රතිඵලය පරීක්ෂා කරන්න."}
+                                    {stripResult === 'positive' && "ධනාත්මක ප්‍රතිඵලය (ඉරි දෙකම පැහැදිලිව දර්ශනය වේ)"}
+                                    {stripResult === 'negative' && "සෘණාත්මක ප්‍රතිඵලය (C ඉර පමණක් දර්ශනය වේ)"}
+                                    {stripResult === 'invalid' && "දෝෂ සහිතයි (C ඉර දර්ශනය නොවේ)"}
+                                </p>
+                            </div>
+
+                            {/* Options Buttons Grid */}
+                            <div className="space-y-3 mb-6">
+                                <button onClick={() => setStripResult('positive')} className={`w-full text-left p-3.5 rounded-xl border flex items-center justify-between transition-all ${stripResult === 'positive' ? 'border-brand-darkpink bg-pink-50 shadow-sm' : 'border-pink-100 bg-white hover:border-pink-300'}`}>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center text-brand-darkpink">
+                                            <i className="fa-solid fa-square-check"></i>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-sm">ඉරි දෙකක් ඇත (Lines 2)</h4>
+                                            <p className="text-[11px] text-brand-slate">T සහ C අකුරු ළඟ රෝස පැහැති ඉරි දෙකක් ඇත</p>
+                                        </div>
+                                    </div>
+                                    <i className="fa-solid fa-chevron-right text-brand-pink text-xs"></i>
+                                </button>
+
+                                <button onClick={() => setStripResult('negative')} className={`w-full text-left p-3.5 rounded-xl border flex items-center justify-between transition-all ${stripResult === 'negative' ? 'border-brand-darkpink bg-pink-50 shadow-sm' : 'border-pink-100 bg-white hover:border-pink-300'}`}>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-blue-500">
+                                            <i className="fa-solid fa-minus"></i>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-sm">එක ඉරක් පමණි (Line 1)</h4>
+                                            <p className="text-[11px] text-brand-slate">C අකුර ළඟ පමණක් එක් ඉරක් ඇත</p>
+                                        </div>
+                                    </div>
+                                    <i className="fa-solid fa-chevron-right text-brand-pink text-xs"></i>
+                                </button>
+
+                                <button onClick={() => setStripResult('invalid')} className={`w-full text-left p-3.5 rounded-xl border flex items-center justify-between transition-all ${stripResult === 'invalid' ? 'border-brand-darkpink bg-pink-50 shadow-sm' : 'border-pink-100 bg-white hover:border-pink-300'}`}>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center text-amber-500">
+                                            <i className="fa-solid fa-triangle-exclamation"></i>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-sm">ඉරි නැත හෝ අපැහැදිලිය (Invalid)</h4>
+                                            <p className="text-[11px] text-brand-slate">කිසිදු ඉරක් නැත හෝ T අකුර ළඟ පමණක් ඉරක් ඇත</p>
+                                        </div>
+                                    </div>
+                                    <i className="fa-solid fa-chevron-right text-brand-pink text-xs"></i>
+                                </button>
+                            </div>
+
+                            {/* Result Display & Guidance details */}
+                            {stripResult === 'positive' && (
+                                <div className="bg-emerald-50 border border-emerald-100 p-5 rounded-2xl animate-fade-in space-y-3 mb-6">
+                                    <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
+                                        <i className="fa-solid fa-circle-check text-emerald-500 text-lg"></i>
+                                        ප්‍රතිඵලය: ගර්භණීභාවය හඳුනාගෙන ඇත!
+                                    </div>
+                                    <p className="text-xs text-emerald-900 leading-relaxed">
+                                        සුභ පැතුම්! ඔබේ පරීක්ෂණ ප්‍රතිඵලය ධනාත්මකයි (Positive). දැන් ඔබ සැබවින්ම මවක් වීමට සූදානම්. 
+                                    </p>
+                                    <div className="border-t border-emerald-100 pt-2">
+                                        <span className="text-[11px] font-bold text-emerald-800 block mb-1">ඊළඟ පියවර:</span>
+                                        <ul className="list-disc pl-4 text-[11px] text-emerald-900 space-y-1">
+                                            <li>වහාම ඔබේ පවුල් සෞඛ්‍ය සේවා නිලධාරිනිය (Midwife) හමුවී ලියාපදිංචි වන්න.</li>
+                                            <li>බබාගේ මොළයේ වර්ධනයට අත්‍යවශ්‍ය <strong>Folic Acid (ෆෝලික් ඇසිඩ්)</strong> පෙති ගැනීම ආරම්භ කරන්න.</li>
+                                            <li>බර ඉසිලීමෙන් සහ අනවශ්‍ය ඖෂධ භාවිතයෙන් සම්පූර්ණයෙන්ම වැළකී සිටින්න.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            )}
+
+                            {stripResult === 'negative' && (
+                                <div className="bg-rose-50 border border-rose-100 p-5 rounded-2xl animate-fade-in space-y-3 mb-6">
+                                    <div className="flex items-center gap-2 text-rose-800 font-bold text-sm">
+                                        <i className="fa-solid fa-circle-info text-rose-500 text-lg"></i>
+                                        ප්‍රතිඵලය: ගර්භණීභාවය හඳුනාගෙන නොමැත.
+                                    </div>
+                                    <p className="text-xs text-rose-900 leading-relaxed">
+                                        පරීක්ෂණයේ ප්‍රතිඵලය සෘණාත්මකයි (Negative). ඔබගේ ඔසප් වීම තවමත් ප්‍රමාද නම් කලබල වෙන්න එපා.
+                                    </p>
+                                    <div className="border-t border-rose-100 pt-2">
+                                        <span className="text-[11px] font-bold text-rose-800 block mb-1">අපේ උපදෙස:</span>
+                                        <ul className="list-disc pl-4 text-[11px] text-rose-900 space-y-1">
+                                            <li>හෝමෝන මට්ටම (hCG) මුල් දිනවලදී අඩු විය හැක. එබැවින් තවත් <strong>දින 3කින් හෝ සතියකින්</strong> නැවත පරීක්ෂා කරන්න.</li>
+                                            <li>පරීක්ෂණය සඳහා නිතරම <strong>උදෑසන ලබාගන්නා පළමු මුත්‍රා සාම්පලය</strong> භාවිත කරන්න.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            )}
+
+                            {stripResult === 'invalid' && (
+                                <div className="bg-amber-50 border border-amber-100 p-5 rounded-2xl animate-fade-in space-y-3 mb-6">
+                                    <div className="flex items-center gap-2 text-amber-800 font-bold text-sm">
+                                        <i className="fa-solid fa-circle-exclamation text-amber-500 text-lg"></i>
+                                        ප්‍රතිඵලය: දෝෂ සහිතයි (Invalid)
+                                    </div>
+                                    <p className="text-xs text-amber-900 leading-relaxed">
+                                        පරීක්ෂණයේ දෝෂයක් පවතී. පාලක ඉර (C Line) නොපෙන්වන්නේ නම් පරීක්ෂණ කට්ටලයේ හෝ එය භාවිත කළ ආකාරයේ දෝෂයක් පවතී.
+                                    </p>
+                                    <div className="border-t border-amber-100 pt-2">
+                                        <span className="text-[11px] font-bold text-amber-800 block mb-1">නිවැරදිව කරන හැටි:</span>
+                                        <ul className="list-disc pl-4 text-[11px] text-amber-900 space-y-1">
+                                            <li>පරීක්ෂණ තීරුව මුත්‍රා කෝප්පයේ ගිල්වීමේදී <strong>MAX</strong> සීමාව ඉක්මවා නොයන ලෙස තත්පර 10ක් තබා ගන්න.</li>
+                                            <li>තීරුව තිරස් මට්ටමේ සමතලා මතුපිටක තබා විනාඩි 3-5ත් අතර කාලයක් ඇතුළත කියවන්න.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* 📖 EDUCATIONAL CONTENT PORTION */}
+                            <div className="bg-white border border-pink-100 p-5 rounded-2xl shadow-sm">
+                                <h3 className="font-bold text-sm mb-3 text-brand-chocolate flex items-center gap-2">
+                                    <i className="fa-solid fa-lightbulb text-brand-gold"></i> නිවැරදිව පරීක්ෂණයක් කරන්නේ කෙසේද?
+                                </h3>
+                                <div className="space-y-3 text-xs text-brand-slate leading-relaxed">
+                                    <div className="flex gap-2.5">
+                                        <span className="w-5 h-5 bg-pink-100 text-brand-darkpink font-bold rounded-full flex items-center justify-center flex-shrink-0">1</span>
+                                        <p>ඔබේ ඔසප් දිනය ප්‍රමාද වූ පළමු දිනට පසු දින උදෑසනම ලැබෙන මුත්‍රා සාම්පලය පරීක්ෂණය සඳහා වඩාත් සුදුසු වේ.</p>
+                                    </div>
+                                    <div className="flex gap-2.5">
+                                        <span className="w-5 h-5 bg-pink-100 text-brand-darkpink font-bold rounded-full flex items-center justify-center flex-shrink-0">2</span>
+                                        <p>පිරිසිදු භාජනයකට ලබාගත් මුත්‍රා සාම්පලයේ පරීක්ෂණ තීරුව (Strip) ඊතල සලකුණු ඔස්සේ MAX සීමාව දක්වා පමණක් තත්පර 10ක් ගිල්වා තබන්න.</p>
+                                    </div>
+                                    <div className="flex gap-2.5">
+                                        <span className="w-5 h-5 bg-pink-100 text-brand-darkpink font-bold rounded-full flex items-center justify-center flex-shrink-0">3</span>
+                                        <p>ඉන්පසු එය වියළි, සමතලා මතුපිටක තබා විනාඩි 3 සිට 5 දක්වා කාලය තුළ ප්‍රතිඵලය කියවන්න. විනාඩි 10 කට වඩා වැඩි කාලයක් ගිය පසු ලැබෙන ඉරි සලකා නොබලන්න.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* tab 3: BABY NAMES (UPGRADED VISUAL UI) */}
+                    {activeTab === 'names' && (
+                        <div className="p-5 flex-grow animate-fade-in flex flex-col h-full">
+                            <button onClick={() => { setActiveTab('home'); setNamesSearch(''); setNamesFilter('all'); }} className="text-brand-darkpink font-bold text-xs mb-4 flex items-center gap-1 hover:underline">
+                                <i className="fa-solid fa-arrow-left"></i> ආපසු මුල් පිටුවට
+                            </button>
+
+                            <h2 className="text-xl font-bold mb-1 text-brand-chocolate">අර්ථවත් ළදරු නම් පොත</h2>
+                            <p className="text-xs text-brand-slate mb-4">ඔබේ පුංචි පැටියාට ගැළපෙන අරුත්බර සිංහල නම්, උපන් වාසනාවන්ත අංක සහ ලග්න ගැලපීම් මෙතැනින් සොයා ගන්න.</p>
+
+                            {/* Search and Filters Container */}
+                            <div className="mb-4 space-y-3">
+                                {/* Search Bar */}
+                                <div className="relative">
+                                    <input 
+                                        type="text" 
+                                        placeholder="නම හෝ තේරුම මෙතැනින් සර්ච් කරන්න..." 
+                                        value={namesSearch}
+                                        onChange={(e) => setNamesSearch(e.target.value)}
+                                        className="w-full pl-4 pr-10 py-3 rounded-xl border border-pink-100 text-xs focus:outline-none focus:border-brand-pink focus:bg-white shadow-sm transition-all"
+                                    />
+                                    <div className="absolute right-3 top-3.5 flex items-center gap-2">
+                                        {namesSearch && (
+                                            <button onClick={() => setNamesSearch('')} className="text-gray-400 hover:text-brand-pink">
+                                                <i className="fa-solid fa-xmark text-xs"></i>
+                                            </button>
+                                        )}
+                                        <i className="fa-solid fa-magnifying-glass text-brand-pink text-xs"></i>
+                                    </div>
+                                </div>
+
+                                                                {/* Gender Filter Switcher */}
+                                <div className="flex bg-pink-50/60 p-1 rounded-xl border border-pink-100/50">
+                                    <button onClick={() => setNamesFilter('all')} className={`flex-1 text-xs py-2 rounded-lg font-bold transition-all ${namesFilter === 'all' ? 'bg-white text-brand-darkpink shadow-sm' : 'text-brand-slate hover:text-brand-chocolate'}`}>
+                                        සියලුම නම්
+                                    </button>
+                                    <button onClick={() => setNamesFilter('boy')} className={`flex-1 text-xs py-2 rounded-lg font-bold transition-all ${namesFilter === 'boy' ? 'bg-blue-500 text-white shadow-sm' : 'text-blue-600'}`}>
+                                        <i className="fa-solid fa-child mr-1"></i> පුතාලට
+                                    </button>
+                                    <button onClick={() => setNamesFilter('girl')} className={`flex-1 text-xs py-2 rounded-lg font-bold transition-all ${namesFilter === 'girl' ? 'bg-brand-pink text-white shadow-sm' : 'text-brand-pink'}`}>
+                                        <i className="fa-solid fa-child-dress mr-1"></i> දූලට
+                                    </button>
+                                </div>
+
+                                {/* Favorites Filter Toggle */}
+                                <div className="flex justify-between items-center bg-white p-2.5 rounded-xl border border-pink-100/50 shadow-sm px-4">
+                                    <span className="text-[10px] text-brand-slate font-bold">මුළු නම් ගණන: {filteredNames.length}</span>
+                                    <button 
+                                        onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                                        className={`text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
+                                            showFavoritesOnly 
+                                                ? 'bg-amber-400 text-brand-chocolate shadow-sm' 
+                                                : 'bg-gray-50 text-brand-slate border border-gray-100 hover:border-amber-200'
+                                        }`}
+                                    >
+                                        <i className="fa-solid fa-star text-amber-500"></i>
+                                        {showFavoritesOnly ? 'ප්‍රියතම නම් පමණි (Favorites)' : 'ප්‍රියතම නම් බලන්න'}
+                                    </button>
+                                </div>
+
+                                {/* 🔤 Sinhala Alphabet Fast-Scroll Filter */}
+                                <div className="pt-1">
+                                    <span className="text-[10px] text-brand-slate font-bold mb-1.5 block">මුල් අකුරෙන් සෙවීමට ක්ලික් කරන්න:</span>
+                                    <div className="flex gap-1.5 overflow-x-auto pb-2 no-scrollbar scroll-smooth">
+                                        <button onClick={() => setNamesSearch('')} className={`px-2.5 py-1 rounded-lg text-[11px] font-bold flex-shrink-0 transition-all ${namesSearch === '' ? 'bg-brand-chocolate text-white' : 'bg-gray-100 text-brand-slate hover:bg-gray-200'}`}>
+                                            සියල්ල
+                                        </button>
+                                        {['අ', 'ආ', 'ඉ', 'එ', 'ක', 'ග', 'ච', 'ජ', 'ත', 'ද', 'න', 'ප', 'බ', 'ම', 'ය', 'ර', 'ල', 'ව', 'ස', 'හ'].map((letter) => (
+                                            <button key={letter} onClick={() => setNamesSearch(letter)} className={`w-7 h-7 rounded-lg text-xs font-bold flex-shrink-0 flex items-center justify-center transition-all ${namesSearch === letter ? 'bg-brand-darkpink text-white shadow-sm' : 'bg-white border border-pink-100 text-brand-chocolate hover:border-pink-300'}`}>
+                                                {letter}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Advanced Styled Names List */}
+                            <div className="space-y-3 flex-grow overflow-y-auto max-h-[350px] pr-1 no-scrollbar">
+                                {filteredNames.length > 0 ? (
+                                    filteredNames.map(n => (
+                                        <div key={n.id} className={`border p-4 rounded-2xl shadow-sm bg-white transition-all hover:shadow-md flex flex-col justify-between relative overflow-hidden ${n.gender === 'boy' ? 'border-blue-100/70 hover:border-blue-300' : 'border-pink-100/70 hover:border-pink-300'}`}>
+                                            {/* Side indicator styling */}
+                                            <div className={`absolute left-0 top-0 bottom-0 w-1 ${n.gender === 'boy' ? 'bg-blue-400' : 'bg-brand-pink'}`}></div>
+                                            
+                                            {/* Header Row */}
+                                            <div className="flex justify-between items-center mb-1.5 pl-1">
+                                                <h4 className={`font-black text-base tracking-wide ${n.gender === 'boy' ? 'text-blue-700' : 'text-brand-darkpink'}`}>
+                                                    {n.name}
+                                                </h4>
+                                                <div className="flex items-center gap-2.5">
+                                                    <button 
+                                                        onClick={() => toggleFavorite(n.id)} 
+                                                        className="text-base hover:scale-110 active:scale-95 transition-all text-amber-400 focus:outline-none"
+                                                    >
+                                                        <i className={favorites.includes(n.id) ? "fa-solid fa-star" : "fa-regular fa-star text-gray-300"}></i>
+                                                    </button>
+                                                    <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1 ${n.gender === 'boy' ? 'bg-blue-50 text-blue-600' : 'bg-pink-50 text-pink-600'}`}>
+                                                        <i className={`fa-solid ${n.gender === 'boy' ? 'fa-mars text-[9px]' : 'fa-venus text-[9px]'}`}></i>
+                                                        {n.gender === 'boy' ? 'පුතා' : 'දුව'}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+
+                                            {/* Meaning Container */}
+                                            <p className="text-xs text-brand-chocolate leading-relaxed mb-2.5 pl-2 bg-gray-50/60 p-2 rounded-xl border border-gray-100/50">
+                                                <span className="text-[10px] text-brand-slate font-medium block mb-0.5">අර්ථය:</span>
+                                                {n.meaning}
+                                            </p>
+
+                                            {/* Numerology & Astrology Badges */}
+                                            <div className="flex gap-4 text-[10px] pl-1 text-brand-slate border-t border-gray-50 pt-2">
+                                                <span className="flex items-center gap-1">
+                                                    <i className="fa-solid fa-calculator text-amber-500"></i>
+                                                    වාසනාවන්ත අංකය: <strong className="text-brand-chocolate">{n.id % 9 + 1}</strong>
+                                                </span>
+                                                <span className="flex items-center gap-1">
+                                                    <i className="fa-solid fa-star text-indigo-400"></i>
+                                                    ලග්න ගැලපීම: <strong className="text-brand-chocolate">{n.gender === 'boy' ? 'සිංහ, මේෂ, මීන' : 'කන්‍යා, තුලා, වෘෂභ'}</strong>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="text-center py-12 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                        <i className="fa-solid fa-folder-open text-gray-300 text-3xl mb-2 block"></i>
+                                        <p className="text-xs text-brand-slate font-medium">එම අකුරෙන් හෝ සෙවුමෙන් නම් කිසිවක් hමු නොවීය.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* tab 4: WEEKLY TRACKER (UPGRADED VISUAL LAYOUT & PREMIUM INTEGRATION) */}
+                    {activeTab === 'tracker' && (
+                        <div className="p-5 flex-grow animate-fade-in flex flex-col h-full">
+                            <button onClick={() => { setActiveTab('home'); setSelectedWeek(1); }} className="text-brand-darkpink font-bold text-xs mb-4 flex items-center gap-1 hover:underline">
+                                <i className="fa-solid fa-arrow-left"></i> ආපසු මුල් පිටුවට
+                            </button>
+
+                            <h2 className="text-xl font-bold mb-1 text-brand-chocolate">සතිපතා බිළිඳාගේ වර්ධනය</h2>
+                            <p className="text-xs text-brand-slate mb-4">ඔබේ වර්තමාන ගර්භණී සතිය තෝරා බිළිඳාගේ වර්ධන තත්ත්වය සහ වෛද්‍ය උපදෙස් සජීවීව නිරීක්ෂණය කරන්න.</p>
+
+                            {/* 🗓️ Horizontal Scroll Weeks Timeline */}
+                            <div className="mb-5">
+                                <span className="text-[10px] text-brand-slate font-bold mb-1.5 block">ගර්භණී සතිය තෝරන්න:</span>
+                                <div className="flex gap-2 overflow-x-auto pb-2.5 no-scrollbar scroll-smooth">
+                                    {Array.from({ length: 40 }, (_, i) => i + 1).map(week => (
+                                        <button 
+                                            key={week} 
+                                            onClick={() => setSelectedWeek(week)}
+                                            className={`w-11 h-11 flex-shrink-0 rounded-xl font-black text-xs flex flex-col items-center justify-center transition-all relative ${
+                                                selectedWeek === week 
+                                                    ? 'bg-gradient-to-br from-brand-pink to-brand-darkpink text-white shadow-md scale-105' 
+                                                    : 'bg-white border border-pink-100 text-brand-chocolate hover:border-pink-300'
+                                            }`}
+                                        >
+                                            <span className="text-[8px] opacity-75 font-normal">සතිය</span>
+                                            {week}
+                                            {week > 4 && !isSubscribed && (
+                                                <i className={`fa-solid fa-lock text-[8px] absolute right-1 top-1 ${selectedWeek === week ? 'text-white/80' : 'text-purple-400'}`}></i>
+                                            )}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* 🔒 Paywall Content or 🔓 Week Content View */}
+                            {selectedWeek > 4 && !isSubscribed ? (
+                                <div className="bg-gradient-to-b from-purple-50/50 to-white border border-purple-100 p-6 rounded-3xl text-center shadow-sm animate-fade-in my-auto">
+                                    <div className="w-14 h-14 bg-gradient-to-tr from-purple-500 to-pink-500 text-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
+                                        <i className="fa-solid fa-lock text-xl"></i>
+                                    </div>
+                                    <h3 className="font-black text-base text-purple-950 mb-1">සති 5 සිට ඉදිරියට නැරඹීම අගුළු දමා ඇත</h3>
+                                    <p className="text-xs text-brand-slate mb-5 leading-relaxed max-w-[280px] mx-auto">
+                                        සති 40 දක්වා බිළිඳාගේ සවිස්තරාත්මක වර්ධනය, ප්‍රමාණය සසඳන පළතුරු Visualizer එක, අම්මාට විශේෂිත පෝෂණ සැලසුම් සහ Pro විශේෂාංග සියල්ල ලබාගැනීමට එකතු වන්න.
+                                    </p>
+                                    <button onClick={() => setShowPaywall(true)} className="w-full bg-gradient-to-r from-brand-pink to-brand-darkpink text-white font-black text-xs py-3.5 px-6 rounded-xl shadow-md hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center gap-2">
+                                        <i className="fa-solid fa-crown"></i> රු. 99/- කට Premium සක්‍රීය කරන්න
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="space-y-4 flex-grow overflow-y-auto max-h-[360px] pr-1 no-scrollbar">
+                                    {/* Month Card with Pro Active Tracker Tick */}
+                                    <div className="bg-gradient-to-r from-pink-500 to-brand-pink text-white p-4 rounded-2xl shadow-sm flex flex-col gap-3">
+                                        <div className="flex justify-between items-center">
+                                            <div>
+                                                <span className="text-[10px] uppercase tracking-wider opacity-90 font-bold block">Pregnancy Timeline</span>
+                                                <h3 className="font-black text-lg">ගර්භණී සතිය {selectedWeek}</h3>
+                                            </div>
+                                            <span className="text-xs bg-white/25 backdrop-blur-md font-bold px-3 py-1 rounded-full border border-white/20">
+                                                {selectedWeek <= 4 ? "1 වන මාසය" : `${Math.ceil(selectedWeek / 4)} වන මාසය`}
+                                            </span>
+                                        </div>
+                                        
+                                        {/* 📌 Pro Feature: Mark / Save Current Week Action */}
+                                        <div className="border-t border-white/20 pt-2.5 flex justify-between items-center">
+                                            {myCurrentWeek === selectedWeek ? (
+                                                <span className="text-[11px] bg-white text-brand-darkpink font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm animate-fade-in animate-pulse">
+                                                    <i className="fa-solid fa-circle-check text-emerald-500 text-xs"></i> 
+                                                    ඔබ දැනට පසුවන සතියයි
+                                                </span>
+                                            ) : (
+                                                <button 
+                                                    onClick={() => handleMarkWeek(selectedWeek)}
+                                                    className="text-[10px] bg-white/20 hover:bg-white/30 text-white font-bold px-3 py-1.5 rounded-xl border border-white/30 transition-all active:scale-95 flex items-center gap-1"
+                                                >
+                                                    <i className="fa-solid fa-thumbtack text-[9px]"></i> 
+                                                    මගේ වර්තමාන සතිය ලෙස සටහන් කරන්න
+                                                </button>
+                                            )}
+                                            
+                                            {myCurrentWeek && myCurrentWeek !== selectedWeek && (
+                                                <button 
+                                                    onClick={() => setSelectedWeek(myCurrentWeek)}
+                                                    className="text-[9px] text-white/90 underline hover:text-white transition-all"
+                                                >
+                                                    නැවත සතිය {myCurrentWeek} ට යන්න
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                                                        {/* 👶 3D BABY STYLE VISUALIZER CARD (ADVANCED) */}
+                                    <div className="bg-gradient-to-br from-rose-50 to-pink-100/40 border border-pink-200/60 rounded-2xl p-4 shadow-sm flex items-center gap-4 relative overflow-hidden group">
+                                        {/* Background soft glow effect */}
+                                        <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-pink-300/10 rounded-full blur-xl transition-all group-hover:scale-125"></div>
+                                        
+                                        {/* 3D-Look Glowing Baby Avatar Container */}
+                                        <div className="w-14 h-14 bg-gradient-to-tr from-white to-pink-50 rounded-2xl border-2 border-white shadow-md flex items-center justify-center text-3xl flex-shrink-0 relative overflow-hidden">
+                                            <div className="absolute inset-0 bg-radial-gradient from-white/80 to-transparent opacity-50"></div>
+                                            {selectedWeek <= 2 && <span className="drop-shadow-[0_4px_6px_rgba(247,37,133,0.2)] animate-pulse">🧬</span>}
+                                            {selectedWeek >= 3 && selectedWeek <= 5 && <span className="drop-shadow-[0_4px_6px_rgba(247,37,133,0.2)]">🌱</span>}
+                                            {selectedWeek >= 6 && selectedWeek <= 12 && <span className="drop-shadow-[0_4px_6px_rgba(247,37,133,0.3)] animate-[bounce_2s_infinite]">👶🏻</span>}
+                                            {selectedWeek >= 13 && selectedWeek <= 27 && <span className="drop-shadow-[0_4px_6px_rgba(247,37,133,0.3)] animate-[bounce_2.5s_infinite]">🚼</span>}
+                                            {selectedWeek >= 28 && <span className="drop-shadow-[0_4px_8px_rgba(247,37,133,0.4)] animate-pulse">👼🏻</span>}
+                                        </div>
+
+                                        {/* Baby Physical Stats & Status */}
+                                        <div className="flex-1 z-10">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-[9px] bg-brand-darkpink/10 text-brand-darkpink font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
+                                                    Baby Development • කළලයේ වර්ධනය
+                                                </span>
+                                            </div>
+                                            
+                                            <p className="text-xs font-black text-brand-chocolate mb-2">
+                                                ප්‍රමාණය: <span className="text-brand-darkpink font-bold">{weeksData[selectedWeek] ? weeksData[selectedWeek].size : "පොපි ඇටයක්"}</span> තරම් වේ.
+                                            </p>
+
+                                            {/* Real-time Dynamic Weight & Length Badge Row */}
+                                            <div className="flex gap-2.5">
+                                                <div className="bg-white/80 backdrop-blur-sm border border-pink-100 rounded-lg px-2 py-1 text-center flex-1">
+                                                    <span className="text-[8px] text-brand-slate block font-medium">දිග (Length)</span>
+                                                    <strong className="text-[10px] text-brand-darkpink font-bold">
+                                                        {weeksData[selectedWeek] ? weeksData[selectedWeek].length : "~ 0.1 mm"}
+                                                    </strong>
+                                                </div>
+                                                <div className="bg-white/80 backdrop-blur-sm border border-pink-100 rounded-lg px-2 py-1 text-center flex-1">
+                                                    <span className="text-[8px] text-brand-slate block font-medium">බර (Weight)</span>
+                                                    <strong className="text-[10px] text-brand-darkpink font-bold">
+                                                        {weeksData[selectedWeek] ? weeksData[selectedWeek].weight : "< 1 g"}
+                                                    </strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Details Grid */}
+                                    <div className="bg-white border border-pink-100 p-4 rounded-2xl shadow-sm space-y-3">
+                                        <div className="flex gap-3 items-start">
+                                            <div className="w-7 h-7 bg-pink-50 rounded-lg flex items-center justify-center text-brand-darkpink flex-shrink-0 mt-0.5">
+                                                <i className="fa-solid fa-baby text-xs"></i>
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-xs text-brand-chocolate mb-0.5">පැටියාගේ වර්ධනය (Baby's Progress)</h4>
+                                                <p className="text-xs text-brand-slate leading-relaxed">
+                                                    {weeksData[selectedWeek] ? weeksData[selectedWeek].baby : (weeksData[38] ? weeksData[38].baby : "තොරතුරු නොමැත.")}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="border-t border-pink-50 pt-3 flex gap-3 items-start">
+                                            <div className="w-7 h-7 bg-purple-50 rounded-lg flex items-center justify-center text-purple-600 flex-shrink-0 mt-0.5">
+                                                <i className="fa-solid fa-person-pregnant text-xs"></i>
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-xs text-brand-chocolate mb-0.5">මවගේ ශරීරයේ වෙනස්කම් (Mom's Body)</h4>
+                                                <p className="text-xs text-brand-slate leading-relaxed">
+                                                    {weeksData[selectedWeek] ? weeksData[selectedWeek].mom : (weeksData[38] ? weeksData[38].mom : "තොරතුරු නොමැත.")}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="border-t border-pink-50 pt-3 flex gap-3 items-start">
+                                            <div className="w-7 h-7 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600 flex-shrink-0 mt-0.5">
+                                                <i className="fa-solid fa-user-doctor text-xs"></i>
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-xs text-brand-chocolate mb-0.5">මෙම සතියේ විශේෂ උපදෙස් (Care Tips)</h4>
+                                                <p className="text-xs text-brand-slate leading-relaxed">
+                                                    {weeksData[selectedWeek] ? weeksData[selectedWeek].care : (weeksData[38] ? weeksData[38].care : "තොරතුරු නොමැත.")}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* tab 5: PREMIUM CLINIC CARD ASSISTANT (UPGRADED DECODER LAYOUT) */}
+                    {activeTab === 'clinic' && (
+                        <div className="p-5 flex-grow animate-fade-in flex flex-col h-full">
+                            <button onClick={() => setActiveTab('home')} className="text-brand-darkpink font-bold text-xs mb-4 flex items-center gap-1 hover:underline">
+                                <i className="fa-solid fa-arrow-left"></i> ආපසු මුල් පිටුවට
+                            </button>
+
+                            <h2 className="text-xl font-bold mb-1 text-brand-chocolate flex items-center gap-2">
+                                සායන කාඩ්පත් සහයකයා 
+                                <span className="text-[10px] bg-gradient-to-r from-amber-400 to-amber-500 text-brand-chocolate px-2.5 py-0.5 rounded-full font-black shadow-sm">PRO</span>
+                            </h2>
+                            <p className="text-xs text-brand-slate mb-4">රජයේ සායන පොතේ (H507 Form) වෛද්‍යවරුන් සහ සායන නිලධාරීන් ලියන සංකීර්ණ කෙටි යෙදුම්වල සැබෑ සිංහල තේරුම මෙතැනින් ක්ෂණිකව සොයා ගන්න.</p>
+
+                            {/* Styled Advanced Abbreviations List */}
+                            <div className="space-y-3.5 flex-grow overflow-y-auto max-h-[460px] pr-1 no-scrollbar">
+                                {/* BP Card */}
+                                <div className="bg-white border border-pink-100 rounded-2xl p-4 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-400"></div>
+                                    <div className="flex justify-between items-start mb-2">
+                                        <h4 className="font-black text-base text-brand-darkpink tracking-wide">BP <span className="text-xs text-brand-slate font-normal font-sans ml-1">(Blood Pressure)</span></h4>
+                                        <span className="text-[9px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-md border border-emerald-100">රුධිර පීඩනය</span>
+                                    </div>
+                                    <p className="text-xs text-brand-chocolate leading-relaxed mb-2.5 bg-gray-50/50 p-2.5 rounded-xl border border-gray-100/30">
+                                        සායනයේදී මනිනු ලබන මවගේ ලේ ගමනාගමන පීඩනයයි. මෙය සාමාන්‍යයෙන් <strong>120/80 mmHg</strong> මට්ටමේ තිබීම යහපත්ය.
+                                    </p>
+                                    <div className="text-[10px] text-brand-slate flex items-start gap-1 bg-amber-50/40 p-2 rounded-lg border border-amber-100/50">
+                                        <i className="fa-solid fa-user-doctor text-amber-500 mt-0.5 flex-shrink-0"></i>
+                                        <span><strong>වෛද්‍ය උපදෙස:</strong> ඉහළ අගය 140 හෝ පහළ අගය 90 ඉක්මවයි නම්, එය අධි රුධිර පීඩනය (Pregnancy Induced Hypertension) විය හැකි බැවින් වහාම වෛද්‍ය උපදෙස් ගන්න.</span>
+                                    </div>
+                                </div>
+
+                                {/* Hb Card */}
+                                <div className="bg-white border border-pink-100 rounded-2xl p-4 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-400"></div>
+                                    <div className="flex justify-between items-start mb-2 pl-1">
+                                        <h4 className="font-black text-base text-brand-darkpink tracking-wide">Hb <span className="text-xs text-brand-slate font-normal font-sans ml-1">(Haemoglobin)</span></h4>
+                                        <span className="text-[9px] bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded-md border border-blue-100">හිමොග්ලොබින්</span>
+                                    </div>
+                                    <p className="text-xs text-brand-chocolate leading-relaxed mb-2.5 bg-gray-50/50 p-2.5 rounded-xl border border-gray-100/30">
+                                        රුධිරයේ ඇති යකඩ සහ ඔක්සිජන් රැගෙන යන ප්‍රෝටීන මට්ටමයි (ලේ අඩුකම පරීක්ෂාව). මෙය <strong>11 g/dL</strong> හෝ ඊට ඉහළින් තිබීම අත්‍යවශ්‍ය වේ.
+                                    </p>
+                                    <div className="text-[10px] text-brand-slate flex items-start gap-1 bg-amber-50/40 p-2 rounded-lg border border-amber-100/50">
+                                        <i className="fa-solid fa-user-doctor text-amber-500 mt-0.5 flex-shrink-0"></i>
+                                        <span><strong>වෛද්‍ය උපදෙස:</strong> Hb මට්ටම 11ට වඩා අඩු නම් ශරීරයේ ලේ අඩුකම (Anemia) පවතී. සායනයෙන් දෙන යකඩ පෙති (Iron Tablets) මඟ හැරීමකින් තොරව ලබා ගන්න.</span>
+                                    </div>
+                                </div>
+
+                                {/* Fundal Height Card */}
+                                <div className="bg-white border border-pink-100 rounded-2xl p-4 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-400"></div>
+                                    <div className="flex justify-between items-start mb-2 pl-1">
+                                        <h4 className="font-black text-base text-brand-darkpink tracking-wide">FH / SFH <span className="text-xs text-brand-slate font-normal font-sans ml-1">(Symphysio-Fundal Height)</span></h4>
+                                        <span className="text-[9px] bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded-md border border-purple-100">ගර්භාෂයේ උස</span>
+                                    </div>
+                                    <p className="text-xs text-brand-chocolate leading-relaxed mb-2.5 bg-gray-50/50 p-2.5 rounded-xl border border-gray-100/30">
+                                        ශ්‍රෝණි අස්ථියේ සිට උදරයේ ඉහළට ගර්භාෂය වැඩී ඇති ප්‍රමාණය සෙන්ටිමීටර (cm) වලින් මැනීමයි. සාමාන්‍යයෙන් ගර්භණී සති ගණනට සමාන සෙන්ටිමීටර ගණනක් මෙහි සටහන් වේ (උදා: සති 24 දී FH = 24cm).
+                                    </p>
+                                    <div className="text-[10px] text-brand-slate flex items-start gap-1 bg-amber-50/40 p-2 rounded-lg border border-amber-100/50">
+                                        <i className="fa-solid fa-user-doctor text-amber-500 mt-0.5 flex-shrink-0"></i>
+                                        <span><strong>වෛද්‍ය උපදෙස:</strong> මෙම අගය සති ගණනට වඩා බෙහෙවින් අඩු හෝ වැඩි නම් බබාගේ වර්ධනයේ හෝ ඇම්නියොටික් දියරයේ (පන්නීර්) වෙනසක් ඇතිදැයි බැලීමට ස්කෑන් (Scan) පරීක්ෂණයක් නිර්දේශ කරනු ඇත.</span>
+                                    </div>
+                                </div>
+
+                                {/* FHS Card */}
+                                <div className="bg-white border border-pink-100 rounded-2xl p-4 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-rose-400"></div>
+                                    <div className="flex justify-between items-start mb-2 pl-1">
+                                        <h4 className="font-black text-base text-brand-darkpink tracking-wide">FHS <span className="text-xs text-brand-slate font-normal font-sans ml-1">(Fetal Heart Sound)</span></h4>
+                                        <span className="text-[9px] bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded-md border border-rose-100">බබාගේ හෘද ස්පන්දනය</span>
+                                    </div>
+                                    <p className="text-xs text-brand-chocolate leading-relaxed mb-2.5 bg-gray-50/50 p-2.5 rounded-xl border border-gray-100/30">
+                                        කුස තුළ සිටින බිළිඳාගේ හෘද ස්පන්දන ශබ්දය ඇසෙන බව තහවුරු කිරීමයි. සායන පොතේ මෙහි ඉදිරියෙන් සාමාන්‍යයෙන් <strong>"FHS +"</strong> හෝ <strong>"Hrd +"</strong> ලෙස සටහන් කරනු ලබයි.
+                                    </p>
+                                    <div className="text-[10px] text-brand-slate flex items-start gap-1 bg-amber-50/40 p-2 rounded-lg border border-amber-100/50">
+                                        <i className="fa-solid fa-user-doctor text-amber-500 mt-0.5 flex-shrink-0"></i>
+                                        <span><strong>වෛද්‍ය උපදෙස:</strong> ගර්භණී සති 16-20 න් පසුව සායනයට යන සෑම අවස්ථාවකදීම ඩොප්ලර් (Doppler) උපකරණය මඟින් බබාගේ හෘද ස්පන්දන වේගය මිනිත්තුවට 120-160ත් අතර මට්ටමක පවතීදැයි පරීක්ෂා කරනු ලබයි.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 🥗 tab 6: PREMIUM DIET & NUTRITION PLAN */}
+                    {activeTab === 'diet' && (
+                        <div className="p-5 flex-grow animate-fade-in flex flex-col h-full">
+                            <button onClick={() => setActiveTab('home')} className="text-brand-darkpink font-bold text-xs mb-4 flex items-center gap-1 hover:underline">
+                                <i className="fa-solid fa-arrow-left"></i> ආපසු මුල් පිටුවට
+                            </button>
+
+                                                        <div className="flex justify-between items-center mb-4">
+                                <div>
+                                    <h2 className="text-xl font-bold mb-1 text-brand-chocolate flex items-center gap-2">
+                                        ගර්භණී පෝෂණ සැලසුම
+                                        <span className="text-[10px] bg-gradient-to-r from-amber-400 to-amber-500 text-brand-chocolate px-2.5 py-0.5 rounded-full font-black shadow-sm">PRO</span>
+                                    </h2>
+                                    <p className="text-[11px] text-brand-slate">විශේෂඥ වෛද්‍ය උපදෙස් මත සකස් කළ ලාංකීය ආහාර සැලසුම</p>
+                                </div>
+                                <button 
+                                    onClick={downloadDietPDF}
+                                    className="bg-brand-pink hover:bg-brand-darkpink text-white text-[10px] px-3 py-2 rounded-xl font-black transition-all shadow-sm flex items-center gap-1 active:scale-95 flex-shrink-0"
+                                >
+                                    <i className="fa-solid fa-file-pdf"></i> PDF බාගන්න
+                                </button>
+                            </div>
+
+
+                            {/* 🗓️ 3 Trimesters Selector Grid */}
+                            <div className="grid grid-cols-3 gap-2 bg-pink-50/60 p-1 rounded-xl border border-pink-100/50 mb-5">
+                                <button onClick={() => setSelectedWeek(1)} className={`py-2 text-center text-[11px] font-bold rounded-lg transition-all ${selectedWeek <= 12 ? 'bg-brand-pink text-white shadow-sm' : 'text-brand-slate'}`}>
+                                    1 වන ත්‍රෛමාසිකය<span className="block text-[8px] font-normal">(සති 1 - 12)</span>
+                                </button>
+                                <button onClick={() => setSelectedWeek(16)} className={`py-2 text-center text-[11px] font-bold rounded-lg transition-all ${(selectedWeek > 12 && selectedWeek <= 27) ? 'bg-brand-pink text-white shadow-sm' : 'text-brand-slate'}`}>
+                                    2 වන ත්‍රෛමාසිකය<span className="block text-[8px] font-normal">(සති 13 - 27)</span>
+                                </button>
+                                <button onClick={() => setSelectedWeek(32)} className={`py-2 text-center text-[11px] font-bold rounded-lg transition-all ${selectedWeek >= 28 ? 'bg-brand-pink text-white shadow-sm' : 'text-brand-slate'}`}>
+                                    3 වන ත්‍රෛමාසිකය<span className="block text-[8px] font-normal">(සති 28 - 40)</span>
+                                </button>
+                            </div>
+
+                            {/* Nutrition Dynamic Content View */}
+                            <div className="space-y-4 flex-grow overflow-y-auto max-h-[400px] pr-1 no-scrollbar">
+                                
+                                {/* Trimester 1 Info */}
+                                {selectedWeek <= 12 && (
+                                    <div className="space-y-3.5 animate-fade-in">
+                                        <div className="bg-white border border-pink-100 p-4 rounded-2xl shadow-sm">
+                                            <h4 className="font-black text-xs text-brand-chocolate mb-2 flex items-center gap-1.5">
+                                                <i className="fa-solid fa-leaf text-emerald-500"></i> මෙම අවධියේ ප්‍රධාන ඉලක්කය
+                                            </h4>
+                                            <p className="text-xs text-brand-slate leading-relaxed">
+                                                මුල් මාස 3 තුළ කළලයේ මොළය සහ ස්නායු පද්ධතිය වේගයෙන් වර්ධනය වේ. මේ දිනවල පවතින වමනය සහ කෑම අරුචිය (Morning Sickness) පාලනය කරගනිමින් පෝෂණය රැක ගැනීම වැදගත් වේ.
+                                            </p>
+                                        </div>
+                                        <div className="bg-gradient-to-br from-emerald-50/40 to-white border border-emerald-100 p-4 rounded-2xl shadow-sm space-y-2.5">
+                                            <span className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider block">අත්‍යවශ්‍ය ආහාර වර්ග:</span>
+                                            <ul className="list-disc pl-4 text-xs text-brand-chocolate space-y-1.5">
+                                                <li><strong>ෆෝලික් ඇසිඩ් බහුල ආහාර:</strong> නිවිති, කංකුං, ගොටුකොළ වැනි තද කොළ පැහැති පලා වර්ග සහ පරිප්පු.</li>
+                                                <li><strong>වමනය පාලනයට:</strong> ඉඟුරු තේ, දෙහි යුෂ, බිස්කට් සහ බැදපු කජු/කඩල කුඩා ප්‍රමාණවලින් නිතර කන්න.</li>
+                                                <li><strong>ප්‍රෝටීන:</strong> දිනපතා හොඳින් තැම්බූ බිත්තරයක්, මාළු හෝ කුකුළු මස් ආහාරයට එකතු කරගන්න.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Trimester 2 Info */}
+                                {selectedWeek > 12 && selectedWeek <= 27 && (
+                                    <div className="space-y-3.5 animate-fade-in">
+                                        <div className="bg-white border border-pink-100 p-4 rounded-2xl shadow-sm">
+                                            <h4 className="font-black text-xs text-brand-chocolate mb-2 flex items-center gap-1.5">
+                                                <i className="fa-solid fa-bone text-blue-500"></i> මෙම අවධියේ ප්‍රධාන ඉලක්කය
+                                            </h4>
+                                            <p className="text-xs text-brand-slate leading-relaxed">
+                                                බබාගේ අස්ථි පද්ධතිය (ඇටකටු) ශක්තිමත් වීම සහ ලේ වර්ධනය සිදුවන ප්‍රධාන අවධියයි. අම්මාගේ කෑම රුචිය යහපත් වන බැවින් සමබර පෝෂණයක් ලබාගැනීම පහසුය.
+                                            </p>
+                                        </div>
+                                        <div className="bg-gradient-to-br from-blue-50/40 to-white border border-blue-100 p-4 rounded-2xl shadow-sm space-y-2.5">
+                                            <span className="text-[10px] text-blue-700 font-bold uppercase tracking-wider block">අත්‍යවශ්‍ය ආහාර වර්ග:</span>
+                                            <ul className="list-disc pl-4 text-xs text-brand-chocolate space-y-1.5">
+                                                <li><strong>කැල්සියම් බහුල ආහාර:</strong> දිනපතා නැවුම් එළකිරි හෝ මුදවපු කිරි (Curd), හාල්මැස්සන් සහ චීස්.</li>
+                                                <li><strong>යකඩ බහුල ආහාර:</strong> රතු පියලි පරිප්පු, සෝයා බෝංචි, නිවිති සහ ගව පීතූන්/කුකුළු අක්මා (Iron rich).</li>
+                                                <li><strong>විටමින් C:</strong> යකඩ ශරීරයට උරාගැනීම වැඩි කිරීමට නෙල්ලි, පේර, දොඩම් වැනි පළතුරු කෑම වේලෙන් පසු ගන්න.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Trimester 3 Info */}
+                                {selectedWeek >= 28 && (
+                                    <div className="space-y-3.5 animate-fade-in">
+                                        <div className="bg-white border border-pink-100 p-4 rounded-2xl shadow-sm">
+                                            <h4 className="font-black text-xs text-brand-chocolate mb-2 flex items-center gap-1.5">
+                                                <i className="fa-solid fa-weight-scale text-purple-500"></i> මෙම අවධියේ ප්‍රධාන ඉලක්කය
+                                            </h4>
+                                            <p className="text-xs text-brand-slate leading-relaxed">
+                                                බබාගේ බර ඉතා වේගයෙන් වැඩිවන සහ උපත සඳහා සූදානම් වන අවසාන අවධියයි. මවට මලබද්ධය (Constipation) සහ පපුවේ දැවිල්ල ඇතිවිය හැකි බැවින් තන්තු බහුල ආහාර වැදගත් වේ.
+                                            </p>
+                                        </div>
+                                        <div className="bg-gradient-to-br from-purple-50/40 to-white border border-purple-100 p-4 rounded-2xl shadow-sm space-y-2.5">
+                                            <span className="text-[10px] text-purple-700 font-bold uppercase tracking-wider block">අත්‍යවශ්‍ය ආහාර වර්ග:</span>
+                                            <ul className="list-disc pl-4 text-xs text-brand-chocolate space-y-1.5">
+                                                <li><strong>බබාගේ බර වැඩිවීමට:</strong> ගුණදායක මේදය අඩංගු අලිපේර, කජු, රට කජු සහ රටඉඳි.</li>
+                                                <li><strong>තන්තු බහුල ආහාර (මලබද්ධයට):</strong> කොහිල, බණ්ඩක්කා, ගස්ලබු, කෙසෙල් සහ නිවුඩු සහිත රතු බත්.</li>
+                                                <li><strong>ප්‍රමාණවත් දියර වර්ග:</strong> දිනපතා පිරිසිදු වතුර ලීටර් 3ක්, තැඹිලි හෝ කැඳ වර්ග පානය කරන්න.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Friendly Caution microcopy */}
+                                <div className="bg-amber-50 border border-amber-100 p-3 rounded-xl text-[10px] text-brand-slate leading-normal">
+                                    <i className="fa-solid fa-triangle-exclamation text-amber-500 mr-1"></i> <strong>විශේෂ සටහන:</strong> ගර්භණී සමයේදී අධික පැණිරස, කෘතිම බීම වර්ග, අඩුවෙන් තැම්බූ මස්/මාළු/බිත්තර සහ අන්නාසි වැනි දේ ආහාරයට ගැනීමෙන් සම්පූර්ණයෙන්ම වැළකී සිටින්න.
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 🎶 tab 7: PREMIUM MUSIC THERAPY (PRO AUDIO PLAYER OPERATIONAL) */}
+                    {activeTab === 'music' && (
+                        <div className="p-5 flex-grow animate-fade-in flex flex-col h-full">
+                            <button onClick={() => setActiveTab('home')} className="text-brand-darkpink font-bold text-xs mb-4 flex items-center gap-1 hover:underline">
+                                <i className="fa-solid fa-arrow-left"></i> ආපසු මුල් පිටුවට
+                            </button>
+
+                            <h2 className="text-xl font-bold mb-1 text-brand-chocolate flex items-center gap-2">
+                                දරු ගැබට සුවදායී සංගීතය
+                                <span className="text-[10px] bg-gradient-to-r from-amber-400 to-amber-500 text-brand-chocolate px-2.5 py-0.5 rounded-full font-black shadow-sm">PRO</span>
+                            </h2>
+                            <p className="text-xs text-brand-slate mb-5">කුස තුළ සිටින බිළිඳාගේ බුද්ධි වර්ධනය උත්තේජනය කරන සජීවී සංගීත චිකිත්සාව. (ශ්‍රවණය සඳහා හෙඩ්ෆෝන් භාවිත කරන්න)</p>
+
+                                                        {/* 🎧 Advanced Audio Player Visualizer (Live Operational) */}
+                            <div className="bg-gradient-to-b from-purple-950 to-indigo-900 rounded-3xl p-5 text-white shadow-xl text-center relative overflow-hidden mb-5">
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 to-transparent"></div>
+                                
+                                <span className="text-[9px] text-pink-300 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-full font-bold uppercase tracking-wider inline-block mb-4 border border-white/5">
+                                    {isPlaying ? "Now Playing • දැන් ශ්‍රවණය වේ" : "Player Paused • නතර කර ඇත"}
+                                </span>
+
+                                {/* Rotating Disc animation hooks into dynamic isPlaying state */}
+                                <div className={`w-20 h-20 bg-gradient-to-tr from-pink-500 via-purple-600 to-indigo-500 rounded-full mx-auto mb-3 flex items-center justify-center border-4 border-white/10 shadow-2xl relative ${isPlaying ? 'animate-[spin_6s_linear_infinite]' : ''}`}>
+                                    <div className="w-6 h-6 bg-purple-950 rounded-full border-2 border-white/20 z-10"></div>
+                                    <i className="fa-solid fa-compact-disc text-white/20 text-4xl absolute"></i>
+                                </div>
+
+                                <h3 className="font-black text-sm tracking-wide mb-0.5">{playlist[currentTrack].title}</h3>
+                                <p className="text-[10px] text-indigo-200/80 mb-4">{playlist[currentTrack].sub}</p>
+
+                                {/* 🎚️ Active Scrubber Progress Bar */}
+                                <div className="space-y-1.5 mb-5 px-1">
+                                    <input 
+                                        type="range" 
+                                        min="0" 
+                                        max={duration || 100} 
+                                        value={currentTime} 
+                                        onChange={handleSeek} 
+                                        className="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-brand-pink outline-none"
+                                    />
+                                    <div className="flex justify-between text-[9px] text-indigo-200/70 font-semibold select-none">
+                                        <span>{formatTime(currentTime)}</span>
+                                        <span>{formatTime(duration)}</span>
+                                    </div>
+                                </div>
+
+                                {/* Player Controls */}
+                                <div className="flex justify-center items-center gap-6 text-xl">
+                                    <button onClick={() => togglePlay((currentTrack - 1 + playlist.length) % playlist.length)} className="text-white/60 hover:text-white transition-all active:scale-90"><i className="fa-solid fa-backward-step"></i></button>
+                                    <button onClick={() => togglePlay(currentTrack)} className="w-12 h-12 bg-white text-purple-950 rounded-full flex items-center justify-center text-lg shadow-lg hover:scale-105 active:scale-95 transition-all">
+                                        <i className={`fa-solid ${isPlaying ? 'fa-pause' : 'fa-play pl-0.5'}`}></i>
+                                    </button>
+                                    <button onClick={() => togglePlay((currentTrack + 1) % playlist.length)} className="text-white/60 hover:text-white transition-all active:scale-90"><i className="fa-solid fa-forward-step"></i></button>
+                                </div>
+                            </div>
+
+                            {/* 📜 Playlist Tracks Grid */}
+                            <span className="text-[10px] text-brand-slate font-black mb-2.5 block pl-0.5 uppercase tracking-wider">සංගීත එකතුව (Playlist):</span>
+                            <div className="space-y-2.5 flex-grow overflow-y-auto max-h-[220px] pr-1 no-scrollbar">
+                                {playlist.map((track, index) => (
+                                    <div 
+                                        key={track.id} 
+                                        onClick={() => togglePlay(index)}
+                                        className={`p-3 rounded-2xl shadow-sm flex items-center justify-between transition-all cursor-pointer border ${
+                                            currentTrack === index && isPlaying
+                                                ? 'bg-purple-50/70 border-brand-pink border-l-4' 
+                                                : 'bg-white border-gray-100 hover:border-purple-200'
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs ${currentTrack === index && isPlaying ? 'bg-pink-100 text-brand-darkpink' : 'bg-gray-50 text-brand-slate'}`}>
+                                                <i className={`fa-solid ${currentTrack === index && isPlaying ? 'fa-pause' : 'fa-play'}`}></i>
+                                            </div>
+                                            <div className="text-left">
+                                                <h4 className={`font-bold text-xs ${currentTrack === index ? 'text-brand-darkpink' : 'text-brand-chocolate'}`}>{track.title}</h4>
+                                                <p className="text-[10px] text-brand-slate">{track.sub}</p>
+                                            </div>
+                                        </div>
+                                        <span className="text-[9px] text-brand-slate font-bold bg-gray-100 px-2 py-0.5 rounded-md">{track.duration}</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                        </div>
+                    )}
+
+                    {/* ⏱️ tab 8: PREMIUM BABY KICK COUNTER */}
+                    {activeTab === 'kicks' && (
+                        <div className="p-5 flex-grow animate-fade-in flex flex-col h-full">
+                            <button onClick={() => setActiveTab('home')} className="text-brand-darkpink font-bold text-xs mb-4 flex items-center gap-1 hover:underline">
+                                <i className="fa-solid fa-arrow-left"></i> ආපසු මුල් පිටුවට
+                            </button>
+
+                            <h2 className="text-xl font-bold mb-1 text-brand-chocolate flex items-center gap-2">
+                                බිළිඳා දඟලන වාර ගණන
+                                <span className="text-[10px] bg-gradient-to-r from-amber-400 to-amber-500 text-brand-chocolate px-2.5 py-0.5 rounded-full font-black shadow-sm">PRO</span>
+                            </h2>
+                            <p className="text-xs text-brand-slate mb-5">ගර්භණී සති 28න් පසුව බබාගේ දඟලන වාර ගණන (Baby Kicks) නිරීක්ෂණය කිරීම දරුවාගේ නිරෝගීභාවය මැනීමට ඉතා වැදගත් වේ.</p>
+
+                            {/* 🎯 Main Huge Counter Interactive Card */}
+                            <div className="bg-white border border-pink-100 rounded-3xl p-6 text-center shadow-sm mb-5 space-y-5">
+                                <span className="text-[10px] text-brand-pink font-bold uppercase tracking-wider block">Daily Kick Tracker • දෛනික ගණනය</span>
+                                
+                                {/* Big Number Display */}
+                                <div className="w-28 h-28 bg-gradient-to-tr from-pink-50 to-rose-100/30 rounded-full border-4 border-white shadow-inner flex flex-col items-center justify-center mx-auto">
+                                    <span className="text-4xl font-black text-brand-darkpink">{kickCount}</span>
+                                    <span className="text-[9px] text-brand-slate font-bold uppercase">Kicks</span>
+                                </div>
+
+                                {/* Dynamic Condition Status */}
+                                <div className="h-6">
+                                    {kickCount >= 10 ? (
+                                        <span className="text-xs bg-emerald-50 text-emerald-700 font-bold px-3 py-1 rounded-full border border-emerald-100 animate-bounce block">
+                                            <i className="fa-solid fa-face-smile mr-1"></i> පැටියා ඉතා ක්‍රියාශීලී සහ නිරෝගීයි!
+                                        </span>
+                                    ) : (
+                                        <span className="text-[11px] text-brand-slate font-medium block">
+                                            අද දිනය තුළ බබා දඟලන සෑම වාරයකදීම පහත බටන් එක ඔබන්න.
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Huge Click Action Button */}
+                                <button 
+                                    onClick={() => setKickCount(kickCount + 1)}
+                                    className="w-full bg-gradient-to-r from-brand-pink to-brand-darkpink hover:from-brand-darkpink hover:to-brand-pink text-white font-black py-4 rounded-2xl shadow-md active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 text-sm select-none"
+                                >
+                                    <i className="fa-solid fa-heart text-white animate-pulse"></i> බබා දඟලනවා දැනුණා !
+                                </button>
+
+                                {/* Reset Button */}
+                                {kickCount > 0 && (
+                                    <button 
+                                        onClick={() => setKickCount(0)}
+                                        className="text-xs text-gray-400 hover:text-brand-darkpink font-bold transition-all underline active:scale-95"
+                                    >
+                                        ගණනය නැවත බිංදුවෙන් අරඹන්න (Reset)
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* 📖 Government Clinic Guide Info */}
+                            <div className="bg-gradient-to-br from-pink-50/50 to-white border border-pink-100 p-4 rounded-2xl shadow-sm">
+                                <h4 className="font-black text-xs text-brand-chocolate mb-2 flex items-center gap-1.5">
+                                    <i className="fa-solid fa-book-medical text-brand-pink"></i> සායන පොතේ උපදෙස් (FMT Guide)
+                                </h4>
+                                <ul className="list-disc pl-4 text-xs text-brand-slate space-y-1.5 leading-relaxed">
+                                    <li>සෑම දිනකම උදෑසන 9:00 සිට බබාගේ චලනයන් ගණන් කිරීම සාමාන්‍ය සිරිතයි.</li>
+                                    <li><strong>පැය 12ක් ඇතුළත (උදේ 9 සිට රෑ 9 දක්වා)</strong> බබා අවම වශයෙන් <strong>වාර 10ක්</strong> දඟලන්නට ඕනේ.</li>
+                                    <li>බබා දඟලනවා මදි වගේ දැනේ නම්, වම් ඇලයට හැරී පැණිරස යමක් හෝ වතුර වීදුරුවක් බොන්න. ඉන්පසු නැවත අවධානයෙන් සිටින්න.</li>
+                                    <li>යම් හෙයකින් දවස පුරා බබාගේ චලනයන් 10ට වඩා බෙහෙවින් අඩු නම් වහාම වෛද්‍යවරයා හෝ සෞඛ්‍ය සේවා නිලධාරිනිය (Midwife) හමුවන්න.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 🧳 tab 9: PREMIUM HOSPITAL BAG CHECKLIST */}
+                    {activeTab === 'bag' && (
+                        <div className="p-5 flex-grow animate-fade-in flex flex-col h-full">
+                            <button onClick={() => setActiveTab('home')} className="text-brand-darkpink font-bold text-xs mb-4 flex items-center gap-1 hover:underline">
+                                <i className="fa-solid fa-arrow-left"></i> ආපසු මුල් පිටුවට
+                            </button>
+
+                            <h2 className="text-xl font-bold mb-1 text-brand-chocolate flex items-center gap-2">
+                                රෝහල් බෑගයේ සූදානම
+                                <span className="text-[10px] bg-gradient-to-r from-amber-400 to-amber-500 text-brand-chocolate px-2.5 py-0.5 rounded-full font-black shadow-sm">PRO</span>
+                            </h2>
+                            <p className="text-xs text-brand-slate mb-5">ගර්භණී සමයේ 9 වන මාසය (සති 36) ඇතුළත ප්‍රසූතිය සඳහා රෝහලට රැගෙන යා යුතු අත්‍යවශ්‍ය දෑ කල්තියා සූදානම් කරගන්න.</p>
+
+                            {/* Checklist Container */}
+                            <div className="space-y-4 flex-grow overflow-y-auto max-h-[460px] pr-1 no-scrollbar mb-4">
+                                
+                                {/* Section 1: Documents */}
+                                <div className="bg-white border border-pink-100 rounded-2xl p-4 shadow-sm">
+                                    <h4 className="font-black text-xs text-brand-darkpink mb-3 flex items-center gap-1.5 border-b border-pink-50 pb-1.5">
+                                        <i className="fa-solid fa-file-medical"></i> ලියකියවිලි (Documents)
+                                    </h4>
+                                    <div className="space-y-2.5">
+                                        {[
+                                            { id: 'doc1', txt: 'රජයේ සායන පොත (H507 Form)' },
+                                            { id: 'doc2', txt: 'මවගේ ජාතික හැඳුනුම්පත (NIC)' },
+                                            { id: 'doc3', txt: 'සියලුම බ්ලඩ් රිපෝට් සහ ස්කෑන් (Scan) වාර්තා' }
+                                        ].map(item => (
+                                            <label key={item.id} className="flex items-start gap-3 text-xs text-brand-chocolate cursor-pointer select-none">
+                                                <input type="checkbox" checked={!!bagItems[item.id]} onChange={() => toggleBagItem(item.id)} className="mt-0.5 rounded accent-brand-darkpink w-4 h-4" />
+                                                <span className={bagItems[item.id] ? 'line-through text-gray-400' : ''}>{item.txt}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Section 2: For Baby */}
+                                <div className="bg-white border border-pink-100 rounded-2xl p-4 shadow-sm">
+                                    <h4 className="font-black text-xs text-blue-600 mb-3 flex items-center gap-1.5 border-b border-blue-50 pb-1.5">
+                                        <i className="fa-solid fa-baby-carriage"></i> බබාට අවශ්‍ය දෑ (For Baby)
+                                    </h4>
+                                    <div className="space-y-2.5">
+                                        {[
+                                            { id: 'baby1', txt: 'ළදරු කපු ඇඳුම් (Baby Shirts) - 6ක්' },
+                                            { id: 'baby2', txt: 'නැපි (Baby Nappies) - 12-18ක්' },
+                                            { id: 'baby3', txt: 'කපු රෙදි කඩවල් (Receiving Blankets) - 6ක්' },
+                                            { id: 'baby4', txt: 'ළදරු සබන්, ක්‍රීම් සහ පැවුඩර්' },
+                                            { id: 'baby5', txt: 'මෘදු තුවා සහ කපු පුළුන් (Cotton Wool)' }
+                                        ].map(item => (
+                                            <label key={item.id} className="flex items-start gap-3 text-xs text-brand-chocolate cursor-pointer select-none">
+                                                <input type="checkbox" checked={!!bagItems[item.id]} onChange={() => toggleBagItem(item.id)} className="mt-0.5 rounded accent-blue-500 w-4 h-4" />
+                                                <span className={bagItems[item.id] ? 'line-through text-gray-400' : ''}>{item.txt}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Section 3: For Mom */}
+                                <div className="bg-white border border-pink-100 rounded-2xl p-4 shadow-sm">
+                                    <h4 className="font-black text-xs text-purple-600 mb-3 flex items-center gap-1.5 border-b border-purple-50 pb-1.5">
+                                        <i className="fa-solid fa-person-pregnant"></i> අම්මාට අවශ්‍ය දෑ (For Mom)
+                                    </h4>
+                                    <div className="space-y-2.5">
+                                        {[
+                                            { id: 'mom1', txt: 'ඉදිරියෙන් බොත්තම් සහිත පහසු ගවුම් - 4-5ක්' },
+                                            { id: 'mom2', txt: 'විශේෂිත මාතෘ සනීපාරක්ෂක තුවා (Maternity Pads)' },
+                                            { id: 'mom3', txt: 'ළදරුවාට කිරි දීමට පහසු බ්‍රෙසියර් (Nursing Bras)' },
+                                            { id: 'mom4', txt: 'සෙරෙප්පු ජෝඩුවක් සහ රබර් බෑන්ඩ්/ක්ලිප්ස්' },
+                                            { id: 'mom5', txt: 'දත් බුරුසුව, දත් බෙහෙත්, සබන් සහ පනාව' }
+                                        ].map(item => (
+                                            <label key={item.id} className="flex items-start gap-3 text-xs text-brand-chocolate cursor-pointer select-none">
+                                                <input type="checkbox" checked={!!bagItems[item.id]} onChange={() => toggleBagItem(item.id)} className="mt-0.5 rounded accent-purple-500 w-4 h-4" />
+                                                <span className={bagItems[item.id] ? 'line-through text-gray-400' : ''}>{item.txt}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 💉 tab 10: PREMIUM VACCINE CALENDAR */}
+                    {activeTab === 'vaccine' && (
+                        <div className="p-5 flex-grow animate-fade-in flex flex-col h-full">
+                            <button onClick={() => setActiveTab('home')} className="text-brand-darkpink font-bold text-xs mb-4 flex items-center gap-1 hover:underline">
+                                <i className="fa-solid fa-arrow-left"></i> ආපසු මුල් පිටුවට
+                            </button>
+
+                            <h2 className="text-xl font-bold mb-1 text-brand-chocolate flex items-center gap-2">
+                                පැටියාගේ එන්නත් දින දර්ශනය
+                                <span className="text-[10px] bg-gradient-to-r from-amber-400 to-amber-500 text-brand-chocolate px-2.5 py-0.5 rounded-full font-black shadow-sm">PRO</span>
+                            </h2>
+                            <p className="text-xs text-brand-slate mb-5">ශ්‍රී ලංකා සෞඛ්‍ය අමාත්‍යාංශයේ (MOH) නිල ජාතික ප්‍රතිශක්තිකරණ වැඩසටහනට අනුව ඔබේ දරුවාට එන්නත් ලබාදිය යුතු දින වකවානු මෙතැනින් බලන්න.</p>
+
+                            {/* 🗓️ DOB Input Card */}
+                            <div className="bg-white border border-pink-100 rounded-3xl p-4 shadow-sm mb-5">
+                                <label className="text-[11px] text-brand-slate font-bold block mb-1.5">දරුවා උපන් දිනය හෝ බලාපොරොත්තු වන ප්‍රසූත දිනය (EDD) ඇතුළත් කරන්න:</label>
+                                <input 
+                                    type="date" 
+                                    value={babyDob} 
+                                    onChange={(e) => setBabyDob(e.target.value)}
+                                    className="w-full px-3 py-2.5 border border-pink-100 rounded-xl text-xs focus:outline-none focus:border-brand-pink transition-all"
+                                />
+                            </div>
+
+                            {/* Live Calendar Display */}
+                            <div className="space-y-3.5 flex-grow overflow-y-auto max-h-[360px] pr-1 no-scrollbar mb-4">
+                                {babyDob ? (
+                                    [
+                                        { ageDays: 0, name: 'BCG එන්නත', desc: 'ක්ෂය රෝගයෙන් (TB) ආරක්ෂා වීමට උපත ලැබූ වහාම රෝහලෙන් ලබා දේ.' },
+                                        { ageDays: 60, name: 'පංචසංයුජ එන්නත (Pentavalent 1) + OPV 1 + Rotavirus 1', desc: 'කෝකටුයියා, පිටගැස්ම, හෙපටයිටිස් B, fසමූහ උණ සහ පෝලියෝ රෝගයෙන් ආරක්ෂා වීමට (මාස 2 දී).' },
+                                        { ageDays: 120, name: 'පංචසංයුජ එන්නත (Pentavalent 2) + OPV 2 + ffIPV', desc: 'එන්නතේ දෙවන මාත්‍රාව (මාස 4 දී).' },
+                                        { ageDays: 180, name: 'පංචසංයුජ එන්නත (Pentavalent 3) + OPV 3 + Rotavirus 2', desc: 'එන්නතේ තෙවන මාත්‍රාව (මාස 6 දී).' },
+                                        { ageDays: 270, name: 'පළමු MMR එන්නත + Live JE එන්නත', desc: 'පරිප්පු උණ (Measles), කම්මුල්ගාය (Mumps), රුබෙල්ලා සහ ජපන් එන්සෙෆලයිටිස් රෝගයට (මාස 9 දී).' },
+                                        { ageDays: 540, name: 'DPT බූස්ටර් මාත්‍රාව + OPV 4 මාත්‍රාව', desc: 'ශක්තිමත් කිරීමේ බූස්ටර් මාත්‍රාව (අවුරුදු 1 හමාරේදී).' },
+                                        { ageDays: 1095, name: 'දෙවන MMR එන්නත', desc: 'Measles, Mumps, Rubella ආරක්ෂාව සම්පූර්ණ කිරීමට (අවුරුදු 3 දී).' },
+                                        { ageDays: 1825, name: 'AT එන්නත (DT Booster) + OPV 5', desc: 'පාසල් ඇතුළත් වීමට පෙර ලබා දෙන පිටගැස්ම සහ කෝකටුයියා බූස්ටරය (අවුරුදු 5 දී).' }
+                                    ].map((v, idx) => {
+                                        const originalDate = new Date(babyDob);
+                                        originalDate.setDate(originalDate.getDate() + v.ageDays);
+                                        const formattedVacDate = originalDate.toLocaleDateString('si-LK', { year: 'numeric', month: 'long', day: 'numeric' });
+                                        
+                                        return (
+                                            <div key={idx} className="bg-white border border-pink-100 rounded-2xl p-4 shadow-sm relative overflow-hidden flex items-start gap-3">
+                                                <div className="w-8 h-8 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-black text-xs flex-shrink-0 mt-0.5">
+                                                    {v.ageDays === 0 ? "උපතේදී" : `${v.ageDays >= 365 ? `අවු. ${Math.floor(v.ageDays/365)}` : `මාස ${Math.floor(v.ageDays/30)}`}`}
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-black text-xs text-brand-chocolate mb-0.5">{v.name}</h4>
+                                                    <span className="text-[10px] text-brand-darkpink font-black block mb-1.5"><i className="fa-solid fa-calendar-check"></i> එන්නත් කළ යුතු දිනය: {formattedVacDate}</span>
+                                                    <p className="text-[11px] text-brand-slate leading-relaxed bg-gray-50/50 p-2 rounded-xl border border-gray-100/50">{v.desc}</p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                ) : (
+                                    <div className="text-center py-12 bg-pink-50/30 rounded-2xl border border-dashed border-pink-100">
+                                        <i className="fa-solid fa-syringe text-gray-300 text-3xl mb-2 block animate-pulse"></i>
+                                        <p className="text-xs text-brand-slate font-medium max-w-[240px] mx-auto leading-relaxed">ඉහත කොටුවෙන් දරුවාගේ උපන් දිනය තෝරන්න. එවිට එන්නත් දින දර්ශනය ස්වයංක්‍රීයව මෙතැන දර්ශනය වේ.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 🩸 tab 11: PREMIUM WEIGHT GAIN TRACKER */}
+                    {activeTab === 'weight' && (
+                        <div className="p-5 flex-grow animate-fade-in flex flex-col h-full">
+                            <button onClick={() => setActiveTab('home')} className="text-brand-darkpink font-bold text-xs mb-4 flex items-center gap-1 hover:underline">
+                                <i className="fa-solid fa-arrow-left"></i> ආපසු මුල් පිටුවට
+                            </button>
+
+                            <h2 className="text-xl font-bold mb-1 text-brand-chocolate flex items-center gap-2">
+                                මවගේ බර වැඩිවීම් දර්ශකය
+                                <span className="text-[10px] bg-gradient-to-r from-amber-400 to-amber-500 text-brand-chocolate px-2.5 py-0.5 rounded-full font-black shadow-sm">PRO</span>
+                            </h2>
+                            <p className="text-xs text-brand-slate mb-5">ගැබ් ගැනීමට පෙර ඔබේ ශරීරයේ තිබූ බර සහ උස අනුව, සති 40 තුළ ඔබට වැඩිවිය යුතු නිවැරදිම සෞඛ්‍ය සම්පන්න බර ප්‍රමාණය (Healthy Weight Range) ගණනය කරන්න.</p>
+
+                            {/* ⚖️ Input Form Card */}
+                            <div className="bg-white border border-pink-100 rounded-3xl p-5 shadow-sm space-y-4 mb-5">
+                                <form onSubmit={calculateWeightGainRange} className="space-y-3.5">
+                                    <div className="grid grid-cols-2 gap-3.5">
+                                        <div>
+                                            <label className="text-[10px] text-brand-slate font-bold block mb-1">ගැබ් ගැනීමට පෙර බර (kg):</label>
+                                            <input 
+                                                type="number" 
+                                                step="0.1"
+                                                placeholder="උදා: 55"
+                                                value={prePregnancyWeight} 
+                                                onChange={(e) => setPrePregnancyWeight(e.target.value)} 
+                                                required 
+                                                className="w-full px-3 py-2 border border-pink-100 rounded-xl text-xs focus:outline-none focus:border-brand-pink text-center"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] text-brand-slate font-bold block mb-1">ඔබේ උස (cm):</label>
+                                            <input 
+                                                type="number" 
+                                                placeholder="උදා: 152"
+                                                value={motherHeight} 
+                                                onChange={(e) => setMotherHeight(e.target.value)} 
+                                                required 
+                                                className="w-full px-3 py-2 border border-pink-100 rounded-xl text-xs focus:outline-none focus:border-brand-pink text-center"
+                                            />
+                                        </div>
+                                    </div>
+                                    <button type="submit" className="w-full bg-gradient-to-r from-brand-pink to-brand-darkpink text-white font-black text-xs py-2.5 rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 active:scale-98">
+                                        <i className="fa-solid fa-calculator"></i> බර සීමාවන් ගණනය කරන්න
+                                    </button>
+                                </form>
+
+                                {/* Results display */}
+                                {bmiResult && (
+                                    <div className="bg-gradient-to-br from-pink-50/50 to-white border border-pink-100 rounded-2xl p-4 space-y-3.5 animate-fade-in text-center">
+                                        <div>
+                                            <span className="text-[9px] text-brand-slate font-bold block uppercase tracking-wider">Pre-Pregnancy BMI</span>
+                                            <strong className="text-2xl font-black text-brand-darkpink">{bmiResult} kg/m²</strong>
+                                            <span className="text-[10px] text-brand-slate block font-medium mt-0.5">
+                                                ({parseFloat(bmiResult) < 18.5 ? "අඩු බර" : parseFloat(bmiResult) < 25 ? "සාමාන්‍ය බර" : parseFloat(bmiResult) < 30 ? "අධික බර" : "ස්ථූලතාවය"})
+                                            </span>
+                                        </div>
+
+                                        <div className="border-t border-pink-50 pt-3 grid grid-cols-2 gap-2">
+                                            <div className="bg-emerald-50/60 border border-emerald-100 p-2.5 rounded-xl">
+                                                <span className="text-[9px] text-emerald-800 font-bold block">අවම වශයෙන් (Min)</span>
+                                                <strong className="text-base font-black text-emerald-700">+{minWeightGain} kg</strong>
+                                            </div>
+                                            <div className="bg-emerald-50/60 border border-emerald-100 p-2.5 rounded-xl">
+                                                <span className="text-[9px] text-emerald-800 font-bold block">උපරිම වශයෙන් (Max)</span>
+                                                <strong className="text-base font-black text-emerald-700">+{maxWeightGain} kg</strong>
+                                            </div>
+                                        </div>
+                                        <p className="text-[10px] text-brand-slate leading-relaxed font-medium">ප්‍රසූතිය දක්වා සති 40 ඇතුළත ඔබේ මුළු බර **කිලෝග්‍රෑම් {minWeightGain} ත් {maxWeightGain} ත් අතර** ප්‍රමාණයකින් වැඩිවීම වඩාත් සෞඛ්‍ය සම්පන්න වේ.</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* 📖 Quick Tips Guide */}
+                            <div className="bg-gradient-to-br from-pink-50/50 to-white border border-pink-100 p-4 rounded-2xl shadow-sm">
+                                <h4 className="font-black text-xs text-brand-chocolate mb-2 flex items-center gap-1.5">
+                                    <i className="fa-solid fa-circle-info text-brand-pink"></i> බර පාලනයට වැදගත් උපදෙස්
+                                </h4>
+                                <ul className="list-disc pl-4 text-xs text-brand-slate space-y-1.5 leading-relaxed">
+                                    <li><strong>පළමු මාස 3:</strong> බර වැඩිවන්නේ ඉතා සුළු වශයෙනි (සාමාන්‍යයෙන් 1kg - 2kg පමණ). සමහර මව්වරුන්ට වමනය නිසා බර අඩු විය හැක.</li>
+                                    <li><strong>සති 12න් පසු:</strong> සතියකට සාමාන්‍යයෙන් <strong>ග්‍රෑම් 350 - 500ත් අතර</strong> ප්‍රමාණයකින් බර ක්‍රමයෙන් වැඩි විය යුතුය.</li>
+                                    <li>දෙදෙනෙකුට හරියන්නට කියා අධික ලෙස පැණිරස, තෙල් කෑම සහ පිටි කෑම ගැනීමෙන් වළකින්න. එය ගර්භණී සමයේ දියවැඩියාව හෝ අධි රුධිර පීඩනය ඇතිවීමට හේතු විය හැක.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 🚨 tab 12: PREMIUM DANGER SIGNS EARLY WARNING */}
+                    {activeTab === 'danger' && (
+                        <div className="p-5 flex-grow animate-fade-in flex flex-col h-full">
+                            <button onClick={() => setActiveTab('home')} className="text-brand-darkpink font-bold text-xs mb-4 flex items-center gap-1 hover:underline">
+                                <i className="fa-solid fa-arrow-left"></i> ආපසු මුල් පිටුවට
+                            </button>
+
+                            <h2 className="text-xl font-bold mb-1 text-brand-chocolate flex items-center gap-2">
+                                අන්තරාදායක ලක්ෂණ (Danger Signs)
+                                <span className="text-[10px] bg-gradient-to-r from-amber-400 to-amber-500 text-brand-chocolate px-2.5 py-0.5 rounded-full font-black shadow-sm">PRO</span>
+                            </h2>
+                            <p className="text-xs text-brand-slate mb-5">ගර්භණී සමයේදී පහත දැක්වෙන යම් ලක්ෂණයක් හෝ මතු වුවහොත්, සායන දිනය එනතෙක් බලා නොසිට **වහාම ළඟම ඇති රජයේ රෝහලට** ඇතුළත් වන්න.</p>
+
+                            {/* Danger Signs Grid/List */}
+                            <div className="space-y-3.5 flex-grow overflow-y-auto max-h-[440px] pr-1 no-scrollbar mb-4">
+                                
+                                {/* Sign 1 */}
+                                <div className="bg-red-50/50 border border-red-100 rounded-2xl p-4 shadow-sm flex items-start gap-3 relative overflow-hidden">
+                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500"></div>
+                                    <div className="w-8 h-8 bg-red-100 text-red-600 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <i className="fa-solid fa-droplet"></i>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-black text-xs text-red-950 mb-1">යෝනි මාර්ගයෙන් ලේ හෝ වතුර වැනි දියර පිටවීම</h4>
+                                        <p className="text-[11px] text-red-900/85 leading-relaxed font-medium">ගර්භණී සමයේ කුමන මාසයකදී හෝ රුධිරය බිංදුවක් හෝ පිටවීම, නැතහොත් වේදනාවකින් තොරව එකපාරටම වතුර යාම (දියර බෑගය පිපිරීම) ඉතාමත් අවදානම් සහගතය.</p>
+                                    </div>
+                                </div>
+
+                                {/* Sign 2 */}
+                                <div className="bg-red-50/50 border border-red-100 rounded-2xl p-4 shadow-sm flex items-start gap-3 relative overflow-hidden">
+                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500"></div>
+                                    <div className="w-8 h-8 bg-red-100 text-red-600 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <i className="fa-solid fa-brain"></i>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-black text-xs text-red-950 mb-1">අධික හිසරදය සහ ඇස් පෙනීම අපැහැදිලි වීම</h4>
+                                        <p className="text-[11px] text-red-900/85 leading-relaxed font-medium">සාමාන්‍ය බෙහෙත් වලට අඩු නොවන දැඩි හිසරදය, පෙනීමේ වෙනස්කම්, හෝ ඇස් ඉදිරිපිට තරු පෙනීම රුධිර පීඩනය අධික ලෙස වැඩිවීමේ (Eclampsia / වලිප්පුව) පූර්ව ලක්ෂණ විය හැක.</p>
+                                    </div>
+                                </div>
+
+                                {/* Sign 3 */}
+                                <div className="bg-red-50/50 border border-red-100 rounded-2xl p-4 shadow-sm flex items-start gap-3 relative overflow-hidden">
+                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500"></div>
+                                    <div className="w-8 h-8 bg-red-100 text-red-600 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <i className="fa-solid fa-heart-crack"></i>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-black text-xs text-red-950 mb-1">බිළිඳාගේ චලනයන් (දඟලන වාර ගණන) ක්ෂණිකව අඩුවීම</h4>
+                                        <p className="text-[11px] text-red-900/85 leading-relaxed font-medium">සති 28න් පසු බබා වෙනදාට වඩා දඟලනවා අඩු බව දැනුනහොත්, වම් ඇලයට හැරී පැණිරස යමක් ගෙන නැවත බලන්න. පැය 12ක් තුළ වාර 10ක් නොදඟලයි නම් වහාම රෝහලට යන්න.</p>
+                                    </div>
+                                </div>
+
+                                {/* Sign 4 */}
+                                <div className="bg-red-50/50 border border-red-100 rounded-2xl p-4 shadow-sm flex items-start gap-3 relative overflow-hidden">
+                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500"></div>
+                                    <div className="w-8 h-8 bg-red-100 text-red-600 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <i className="fa-solid fa-person-dots-from-line"></i>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-black text-xs text-red-950 mb-1">මුහුණ, අත් සහ පාද එකපාරටම අධික ලෙස ඉදිමීම</h4>
+                                        <p className="text-[11px] text-red-900/85 leading-relaxed font-medium">උදෑසන අවදි වන විට මුහුණ සහ අත්ල ඉදිමී ඇත්නම්, පාවහන් දැමීමට නොහැකි තරම් කකුල් ක්ෂණිකව ඉදිමී ඇත්නම් එය වෛද්‍ය අවධානය අත්‍යවශ්‍ය කරුණකි.</p>
+                                    </div>
+                                </div>
+
+                                {/* Sign 5 */}
+                                <div className="bg-red-50/50 border border-red-100 rounded-2xl p-4 shadow-sm flex items-start gap-3 relative overflow-hidden">
+                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500"></div>
+                                    <div className="w-8 h-8 bg-red-100 text-red-600 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <i className="fa-solid fa-temperature-high"></i>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-black text-xs text-red-950 mb-1">අධික උණ සහ වෙව්ලීම</h4>
+                                        <p className="text-[11px] text-red-900/85 leading-relaxed font-medium">ශරීරයේ ඇතිවන කිසියම් බරපතල ආසාදනයක් (Infection) නිසා උණ ගැනී වෙව්ලීම සිදුවිය හැක. මෙය කලලයටද බලපෑ හැකි බැවින් ස්වයං ඖෂධ (පැනඩෝල් හැර වෙනත් දේ) නොගන්න.</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ⏳ tab 13: PREMIUM CONTRACTION TIMER */}
+                    {activeTab === 'contraction' && (
+                        <div className="p-5 flex-grow animate-fade-in flex flex-col h-full mb-20">
+                            <button onClick={() => setActiveTab('home')} className="text-brand-darkpink font-bold text-xs mb-4 flex items-center gap-1 hover:underline">
+                                <i className="fa-solid fa-arrow-left"></i> ආපසු මුල් පිටුවට
+                            </button>
+
+                            <h2 className="text-xl font-bold mb-1 text-brand-chocolate flex items-center gap-2">
+                                ප්‍රසූත වේදනා මාපකය
+                                <span className="text-[10px] bg-gradient-to-r from-amber-400 to-amber-500 text-brand-chocolate px-2.5 py-0.5 rounded-full font-black shadow-sm">PRO</span>
+                            </h2>
+                            <p className="text-xs text-brand-slate mb-5">වේදනාව පටන් ගත් විට බටන් එක ඔබන්න. වේදනාව නැවතුණු පසු නැවත ඔබන්න. මේ හරහා රෝහලට යා යුතු නිවැරදිම වෙලාව අපි ඔබට කියන්නම්.</p>
+
+                            {/* Main Tracker Button */}
+                            <div className="bg-white border border-pink-100 rounded-3xl p-6 text-center shadow-sm mb-5">
+                                <div className={`w-32 h-32 mx-auto rounded-full flex items-center justify-center border-4 shadow-inner mb-4 transition-all ${isTracking ? 'bg-red-50 border-red-200 animate-pulse' : 'bg-pink-50 border-pink-100'}`}>
+                                    <span className={`text-3xl font-black ${isTracking ? 'text-red-500' : 'text-brand-darkpink'}`}>
+                                        {formatContractionTime(elapsedTime)}
+                                    </span>
+                                </div>
+                                
+                                <button 
+                                    onClick={handleContractionToggle}
+                                    className={`w-full text-white font-black py-4 rounded-2xl shadow-md active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 text-sm select-none ${isTracking ? 'bg-gradient-to-r from-red-500 to-rose-600 hover:from-rose-600 hover:to-red-500' : 'bg-gradient-to-r from-brand-pink to-brand-darkpink hover:from-brand-darkpink hover:to-brand-pink'}`}
+                                >
+                                    <i className={`fa-solid ${isTracking ? 'fa-stop' : 'fa-play'}`}></i> 
+                                    {isTracking ? 'වේදනාව නැවතුණා (Stop)' : 'වේදනාව පටන් ගත්තා (Start)'}
+                                </button>
+                                
+                                {contractions.length > 0 && !isTracking && (
+                                    <button onClick={() => setContractions([])} className="mt-4 text-[10px] text-gray-400 hover:text-red-500 font-bold transition-all underline">
+                                        සියලු දත්ත මකා දමන්න (Reset)
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Hospital Warning Condition */}
+                            {contractions.length >= 3 && contractions[0].frequency && contractions[0].frequency <= 300 && (
+                                <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-4 animate-bounce shadow-sm flex gap-3 items-center">
+                                    <i className="fa-solid fa-truck-medical text-red-500 text-2xl mt-1"></i>
+                                    <div>
+                                        <h4 className="text-red-700 font-black text-xs mb-0.5">වහාම රෝහලට යන්න!</h4>
+                                        <p className="text-[10px] text-red-900/80 font-medium leading-relaxed">ඔබේ ප්‍රසූත වේදනා වාර විනාඩි 5කට වඩා අඩුවෙන් පැමිණේ. ප්‍රසූතිය ඉතා ආසන්නයි.</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* History List */}
+                            <h3 className="font-black text-xs text-brand-chocolate mb-2 pl-1">ඉතිහාසය (History):</h3>
+                            <div className="space-y-2 flex-grow overflow-y-auto max-h-[200px] pr-1 no-scrollbar">
+                                {contractions.length === 0 ? (
+                                    <div className="text-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                        <p className="text-[10px] text-brand-slate">තවම දත්ත කිසිවක් සටහන් කර නොමැත.</p>
+                                    </div>
+                                ) : (
+                                    contractions.map((c, idx) => (
+                                        <div key={c.id} className="bg-white border border-pink-50 p-3 rounded-xl shadow-sm flex justify-between items-center text-xs">
+                                            <div>
+                                                <span className="font-bold text-brand-darkpink block mb-1">
+                                                    වාරය {contractions.length - idx} 
+                                                    <span className="text-[9px] text-gray-400 font-normal ml-2">
+                                                        ({new Date(c.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})})
+                                                    </span>
+                                                </span>
+                                                <div className="flex gap-4 text-[10px] text-brand-slate">
+                                                    <span><strong className="text-brand-chocolate">කාලය:</strong> {formatContractionTime(c.duration)}</span>
+                                                    <span><strong className="text-brand-chocolate">පරතරය:</strong> {formatContractionTime(c.frequency)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                   {/* 🔒 PREMIUM SUBSCRIPTION PAYWALL MODAL (PERFECT SCROLLABLE LUXURY IOS LAYOUT) */}
+                    {showPaywall && (
+                        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex justify-center items-center p-3 z-[9999] animate-fade-in">
+                            <div className="bg-gradient-to-b from-white to-pink-50 rounded-3xl w-full max-w-[360px] border border-pink-200/80 shadow-2xl relative max-h-[85vh] flex flex-col shadow-pink-950/20 overflow-hidden">
+                                
+                                {/* Close Button */}
+                                <button onClick={() => setShowPaywall(false)} className="absolute right-3 top-3 text-gray-400 hover:text-brand-chocolate transition-all active:scale-90 bg-gray-100 w-7 h-7 rounded-full flex items-center justify-center z-50 shadow-sm">
+                                    <i className="fa-solid fa-xmark text-sm"></i>
+                                </button>
+
+                                {/* 📜 MAIN SCROLLABLE WRAPPER */}
+                                <div className="overflow-y-auto flex-1 no-scrollbar pb-4">
+                                    
+                                    {/* Top Header Gradient Design */}
+                                    <div className="bg-gradient-to-br from-purple-600 via-brand-pink to-brand-darkpink p-4 text-center text-white relative mb-3">
+                                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white/10 to-transparent"></div>
+                                        <div className="w-11 h-11 bg-white/20 backdrop-blur-md text-amber-300 rounded-full flex items-center justify-center mx-auto mb-2 border border-white/30 shadow-inner">
+                                            <i className="fa-solid fa-crown text-lg drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)]"></i>
+                                        </div>
+                                        <h3 className="text-base font-black tracking-wide drop-shadow-sm">Mother's Assistant PRO</h3>
+                                        <p className="text-[10px] text-white/90 font-medium mt-0.5">ඔබේ ගර්භණී සමයේ වටිනාම ආයෝජනය</p>
+                                    </div>
+
+                                    {/* Inner content wrapper with padding */}
+                                    <div className="px-4 space-y-3.5">
+                                        {/* Price Tag Display */}
+                                        <div className="bg-white border border-pink-100 rounded-2xl p-2.5 text-center shadow-sm flex items-center justify-between px-4">
+                                            <div className="text-left">
+                                                <span className="text-[9px] text-brand-slate font-bold uppercase tracking-wider block">සම්පූර්ණ ප්‍රවේශය</span>
+                                                <span className="text-[10px] text-brand-pink line-through block font-medium">රු. 499/-</span>
+                                            </div>
+                                            <div className="text-right">
+                                                <span className="text-xl font-black text-brand-darkpink">රු. 99<span className="text-[10px] font-bold text-brand-chocolate"> / Lifetime</span></span>
+                                            </div>
+                                        </div>
+
+                                        {/* 🏦 BANK DETAILS CONTAINER */}
+                                        <div className="bg-white border border-pink-100 rounded-2xl p-3 shadow-sm space-y-1.5 text-left">
+                                            <span className="text-[9px] text-brand-darkpink font-black uppercase tracking-wider block border-b border-pink-50 pb-0.5">
+                                                <i className="fa-solid fa-bank mr-1"></i> බැංකු තැන්පතු විස්තර (Bank Deposit)
+                                            </span>
+                                            <div className="text-[11px] space-y-0.5 text-brand-chocolate font-medium">
+                                                <p><span className="text-brand-slate">බැංකුව:</span> <strong>මහජන බැංකුව (People's Bank)</strong></p>
+                                                <p><span className="text-brand-slate">ගිණුම් අංකය:</span> <strong className="text-xs tracking-wide text-brand-darkpink select-all">169200240035183</strong></p>
+                                                <p><span className="text-brand-slate">නම:</span> <strong>MD හපුතන්ත්‍රී</strong></p>
+                                                <p><span className="text-brand-slate">ශාඛාව:</span> <strong>ගාල්ල මහවීදිය</strong></p>
+                                            </div>
+                                        </div>
+
+                                        {/* Main WhatsApp Receipt Action Button */}
+                                        <button 
+                                            onClick={() => {
+                                                const message = encodeURIComponent("Mother's Assistant PRO: මම රු. 99/- බැංකු ගිණුමට තැන්පත් කළා. මෙන්න ගෙවීම් රිසිට්පත.");
+                                                window.open(`https://wa.me/94774206088?text=${message}`, '_blank');
+                                            }} 
+                                            className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black py-2.5 rounded-xl shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-xs select-none"
+                                        >
+                                            <i className="fa-brands fa-whatsapp text-sm"></i> රිසිට්පත එවන්න (WhatsApp)
+                                        </button>
+
+                                        {/* 🔒 Security Privacy Note */}
+                                        <p className="text-[10px] text-brand-slate font-medium text-center bg-gray-50 p-2 rounded-xl border border-gray-100 leading-normal">
+                                            🔒 අපි ඔබගේ කාඩ්පත් විස්තර කිසිවක් ලබා නොගන්නා අතර, මෙම ගෙවීම සම්පූර්ණයෙන්ම සුරක්ෂිත බැංකු තැන්පතු ක්‍රමවේදයකි.
+                                        </p>
+
+                                        {/* 🔑 DYNAMIC DAILY PROMO CODE UNLOCK BOX */}
+                                        <div className="bg-pink-50/50 border border-pink-100 rounded-2xl p-3 space-y-2.5 text-center">
+                                            <label className="text-[10px] text-brand-chocolate font-black block uppercase tracking-wide">
+                                                <i className="fa-solid fa-key text-brand-darkpink mr-1"></i> රිසිට්පත එවා ලැබුණු Passcode එක ඇතුළත් කරන්න
+                                            </label>
+                                            
+                                            <div className="flex flex-col gap-2">
+                                                <input 
+                                                    type="text" 
+                                                    id="dailyPromoInput"
+                                                    placeholder="Passcode එක මෙතන ගහන්න..." 
+                                                    className="w-full px-3 py-2 border border-pink-200 rounded-xl text-xs focus:outline-none focus:border-brand-pink text-center uppercase font-bold tracking-wider bg-white shadow-inner"
+                                                />
+                                                <button 
+                                                    onClick={async (e) => {
+                                                        const inputVal = document.getElementById('dailyPromoInput').value.trim().toUpperCase();
+                                                        const errorBox = document.getElementById('promoErrorBox');
+                                                        const successBox = document.getElementById('promoSuccessBox');
+                                                        const btn = e.currentTarget;
+
+                                                        if(!inputVal) return;
+
+                                                        try {
+                                                            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> පරීක්ෂා කරමින්...';
+                                                            
+                                                            // Firebase එකෙන් Code එක තියෙනවද සහ පාවිච්චි කරලා නැද්ද බලනවා
+                                                            const docRef = db.collection("activation_codes").doc(inputVal);
+                                                            const docSnap = await docRef.get();
+                                                            
+                                                            if (docSnap.exists && docSnap.data().isUsed === false) {
+                                                                // Code එක හරියටම මැච් වුණා නම්, ඒක පාවිච්චි කරා කියලා Update කරනවා
+                                                                await docRef.update({ isUsed: true });
+                                                                
+                                                                errorBox.classList.add('hidden');
+                                                                successBox.classList.remove('hidden');
+                                                                
+                                                                // LocalStorage එකේ Save කරනවා
+                                                                localStorage.setItem('isProUser', 'true');
+                                                                
+                                                                setTimeout(() => {
+                                                                    setIsSubscribed(true);
+                                                                    setShowPaywall(false);
+                                                                    btn.innerHTML = 'ඇතුළු වන්න';
+                                                                }, 2000);
+                                                            } else {
+                                                                // වැරදි හෝ පාවිච්චි කරපු Code එකක් නම්
+                                                                successBox.classList.add('hidden');
+                                                                errorBox.classList.remove('hidden');
+                                                                btn.innerHTML = 'ඇතුළු වන්න';
+                                                            }
+                                                        } catch (error) {
+                                                            console.error("Firebase Error: ", error);
+                                                            errorBox.classList.remove('hidden');
+                                                            btn.innerHTML = 'ඇතුළු වන්න';
+                                                        }
+                                                    }}
+                                                    className="w-full bg-brand-darkpink text-white font-black text-xs py-2.5 rounded-xl active:scale-95 transition-all shadow-md block text-center"
+                                                >
+                                                    ඇතුළු වන්න
+                                                </button>
+                                            </div>
+
+                                            {/* ❌ Custom Error Box */}
+                                            <div id="promoErrorBox" className="hidden bg-red-50 border border-red-200 rounded-xl p-2.5 text-left flex items-start gap-2.5 animate-fade-in">
+                                                <i className="fa-solid fa-circle-xmark text-red-500 text-sm mt-0.5 flex-shrink-0"></i>
+                                                <p className="text-[11px] text-red-900 leading-tight font-medium">
+                                                    <strong>වැරදි Passcode එකක්!</strong> කරුණාකර රිසිට්පත ලබාදී අද දිනට වලංගු නිවැරදිම Passcode එක ලබාගන්න.
+                                                </p>
+                                            </div>
+
+                                            {/*  Custom Success Box */}
+                                            <div id="promoSuccessBox" className="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-left flex items-start gap-2.5 animate-fade-in">
+                                                <i className="fa-solid fa-circle-check text-emerald-500 text-sm mt-0.5 flex-shrink-0"></i>
+                                                <p className="text-[11px] text-emerald-900 leading-tight font-medium">
+                                                    <strong>Passcode එක නිවැරදියි!</strong> ස්තූතියි මවක් විදිහට අප කෙරෙහි තැබූ විශ්වාසයට. PRO විශේෂාංග දැන් සක්‍රීය වේ...
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Security Microcopy */}
+                                        <span className="text-[8px] text-gray-400 text-center block font-medium pt-1">
+                                            <i className="fa-solid fa-lock text-[8px] mr-0.5"></i> Secure Verification System
+                                        </span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    )}
+
+                   {/* 🏥 Friendly Medical Disclaimer (No secret clicks anymore) */}
+                    <div className="bg-red-50/60 border border-red-100 rounded-2xl p-4 mt-2 select-none mx-5 mb-6">
+                        <p className="text-[11px] text-red-700 leading-relaxed font-medium">
+                            <i className="fa-solid fa-circle-exclamation mr-1 text-xs"></i> <strong>සෞඛ්‍ය උපදේශය:</strong> මෙහි අඩංගු සියලුම ලිපි සහ උපදෙස් මූලික අවබෝධය සඳහා පමණි. යම් වෛද්‍ය ගැටලුවකදී වහාම ඔබේ පවුල් සෞඛ්‍ය සේවා නිලධාරිනිය හෝ වෛද්‍යවරයා හමුවන්න.
+                        </p>
+                    </div>
+                    
+                    {/* 🌸 BOTTOM NAVIGATION BAR */}
+                    <nav className="fixed bottom-0 max-w-[450px] w-full bg-white/70 backdrop-blur-lg border-t border-pink-100/40 flex py-3 justify-around items-center z-10 shadow-[0_-5px_20px_rgba(0,0,0,0.02)] rounded-t-3xl">
+                        <button onClick={() => setActiveTab('home')} className={`flex flex-col items-center gap-1 text-[10px] font-black tracking-wide transition-all ${activeTab === 'home' ? 'text-brand-darkpink scale-105' : 'text-brand-slate opacity-70 hover:opacity-100'}`}>
+                            <i className="fa-solid fa-house text-base"></i>
+                            <span>මුල් පිටුව</span>
+                        </button>
+                        <button onClick={() => setActiveTab('strips')} className={`flex flex-col items-center gap-1 text-[10px] font-black tracking-wide transition-all ${activeTab === 'strips' ? 'text-brand-darkpink scale-105' : 'text-brand-slate opacity-70 hover:opacity-100'}`}>
+                            <i className="fa-solid fa-vial-virus text-base"></i>
+                            <span>Strips</span>
+                        </button>
+                        <button onClick={() => setActiveTab('names')} className={`flex flex-col items-center gap-1 text-[10px] font-black tracking-wide transition-all ${activeTab === 'names' ? 'text-brand-darkpink scale-105' : 'text-brand-slate opacity-70 hover:opacity-100'}`}>
+                            <i className="fa-solid fa-address-book text-base"></i>
+                            <span>ළදරු නම්</span>
+                        </button>
+                        <button onClick={() => handlePremiumClick('tracker')} className={`flex flex-col items-center gap-1 text-[10px] font-black tracking-wide transition-all ${activeTab === 'tracker' ? 'text-brand-darkpink scale-105' : 'text-brand-slate opacity-70 hover:opacity-100'}`}>
+                            <i className="fa-solid fa-calendar-week text-base"></i>
+                            <span>Tracker</span>
+                        </button>
+                    </nav>
+
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
