@@ -1340,6 +1340,55 @@
                                 </div>
                             </div>
 
+                            {/* 💬 WhatsApp Feedback Section */}
+                            <div className="mt-4 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100/60 rounded-3xl p-4 shadow-sm relative overflow-hidden">
+                                <div className="absolute -right-4 -top-4 text-emerald-200/40 text-6xl pointer-events-none">
+                                    <i className="fa-brands fa-whatsapp"></i>
+                                </div>
+                                <div className="flex items-center gap-3 mb-3 relative z-10">
+                                    <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center text-emerald-500 shadow-sm border border-emerald-50">
+                                        <i className="fa-brands fa-whatsapp text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-xs text-emerald-900">ඔබේ අදහස් අපිට කියන්න</h4>
+                                        <p className="text-[10px] text-emerald-700/80 leading-tight">App එක ගැන යෝජනා හෝ ගැටළු කෙළින්ම අපිට එවන්න</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-2 relative z-10">
+                                    <input 
+                                        type="text" 
+                                        id="waFeedbackName" 
+                                        placeholder="ඔබේ නම (අවශ්‍ය නම්)" 
+                                        className="w-full px-3 py-2.5 rounded-xl text-xs border border-emerald-100/80 focus:outline-none focus:border-emerald-300 focus:ring-1 focus:ring-emerald-300 bg-white/80"
+                                    />
+                                    <textarea 
+                                        id="waFeedbackMsg" 
+                                        placeholder="ඔබේ අදහස මෙහි ලියන්න..." 
+                                        rows="2"
+                                        className="w-full px-3 py-2.5 rounded-xl text-xs border border-emerald-100/80 focus:outline-none focus:border-emerald-300 focus:ring-1 focus:ring-emerald-300 resize-none bg-white/80"
+                                    ></textarea>
+                                    <button 
+                                        onClick={() => {
+                                            const name = document.getElementById('waFeedbackName').value.trim() || 'හිතවතෙක්';
+                                            const msg = document.getElementById('waFeedbackMsg').value.trim();
+                                            if(!msg) return alert('කරුණාකර ඔබේ අදහස ලියන්න.');
+                                            const encodedMsg = encodeURIComponent(`*Mother's App Feedback*\n\n*Name:* ${name}\n*Message:* ${msg}`);
+                                            window.open(`https://wa.me/94774206088?text=${encodedMsg}`, '_blank');
+                                            document.getElementById('waFeedbackMsg').value = '';
+                                        }}
+                                        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs py-2.5 rounded-xl transition-all shadow-md shadow-emerald-200 active:scale-95 flex items-center justify-center gap-2"
+                                    >
+                                        <i className="fa-solid fa-paper-plane"></i> යවන්න (WhatsApp හරහා)
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* 🏢 Brand Watermark */}
+                            <div className="mt-8 mb-4 flex flex-col items-center justify-center opacity-60 pointer-events-none select-none pb-2">
+                                <span className="text-[9px] text-brand-slate uppercase tracking-[0.2em] font-bold mb-0.5">Proudly from</span>
+                                <h3 className="text-sm font-black bg-gradient-to-r from-gray-700 to-gray-500 bg-clip-text text-transparent tracking-tight">Nexia Pro</h3>
+                                <div className="w-8 h-0.5 bg-gradient-to-r from-brand-pink/20 via-brand-pink/50 to-brand-pink/20 mt-1.5 rounded-full"></div>
+                            </div>
 
                         </div>
                     )}
@@ -3077,6 +3126,7 @@
 
                                                                 // LocalStorage එකේ Save කරනවා
                                                                 localStorage.setItem('isProUser', 'true');
+                                                                localStorage.setItem('usedPasscode', inputVal); // Future-proofing for Login System migration
 
                                                                 setTimeout(() => {
                                                                     setIsSubscribed(true);
