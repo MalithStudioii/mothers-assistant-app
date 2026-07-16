@@ -1,13 +1,26 @@
 <!DOCTYPE html>
 <html lang="si">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mother's Assistant - අම්මගේ අත්උදව්ව</title>
+    <!-- SEO and OpenGraph Meta Tags -->
+    <meta name="description"
+        content="Mother's Assistant (අම්මගේ අත්උදව්ව) - ගැබ්ගත් මුල්ම දින සිට දරු ප්‍රසූතිය දක්වා ඔබට අවශ්‍ය සියලුම සෞඛ්‍ය උපදෙස්, ළදරු බර මාපක, එන්නත් දින දර්ශනය සහ මඟපෙන්වීම් එකම තැනකින් සිංහලෙන්.">
+    <meta name="keywords"
+        content="Mothers Assistant, අම්මගේ අත්උදව්ව, pregnancy tracker sri lanka, baby names sinhala, clinic card abbreviations, baby weight moh sri lanka">
+    <meta name="author" content="Mother's Assistant">
+    <meta property="og:title" content="Mother's Assistant - අම්මගේ අත්උදව්ව">
+    <meta property="og:description" content="ඔබේ ගර්භණී සමයේ සමීපතම සහකරු. සෞඛ්‍ය උපදෙස් සහ මඟපෙන්වීම් සිංහලෙන්.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="./index.html">
     <!-- Google Fonts for premium maternal look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Noto+Sans+Sinhala:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Noto+Sans+Sinhala:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <!-- FontAwesome for Cute Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Tailwind CSS CDN -->
@@ -20,10 +33,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- PayHere JavaScript SDK -->
     <script type="text/javascript" src="https://www.payhere.lk/lib/payhere.js"></script>
-    
+
     <!-- Firebase SDK (Compat version for simple HTML integration) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <!-- Baby Names External Database -->
+    <script src="./names.js"></script>
 
     <!-- PWA Manifest & Mobile Web App Meta -->
     <link rel="manifest" href="./manifest.json">
@@ -57,6 +73,7 @@
             font-family: 'Poppins', 'Noto Sans Sinhala', sans-serif;
             background-attachment: fixed;
         }
+
         /* Mobile Frame simulator to feel like a real PWA App */
         .app-frame {
             max-width: 450px;
@@ -72,28 +89,81 @@
             flex-direction: column;
             position: relative;
         }
+
         /* Ensures the fixed popup centers within the app frame */
         #root {
             width: 100%;
             display: flex;
             justify-content: center;
         }
+
         /* Custom scrollbar for clean layout */
         ::-webkit-scrollbar {
             width: 4px;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #ff85a1;
             border-radius: 10px;
         }
+
+        /* Custom Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes scaleUp {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes wiggle {
+
+            0%,
+            100% {
+                transform: rotate(-3deg);
+            }
+
+            50% {
+                transform: rotate(3deg);
+            }
+        }
+
+        @keyframes bounce {
+            from {
+                height: 15%;
+            }
+
+            to {
+                height: 100%;
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
     </style>
 </head>
+
 <body class="flex justify-center items-center min-h-screen">
 
     <div id="root" class="w-full flex justify-center"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
 
         // Firebase Configuration (Mother's Assistant App)
         const firebaseConfig = {
@@ -104,7 +174,7 @@
             messagingSenderId: "621868958714",
             appId: "1:621868958714:web:2db775c5573845e6579a43"
         };
-        
+
         // Initialize Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
@@ -112,37 +182,69 @@
         const db = firebase.firestore();
 
         // Monetag Vignette Ad Component (Updated with Zone ID 11302039)
-const MonetagAd = () => {
-    useEffect(() => {
-        
-        if (!document.querySelector('script[data-zone="11302039"]')) {
-            const script = document.createElement('script');
-            script.dataset.zone = '11302039';
-            script.src = 'https://n6wxm.com/vignette.min.js';
-            script.async = true;
-            
-            const target = document.body || document.documentElement;
-            target.appendChild(script);
-        }
-    }, []);
+        const MonetagAd = () => {
+            useEffect(() => {
 
-    return null; 
-};
+                if (!document.querySelector('script[data-zone="11302039"]')) {
+                    const script = document.createElement('script');
+                    script.dataset.zone = '11302039';
+                    script.src = 'https://n6wxm.com/vignette.min.js';
+                    script.async = true;
+
+                    const target = document.body || document.documentElement;
+                    target.appendChild(script);
+                }
+            }, []);
+
+            return null;
+        };
+
+        // 🛡️ Pregnancy Safety Database Items
+        const safetyItems = [
+            { name: 'පැපොල් (අමු)', category: 'food', status: 'avoid', desc: 'අමු පැපොල් වල ඇති Latex කළලයට හානි කර විය හැකි අතර ගර්භාෂය හැකිලීමට හේතු විය හැක.' },
+            { name: 'පැපොල් (ඉදුණු)', category: 'food', status: 'safe', desc: 'හොඳින් ඉදුණු පැපොල් විටමින් C සහ තන්තු බහුල නිසා මලබද්ධය වළක්වයි.' },
+            { name: 'අන්නාසි', category: 'food', status: 'avoid', desc: 'අන්නාසි වල ඇති Bromelain එන්සයිමය ගර්භාෂය ලිහිල් කර ගබ්සා වීමේ අවදානමක් ඇති කරයි.' },
+            { name: 'කෝපි (කැෆේන්)', category: 'food', status: 'moderate', desc: 'දිනකට කැෆේන් 200mg (කෝප්ප 1-2) කට සීමා කරන්න. අධික කැෆේන් බබාගේ බර අඩුවීමට හේතු විය හැක.' },
+            { name: 'කළු තේ', category: 'food', status: 'moderate', desc: 'කැෆේන් අඩංගු බැවින් සීමිතව පානය කරන්න. ආහාර ගත් සැනින් බීමෙන් යකඩ උරා ගැනීම බාල කරයි.' },
+            { name: 'කඩල / මුංඇට', category: 'food', status: 'safe', desc: 'ප්‍රෝටීන් සහ යකඩ බහුල බැවින් ගර්භණී මවට ඉතා ගුණදායකයි.' },
+            { name: 'නිවිති / පලා වර්ග', category: 'food', status: 'safe', desc: 'ෆෝලික් ඇසිඩ් සහ යකඩ බහුල බැවින් බබාගේ මොළයේ වර්ධනයට ඉතා යෝග්‍ය වේ.' },
+            { name: 'බිත්තර (භාගෙට තැම්බූ)', category: 'food', status: 'avoid', desc: 'සැල්මොනෙල්ලා (Salmonella) බැක්ටීරියා ආසාදනය විය හැකි බැවින් හොඳින් තැම්බූ බිත්තර පමණක් කන්න.' },
+            { name: 'සැර කුළුබඩු / තෙල් කෑම', category: 'food', status: 'moderate', desc: 'බබාට සෘජුව හානි නොකළත්, මවට බඩේ දැවිල්ල සහ ඇසිඩ් ගතිය වැඩි කරයි.' },
+            { name: 'මද්‍යසාර (Alcohol)', category: 'food', status: 'avoid', desc: 'බිළිඳාගේ මොළයේ වර්ධනයට සහ ශාරීරික වර්ධනයට බරපතල හානි පමුණුවයි.' },
+            { name: 'දුම්පානය (Passive Smoking)', category: 'activity', status: 'avoid', desc: 'අක්‍රීය දුම්පානය පවා බබාගේ බර අඩු වීමට සහ නොමේරූ දරු උපත් වලට හේතු වේ.' },
+            { name: 'බර එසවීම / ලිස්සන වැඩ', category: 'activity', status: 'avoid', desc: 'යටිබඩට පීඩනයක් දැනෙන වැඩ සහ ලිස්සා වැටීමේ අවදානම ඇති වැඩ වලින් වළකින්න.' },
+            { name: 'සැහැල්ලු ඇවිදීම', category: 'activity', status: 'safe', desc: 'දිනකට විනාඩි 20-30ක් ඇවිදීම රුධිර සංසරණය යහපත් කරන අතර ප්‍රසූතිය පහසු කරයි.' },
+            { name: 'උණුසුම් ජලයෙන් ස්නානය (Hot Tubs)', category: 'activity', status: 'avoid', desc: 'ශරීරයේ උෂ්ණත්වය අධික ලෙස වැඩිවීම බබාගේ ස්නායු නාල වල දෝෂ ඇති කළ හැක.' },
+            { name: 'වෛද්‍ය උපදෙස් රහිත බෙහෙත්', category: 'medicine', status: 'avoid', desc: 'ඕනෑම සුළු අසනීපයකට වුවත් වෛද්‍යවරයා නිර්දේශ කළ ඖෂධ පමණක් ලබා ගන්න.' }
+        ];
 
         function App() {
             // App state management
             const [activeTab, setActiveTab] = useState('home');
-            
-            
+
+
             const [isSubscribed, setIsSubscribed] = useState(() => {
                 return localStorage.getItem('isProUser') === 'true';
             });
             const [showPaywall, setShowPaywall] = useState(false);
             const [selectedWeek, setSelectedWeek] = useState(1);
 
+            // Helper to format Date into modern Sinhala month names (Gregorian calendar)
+            const formatSinhalaDate = (dateObj) => {
+                if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) return '';
+                const sinhalaMonths = [
+                    'ජනවාරි', 'පෙබරවාරි', 'මාර්තු', 'අප්‍රේල්', 'මැයි', 'ජූනි',
+                    'ජූලි', 'අගෝස්තු', 'සැප්තැම්බර්', 'ඔක්තෝබර්', 'නොවැම්බර්', 'දෙසැම්බර්'
+                ];
+                const year = dateObj.getFullYear();
+                const month = sinhalaMonths[dateObj.getMonth()];
+                const day = dateObj.getDate();
+                return `${year} ${month} ${day}`;
+            };
+
             // 🔙 Mobile Back Button Handler (PWA History API)
             useEffect(() => {
-                
+
                 const handlePopState = () => {
                     const hash = window.location.hash.replace('#', '');
                     setActiveTab(hash ? hash : 'home');
@@ -153,24 +255,31 @@ const MonetagAd = () => {
             }, []);
 
             useEffect(() => {
-                
+
                 const currentHash = window.location.hash.replace('#', '');
-                
+
                 if (activeTab !== 'home' && currentHash !== activeTab) {
-                    
+
                     window.history.pushState(null, '', `#${activeTab}`);
                 } else if (activeTab === 'home' && window.location.hash !== '') {
-                    
+
                     window.history.replaceState(null, '', window.location.pathname);
                 }
             }, [activeTab]);
-            
+
             // 🎶 Audio Player Advanced States
             const [currentTrack, setCurrentTrack] = useState(0);
             const [isPlaying, setIsPlaying] = useState(false);
             const [audioElement, setAudioElement] = useState(null);
             const [currentTime, setCurrentTime] = useState(0);
             const [duration, setDuration] = useState(0);
+            const [sleepTimer, setSleepTimer] = useState(null); // remaining seconds
+            const [selectedSleepDuration, setSelectedSleepDuration] = useState(null);
+            const [audioFrequencies, setAudioFrequencies] = useState(new Array(9).fill(15));
+            const audioCtxRef = useRef(null);
+            const analyserRef = useRef(null);
+            const sourceRef = useRef(null);
+
 
             // LMP Calculator states
             const [lmpDate, setLmpDate] = useState('');
@@ -185,25 +294,25 @@ const MonetagAd = () => {
                 const lmp = new Date(lmpDate);
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-                
+
                 if (lmp > today) {
                     alert("කරුණාකර අතීත දිනයක් තෝරන්න.");
                     return;
                 }
-                
+
                 // Calculate EDD (LMP + 280 days)
                 const eddDate = new Date(lmp);
                 eddDate.setDate(eddDate.getDate() + 280);
-                const formattedEdd = eddDate.toLocaleDateString('si-LK', { year: 'numeric', month: 'long', day: 'numeric' });
+                const formattedEdd = formatSinhalaDate(eddDate);
                 setEdd(formattedEdd);
-                
+
                 // Calculate Gestational Age in days
                 const diffTime = today.getTime() - lmp.getTime();
                 const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                
+
                 const weeks = Math.floor(diffDays / 7);
                 const days = diffDays % 7;
-                
+
                 setGestWeeks(weeks);
                 setGestDays(days);
             };
@@ -223,7 +332,7 @@ const MonetagAd = () => {
             const [isTracking, setIsTracking] = useState(false);
             const [currentStartTime, setCurrentStartTime] = useState(null);
             const [elapsedTime, setElapsedTime] = useState(0);
-            
+
             // Contraction timer logic
             useEffect(() => {
                 let interval = null;
@@ -245,7 +354,7 @@ const MonetagAd = () => {
                     setIsTracking(false);
                     const endTime = Date.now();
                     const duration = Math.floor((endTime - currentStartTime) / 1000);
-                    
+
                     let frequency = null;
                     if (contractions.length > 0) {
                         const lastContraction = contractions[0];
@@ -270,10 +379,17 @@ const MonetagAd = () => {
                 return `${m}m ${s}s`;
             };
 
-            // 🧳 Hospital Bag Checklist State
-            const [bagItems, setBagItems] = useState({});
+            // 🧳 Hospital Bag Checklist State (With LocalStorage Persistence)
+            const [bagItems, setBagItems] = useState(() => {
+                const saved = localStorage.getItem('hospital_bag_items');
+                return saved ? JSON.parse(saved) : {};
+            });
             const toggleBagItem = (id) => {
-                setBagItems(prev => ({ ...prev, [id]: !prev[id] }));
+                setBagItems(prev => {
+                    const updated = { ...prev, [id]: !prev[id] };
+                    localStorage.setItem('hospital_bag_items', JSON.stringify(updated));
+                    return updated;
+                });
             };
 
             // 💉 Baby Vaccine Calendar State
@@ -289,7 +405,7 @@ const MonetagAd = () => {
             const calculateWeightGainRange = (e) => {
                 e.preventDefault();
                 if (!prePregnancyWeight || !motherHeight) return;
-                
+
                 const heightInMeters = parseFloat(motherHeight) / 100;
                 const bmi = parseFloat(prePregnancyWeight) / (heightInMeters * heightInMeters);
                 setBmiResult(bmi.toFixed(1));
@@ -315,25 +431,49 @@ const MonetagAd = () => {
 
             // Global Audio Control Logic
             const togglePlay = (trackIndex = currentTrack) => {
-                if (audioElement) {
-                    if (currentTrack === trackIndex && isPlaying) {
+                if (currentTrack !== trackIndex) {
+                    if (audioElement) {
                         audioElement.pause();
-                        setIsPlaying(false);
+                        audioElement.src = playlist[trackIndex].url;
+                        audioElement.play().catch(e => console.log("Play failed:", e));
+                        setCurrentTrack(trackIndex);
+                        setIsPlaying(true);
                     } else {
-                        audioElement.pause();
-                        const newAudio = new Audio(playlist[trackIndex].url);
-                        newAudio.play();
+                        const newAudio = new Audio();
+                        newAudio.crossOrigin = "anonymous";
+                        newAudio.src = playlist[trackIndex].url;
+                        newAudio.play().catch(e => console.log("Play failed:", e));
                         setAudioElement(newAudio);
                         setCurrentTrack(trackIndex);
                         setIsPlaying(true);
                     }
                 } else {
-                    const newAudio = new Audio(playlist[trackIndex].url);
-                    newAudio.play();
-                    setAudioElement(newAudio);
-                    setCurrentTrack(trackIndex);
-                    setIsPlaying(true);
+                    if (audioElement) {
+                        if (isPlaying) {
+                            audioElement.pause();
+                            setIsPlaying(false);
+                        } else {
+                            audioElement.play().catch(e => console.log("Play failed:", e));
+                            setIsPlaying(true);
+                        }
+                    } else {
+                        const newAudio = new Audio();
+                        newAudio.crossOrigin = "anonymous";
+                        newAudio.src = playlist[trackIndex].url;
+                        newAudio.play().catch(e => console.log("Play failed:", e));
+                        setAudioElement(newAudio);
+                        setCurrentTrack(trackIndex);
+                        setIsPlaying(true);
+                    }
                 }
+            };
+
+            const cycleSleepTimer = () => {
+                const options = [null, 600, 1800, 3600];
+                const nextIndex = (options.indexOf(selectedSleepDuration) + 1) % options.length;
+                const nextVal = options[nextIndex];
+                setSelectedSleepDuration(nextVal);
+                setSleepTimer(nextVal);
             };
 
             // Seek Audio Progress
@@ -374,13 +514,99 @@ const MonetagAd = () => {
                 };
             }, [audioElement, currentTrack]);
 
+
+            // ⏳ Sleep Timer Countdown Handler
+            useEffect(() => {
+                if (sleepTimer === null) return;
+                if (sleepTimer <= 0) {
+                    if (audioElement) {
+                        audioElement.pause();
+                    }
+                    setIsPlaying(false);
+                    setSleepTimer(null);
+                    return;
+                }
+
+                const timerId = setTimeout(() => {
+                    setSleepTimer(prev => prev - 1);
+                }, 1000);
+
+                return () => clearTimeout(timerId);
+            }, [sleepTimer, audioElement]);
+
             // Stop audio instantly if user changes tabs to home/strips
             useEffect(() => {
                 if (activeTab !== 'music' && audioElement) {
                     audioElement.pause();
                     setIsPlaying(false);
+                    setSleepTimer(null); // Reset timer when leaving tab
+                    setSelectedSleepDuration(null); // Reset timer option
                 }
             }, [activeTab]);
+
+            // Web Audio API Visualizer integration
+            useEffect(() => {
+                if (!audioElement) return;
+
+                if (!audioCtxRef.current) {
+                    try {
+                        const AudioContext = window.AudioContext || window.webkitAudioContext;
+                        audioCtxRef.current = new AudioContext();
+                        analyserRef.current = audioCtxRef.current.createAnalyser();
+                        analyserRef.current.fftSize = 64;
+                    } catch (e) {
+                        console.error("Web Audio API not supported:", e);
+                    }
+                }
+
+                const ctx = audioCtxRef.current;
+                const analyser = analyserRef.current;
+
+                if (!ctx || !analyser) return;
+
+                if (!sourceRef.current || sourceRef.current.mediaElement !== audioElement) {
+                    try {
+                        sourceRef.current = ctx.createMediaElementSource(audioElement);
+                        sourceRef.current.connect(analyser);
+                        analyser.connect(ctx.destination);
+                    } catch (e) {
+                        console.error("MediaElementSource connection failed:", e);
+                    }
+                }
+
+                let animationFrameId;
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                const animate = () => {
+                    if (isPlaying) {
+                        analyser.getByteFrequencyData(dataArray);
+                        // Pick 9 representative frequencies from the lower end (where most music energy is)
+                        const freqs = [
+                            dataArray[2], dataArray[4], dataArray[6],
+                            dataArray[8], dataArray[10], dataArray[12],
+                            dataArray[14], dataArray[16], dataArray[18]
+                        ];
+                        setAudioFrequencies(freqs);
+                        animationFrameId = requestAnimationFrame(animate);
+                    } else {
+                        // Reset when paused
+                        setAudioFrequencies(new Array(9).fill(15));
+                    }
+                };
+
+                if (isPlaying) {
+                    if (ctx.state === 'suspended') {
+                        ctx.resume();
+                    }
+                    animate();
+                } else {
+                    setAudioFrequencies(new Array(9).fill(15));
+                }
+
+                return () => {
+                    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                };
+            }, [isPlaying, audioElement]);
 
             // PDF Download function for Maternal Diet Plan (Sinhala)
             const downloadDietPDF = () => {
@@ -433,17 +659,17 @@ const MonetagAd = () => {
                 `;
 
                 const opt = {
-                    margin:       15,
-                    filename:     'Maternal_Diet_Plan_Sinhala.pdf',
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true },
-                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    margin: 15,
+                    filename: 'Maternal_Diet_Plan_Sinhala.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
 
                 html2pdf().from(element).set(opt).save();
             };
 
-            
+
             // Track the user's marked current week (Saves locally)
             const [myCurrentWeek, setMyCurrentWeek] = useState(() => {
                 const saved = localStorage.getItem('user_current_week');
@@ -462,7 +688,7 @@ const MonetagAd = () => {
                 setMyCurrentWeek(week);
                 localStorage.setItem('user_current_week', week);
             };
-            
+
             // Baby Names Search & Filter states
             const [namesFilter, setNamesFilter] = useState('all');
             const [namesSearch, setNamesSearch] = useState('');
@@ -474,115 +700,140 @@ const MonetagAd = () => {
             const [showAd, setShowAd] = useState(true);
 
             // 🌟 NEW FREE FEATURES STATES (With LocalStorage Persistence)
-const [reminders, setReminders] = useState(() => {
-    const saved = localStorage.getItem('user_reminders');
-    return saved ? JSON.parse(saved) : { water: false, folic: false, iron: false };
-});
+            const [reminders, setReminders] = useState(() => {
+                const saved = localStorage.getItem('user_reminders');
+                return saved ? JSON.parse(saved) : { water: false, folic: false, iron: false };
+            });
 
-useEffect(() => {
-    localStorage.setItem('user_reminders', JSON.stringify(reminders));
-}, [reminders]);
+            useEffect(() => {
+                localStorage.setItem('user_reminders', JSON.stringify(reminders));
+            }, [reminders]);
 
-const [docNote, setDocNote] = useState(() => {
-    const saved = localStorage.getItem('doctor_notes');
-    return saved ? saved : '';
-});
+            const [docNote, setDocNote] = useState(() => {
+                const saved = localStorage.getItem('doctor_notes');
+                return saved ? saved : '';
+            });
 
-useEffect(() => {
-    localStorage.setItem('doctor_notes', docNote);
-}, [docNote]);
+            useEffect(() => {
+                localStorage.setItem('doctor_notes', docNote);
+            }, [docNote]);
             const [momAge, setMomAge] = useState('');
             const [conceptMonth, setConceptMonth] = useState('1');
             const [genderResult, setGenderResult] = useState(null);
 
+            // 🎮 Gender Predictor Game Logic (Chinese Calendar Method)
             const predictGender = (e) => {
                 e.preventDefault();
-                if(!momAge || momAge < 18 || momAge > 50) {
-                    alert("කරුණාකර මවගේ වයස නිවැරදිව ඇතුළත් කරන්න (අවු. 18-50).");
-                    return;
-                }
-                // Fun Logic: Chinese Gender Predictor Concept (Mock)
-                const isBoy = (parseInt(momAge) + parseInt(conceptMonth)) % 2 !== 0;
-                setGenderResult(isBoy ? 'boy' : 'girl');
+                if (!momAge) return;
+                const age = parseInt(momAge);
+                const month = parseInt(conceptMonth);
+                const result = (age + month) % 2 === 0 ? 'girl' : 'boy';
+                setGenderResult(result);
             };
 
-            // Sinhala Baby Names Database
-            const babyNames = [
-                { id: 1, name: 'අභිෂේකා', meaning: 'අභිෂේක ලත්, පූජනීය වූ තැනැත්තිය', gender: 'girl' },
-                { id: 2, name: 'අසංක', meaning: 'සැකයක් නොමැති, ස්ථිර ගති ඇති', gender: 'boy' },
-                { id: 3, name: 'අනුත්තර', meaning: 'සියල්ලටම වඩා උතුම් වූ, අග්‍රගණ්‍ය', gender: 'boy' },
-                { id: 4, name: 'අමායා', meaning: 'නිර්මල වූ, රැවටීමක් නොමැති ආලෝකය', gender: 'girl' },
-                { id: 5, name: 'කල්පන', meaning: 'සිතුවිලි බහුල, නිර්මාණශීලී බුද්ධිය', gender: 'boy' },
-                { id: 6, name: 'කාව්‍යා', meaning: 'කවියක් බඳු වූ, කලාත්මක සුන්දරත්වය', gender: 'girl' },
-                { id: 7, name: 'කසුන්', meaning: 'රත්තරන් වැනි වටිනා, දීප්තිමත්', gender: 'boy' },
-                { id: 8, name: 'කෙලුම්', meaning: 'කීර්තිය පතුරුවන, වාසනාවන්ත', gender: 'boy' },
-                { id: 9, name: 'දිනුලි', meaning: 'ජයග්‍රාහී ආලෝකය පතුරුවන මනාලිය', gender: 'girl' },
-                { id: 10, name: 'දෙව්මිණි', meaning: 'දෙවියන් දුන් මැණිකක් වැනි වටිනා', gender: 'girl' },
-                { id: 11, name: 'නෙත්මිණි', meaning: 'ඇසක් වැනි වටිනා මැණික', gender: 'girl' },
-                { id: 12, name: 'නිනුක', meaning: 'නිවැරදි දැක්මක් ඇති, බුද්ධිමත්', gender: 'boy' },
-                { id: 13, name: 'මිනුක', meaning: 'පැහැදිලි නෙත් ඇති, ඥානවන්ත පැටියා', gender: 'boy' },
-                { id: 14, name: 'මල්ෂා', meaning: 'මලක් මෙන් සුන්දර සහ සුවඳවත්', gender: 'girl' },
-                { id: 15, name: 'ප්‍රවීන්', meaning: 'දක්ෂ, ඕනෑම දෙයකට ශූර වූ', gender: 'boy' },
-                { id: 16, name: 'පබසර', meaning: 'දිලිසෙන සුලු, මනරම් ආලෝකය', gender: 'boy' },
-                { id: 17, name: 'සෙනුර', meaning: 'ලස්සන,කාටත් ප්‍රියමනාප නායකයෙක්', gender: 'boy' },
-                { id: 18, name: 'සහස්‍රා', meaning: 'දහසක් කිරණ විහිදුවන සූර්යයා මෙන්', gender: 'girl' },
-                { id: 19, name: 'විහාරා', meaning: 'ශාන්ත වූ, නිදහස් මනසක් ඇති', gender: 'girl' },
-                { id: 20, name: 'විනුක', meaning: 'විනයගරුක, යහපත් ගතිගුණ ඇති', gender: 'boy' },
-                { id: 21, name: 'ගිහාන්', meaning: 'විශ්වය, ලෝකය ජයගන්නා', gender: 'boy' },
-                { id: 22, name: 'චතුර', meaning: 'කතා කිරීමට දක්ෂ, ඥානාන්විත', gender: 'boy' },
-                { id: 23, name: 'ජනන', meaning: 'උපත දෙන, ජීවය ලබාදෙන', gender: 'boy' },
-                { id: 24, name: 'තාරුකා', meaning: 'අහසේ දිලිසෙන තරුවක් වැනි', gender: 'girl' },
-                { id: 25, name: 'භාග්‍යා', meaning: 'වාසනාවන්ත, පිනැති තැනැත්තිය', gender: 'girl' },
-                { id: 26, name: 'යොෂිත', meaning: 'සැප සම්පත් ඇති, වාසනාවන්ත', gender: 'boy' },
-                { id: 27, name: 'රවිඳු', meaning: 'සූර්යයා සහ චන්ද්‍රයා වැනි දීප්තිමත්', gender: 'boy' },
-                { id: 28, name: 'ලක්මාල්', meaning: 'ශ්‍රී ලංකාවේ මලක් බඳු වටිනා', gender: 'boy' },
-                { id: 29, name: 'හිරුනි', meaning: 'සූර්යයා මෙන් බැබළෙන දියණිය', gender: 'girl' },
-                { id: 30, name: 'සහන්', meaning: 'සැනසීම ගෙන දෙන, නිවහල්', gender: 'boy' }
-            ];
+            // 🛡️ Safety Search State
+            const [safetySearchQuery, setSafetySearchQuery] = useState('');
+            const [safetyCategory, setSafetyCategory] = useState('all');
+
+            const filteredSafetyItems = safetyItems.filter(item => {
+                const matchesCategory = safetyCategory === 'all' || item.category === safetyCategory;
+                const matchesSearch = item.name.toLowerCase().includes(safetySearchQuery.toLowerCase()) ||
+                    item.desc.toLowerCase().includes(safetySearchQuery.toLowerCase());
+                return matchesCategory && matchesSearch;
+            });
+
+            // 📅 Clinic Scheduler State
+            const [lastClinicDate, setLastClinicDate] = useState('');
+            const [nextClinicDates, setNextClinicDates] = useState([]);
+
+            const calculateClinics = (e) => {
+                e.preventDefault();
+                if (!lastClinicDate) return;
+                const start = new Date(lastClinicDate);
+                const dates = [];
+                for (let i = 1; i <= 3; i++) {
+                    const nextDate = new Date(start);
+                    nextDate.setDate(start.getDate() + (i * 28));
+                    dates.push({
+                        count: i,
+                        date: formatSinhalaDate(nextDate)
+                    });
+                }
+                setNextClinicDates(dates);
+            };
+
+            // 🍼 Baby Weight Chart Logic (WHO International Guidelines)
+            const [babyAgeMonth, setBabyAgeMonth] = useState('0');
+            const [babyGender, setBabyGender] = useState('boy');
+            const [babyWeightInput, setBabyWeightInput] = useState('');
+            const [weightStatusResult, setWeightStatusResult] = useState(null);
+
+            const whoWeightData = {
+                boy: { 0: { min: 2.5, max: 4.3 }, 1: { min: 3.4, max: 5.7 }, 2: { min: 4.4, max: 7.0 }, 3: { min: 5.1, max: 7.9 }, 4: { min: 5.6, max: 8.6 }, 5: { min: 6.1, max: 9.2 }, 6: { min: 6.4, max: 9.7 }, 12: { min: 7.8, max: 11.8 }, 18: { min: 8.9, max: 13.5 }, 24: { min: 9.7, max: 14.8 } },
+                girl: { 0: { min: 2.4, max: 4.1 }, 1: { min: 3.2, max: 5.4 }, 2: { min: 4.0, max: 6.5 }, 3: { min: 4.6, max: 7.4 }, 4: { min: 5.1, max: 8.1 }, 5: { min: 5.5, max: 8.7 }, 6: { min: 5.8, max: 9.2 }, 12: { min: 7.1, max: 11.3 }, 18: { min: 8.2, max: 12.9 }, 24: { min: 9.0, max: 14.2 } }
+            };
+
+            const checkBabyWeight = (e) => {
+                e.preventDefault();
+                const weight = parseFloat(babyWeightInput);
+                const month = parseInt(babyAgeMonth);
+
+                const availableMonths = Object.keys(whoWeightData[babyGender]).map(Number);
+                const closestMonth = availableMonths.reduce((prev, curr) => Math.abs(curr - month) < Math.abs(prev - month) ? curr : prev);
+                const stats = whoWeightData[babyGender][closestMonth];
+
+                if (weight < stats.min) {
+                    setWeightStatusResult({ status: 'underweight', text: 'අඩු බර මට්ටමක පවතී (Underweight)', css: 'bg-amber-50 border-amber-200 text-amber-900', icon: 'fa-triangle-exclamation text-amber-500', min: stats.min, max: stats.max });
+                } else if (weight >= stats.min && weight <= stats.max) {
+                    setWeightStatusResult({ status: 'normal', text: 'නිවැරදි සෞඛ්‍ය සම්පන්න බර (Normal Weight)', css: 'bg-emerald-50 border-emerald-200 text-emerald-900', icon: 'fa-circle-check text-emerald-500', min: stats.min, max: stats.max });
+                } else {
+                    setWeightStatusResult({ status: 'overweight', text: 'අධික බර මට්ටමක පවතී (Overweight)', css: 'bg-rose-50 border-rose-200 text-rose-900', icon: 'fa-circle-exclamation text-rose-500', min: stats.min, max: stats.max });
+                }
+            };
 
             // 📅 Tracker Data Base (Updated with Emotional Milestones & Typo Fixes)
-const weeksData = {
-    1: { milestone: 'පිළිසිඳ ගැනීමට සූදානම්', length: '~ 0.1 mm', weight: '< 1 g', baby: 'මෙම සතියේදී ඔබේ ශරීරය පිළිසිඳ ගැනීමක් සඳහා සූදානම් වේ.', mom: 'බාහිරව කිසිදු වෙනසක් නැත. සෞඛ්‍ය සම්පන්නව සිටීම වැදගත් වේ.', care: 'වෛද්‍ය උපදෙස් මත දිනපතා ෆෝලික් ඇසිඩ් (Folic Acid) පෙත්තක් ගැනීම අරඹන්න.' },
-    2: { milestone: 'ජීවයක ආරම්භය', length: '~ 0.2 mm', weight: '< 1 g', baby: 'ඩිම්බ මෝචනය සිදුවී සංසේචිත ඩිම්බය නිර්මාණය වන සති අන්තයයි.', mom: 'හෝමෝන මට්ටම් වෙනස් වීමට පටන් ගනී.', care: 'දුම්පානය, මත්පැන් සහ අනවශ්‍ය බරපතල ඖෂධ ගැනීම් වලින් වළකින්න.' },
-    3: { milestone: 'සෛල බෙදීමේ අරුමය', length: '~ 0.5 mm', weight: '< 1 g', baby: 'සංසේචිත සෛල සමූහය ගර්භාෂය වෙත ගමන් කරමින් වේගයෙන් බෙදේ.', mom: 'ශරීරය තුළ hCG හෝමෝනය ශ්‍රාවය වීම ඇරඹේ.', care: 'පෝෂණීය ආහාර වේලක් ගන්න. ශරීරයට අධික වෙහෙසක් දෙන ක්‍රියාවලින් බැහැර වන්න.' },
-    4: { milestone: 'ගර්භාෂයේ සුරක්ෂිත වීම', length: '~ 1.0 mm', weight: '< 1 g', baby: 'කළලය ගර්භාෂ බිත්තියේ සාර්ථකව තැන්පත් වේ (Implantation).', mom: 'ඔසප් දිනය මඟ හැරීම සිදුවේ. පියයුරු වල මෘදු බවක් දැනිය හැක.', care: 'ගර්භණී බව ස්ථිර වූ වහාම පවුල් සෞඛ්‍ය සේවා නිලධාරිනිය (Midwife) හමුවන්න.' },
-    5: { milestone: 'පළමු හෘද ස්පන්දනය', length: '~ 2.0 mm', weight: '< 1 g', baby: 'කළලයේ හෘද ස්පන්දනය ඇරඹෙන මුල්ම අවධියයි.', mom: 'නිතර තෙහෙට්ටුව, ක්ලාන්ත ගතිය හෝ වමනය යාම මතු විය හැක.', care: 'නියමිත පරිදි විටමින් පෙති වර්ග ලබා ගන්න. සැහැල්ලු කෑම වේල් ගන්න.' },
-    6: { milestone: 'පුංචි අත් පා වැඩෙන සමය', length: '4 - 5 mm', weight: '< 1 g', baby: 'බබාගේ අත් සහ පාද නිර්මාණය වීමට පටන් ගන්නා අවධියයි. ස්නායු නාලය සම්පූර්ණයෙන්ම වැසී යයි.', mom: 'උදෑසන වමනය ගතිය (Morning Sickness) සහ නිතර මුත්‍රා කිරීමේ අවශ්‍යතාවය වැඩි විය හැක.', care: 'නිතර වතුර බොන්න. තෙල් අධික සහ සැර ආහාර ගැනීමෙන් වළකින්න.' },
-    7: { milestone: 'මුහුණේ හැඩය මතුවීම', length: '10 - 13 mm', weight: '< 1 g', baby: 'බබාගේ මුහුණේ කොටස් (ඇස්, නාසය) සහ මොළයේ සෛල වේගයෙන් වර්ධනය වේ. පුංචි වලිගය වැනි කොටස නැති වී යයි.', mom: 'ගර්භාෂය ක්‍රමයෙන් ලොකු වන නිසා යටි බඩේ සුළු ඇදෙන ස්වභාවයක් දැනිය හැක.', care: 'ප්‍රමාණවත් විවේකයක් ගන්න. බර දේවල් එසවීමෙන් සම්පූර්ණයෙන්ම වැළකී සිටින්න.' },
-    8: { milestone: 'පුංචි ඇඟිලි නිර්මාණය වීම', length: '1.6 cm', weight: '1 - 2 g', baby: 'පැටියාගේ අත් පා වල ඇඟිලි වෙන වෙනම වර්ධනය වීම ඇරඹේ. කුඩා චලනයන් ආරම්භ වුවත් මවට එය තවම දැනෙන්නේ නැත.', mom: 'ශරීරයේ රුධිර ප්‍රමාණය වැඩි වන අතර, පියයුරු වල ප්‍රමාණය විශාල වීම සිදුවේ.', care: 'පවුල් සෞඛ්‍ය සායනයට (Clinic) ගොස් රජයේ සායන පොත සහ මූලික රුධිර පරීක්ෂණ (Hb, Blood Group) සිදුකර ගන්න.' },
-    9: { milestone: 'කළලයෙන් බිළිඳෙකු වීම', length: '2.3 cm', weight: '2 g', baby: 'කළල අවධිය අවසන් වී බිළිඳු (Fetus) අවධිය ඇරඹේ. හෘදයේ කුටීර 4 නිවැරදිව ක්‍රියා කරයි.', mom: 'හෝමෝන උච්චතම අවස්ථාවට පැමිණෙන නිසා මනෝභාවයන් වෙනස් වීම (Mood Swings) බහුල වේ.', care: 'දිනපතා පිරිසිදු වතුර ලීටර් 2-3ක් පානය කර ශරීරය සජලීයව තබාගන්න.' },
-    10: { milestone: 'අත්‍යවශ්‍ය අවයව සම්පූර්ණ වීම', length: '3.1 cm', weight: '4 g', baby: 'සියලුම අත්‍යවශ්‍ය අවයව (වකුගඩු, අක්මාව, බඩවැල්) වැඩී ඇත. බබා කුස තුළ ගිලීමේ චලනයන් කරයි.', mom: 'උදරයේ නහර මතු වී පෙනෙන්නට පුළුවන. වමනය ගතිය කෙමෙන් අඩු වේ.', care: 'දන්ත සෞඛ්‍යය ගැන සැලකිලිමත් වන්න. විදුරුමස් ලේ වැගිරීම් ඇත්නම් වෛද්‍යවරයකුට පෙන්වන්න.' },
-    11: { milestone: 'පුංචි දත් මූල සෑදීම', length: '4.1 cm', weight: '7 g', baby: 'බබාගේ බාහිර ලිංගික අවයව සෑදීම ඇරඹේ. දත්වල මූලික සෛල විදුරුමස් ඇතුළත නිර්මාණය වේ.', mom: 'ශරීරයේ පරිවෘත්තීය ක්‍රියා වේගවත් වන නිසා අධික උණුසුමක් හෝ දහඩිය දැමීමක් දැනේ.', care: 'පෝෂ්‍යදායී සමබර ආහාර වේලක් ගන්න. කැල්සියම් අඩංගු කිරි නිෂ්පාදන වැඩිපුර ගන්න.' },
-    12: { milestone: 'පළමු ත්‍රෛමාසිකයේ නිමාව', length: '5.4 cm', weight: '14 g', baby: 'පළමු ත්‍රෛමාසිකයේ අවසානයයි. බබාගේ ඇඟිලි සලකුණු (Fingerprints) පවා මේ වන විට සෑදී ඇත.', mom: 'ගබ්සා වීමේ අවදානම 65% කින් අඩු වන සන්ධිස්ථානයකි. බඩ තරමක් මතු වේ.', care: 'සති 11-14 අතර කාලයේදී කරන NT Scan පරීක්ෂණය වෛද්‍ය උපදෙස් මත සිදුකර ගන්න.' },
-    13: { milestone: 'දෙවැනි ත්‍රෛමාසිකයේ ඇරඹුම', length: '7.4 cm', weight: '23 g', baby: 'දෙවැනි ත්‍රෛමාසිකය ඇරඹේ. බබාගේ මුත්‍රා පද්ධතිය වැඩ කරන අතර, ඇම්නියොටික් දියරයට මුත්‍රා පිට කරයි.', mom: 'ශක්තිමත් ගතියක් දැනේ. කෑම රුචිය වර්ධනය වන අතර උදෑසන අපහසුතා පහව යයි.', care: 'යකඩ (Iron) සහ විටමින් C බහුල ආහාර එකට ගන්න. (යකඩ පෙත්ත සමඟ දොඩම් යුෂ බොන්න)' },
-    14: { milestone: 'මුහුණේ ඉරියව් වෙනස් වීම', length: '8.7 cm', weight: '43 g', baby: 'බබාගේ බෙල්ල දිගු වන අතර මුහුණේ මාංශ පේශි ක්‍රියාකාරී වේ. නළල රැලි කිරීම් සිදුවේ.', mom: 'ගර්භාෂය ශ්‍රෝණි කුහරයෙන් ඉහළට පැමිණෙන නිසා මුත්‍රා කිරීමේ තදබදය තරමක් අඩු වේ.', care: 'පහසු සැහැල්ලු ඇඳුම් (Maternity Clothes) භාවිතය ආරම්භ කරන්න.' },
-    15: { milestone: 'ආලෝකය හඳුනා ගැනීම', length: '10.1 cm', weight: '70 g', baby: 'බබාගේ සම ඉතා සිහින් වන අතර රුධිර වාහිනී පෙනේ. ඇස් වසාගෙන ආලෝකය හඳුනාගත හැක.', mom: 'සමේ වර්ණක වෙනස් වීම නිසා උදරය මැද කළු ඉරක් (Linea Nigra) මතු විය හැක.', care: 'සිරුර කෙළින් තබාගෙන නිවැරදි ඉරියව්වෙන් වාඩි වීමට හා ඇවිදීමට පුරුදු වන්න.' },
-    16: { milestone: 'හෘදය වේගයෙන් ක්‍රියා කිරීම', length: '11.6 cm', weight: '100 g', baby: 'බබාගේ හිස්කබලේ ඇටකටු ශක්තිමත් වේ. හෘදය දිනකට ලීටර් 25ක ලේ ප්‍රමාණයක් පොම්ප කරයි.', mom: 'දෙවැනි ප්‍රධාන ස්කෑන් පරීක්ෂණයට (Anomaly Scan) කාලය ලඟා වේ.', care: 'වෛද්‍යවරයා නියම කරන යකඩ, කැල්සියම් සහ විටමින් පෙති නොකඩවා ගන්න.' },
-    17: { milestone: 'සන්ධි චලනය වීම', length: '13 cm', weight: '140 g', baby: 'බබාගේ සන්ධි චලනය කළ හැක. ශරීරයේ මේද තට්ටුවක් (Adipose Tissue) තැන්පත් වීම ඇරඹේ.', mom: 'උදරය කැසීම සහ සම ඇදීම නිසා Stretch Marks මතු වීමට පටන් ගනී.', care: 'උදරයේ සම වියළි වීම වැළැක්වීමට මොයිස්චරයිසර් ක්‍රීම් එකක් හෝ පොල්තෙල් ගාන්න.' },
-    18: { milestone: 'ඔබේ ආදරණීය පැටියාගේ හඬ', length: '14.2 cm', weight: '190 g', baby: 'බබාගේ ශ්‍රවණ පද්ධතිය වැඩ කරයි. මවගේ හෘද ස්පන්දනය සහ බාහිර තද ශබ්ද බබාට ඇසේ.', mom: 'සමහර අම්මලාට බබාගේ පළමු සියුම් සෙලවීම (Quickening) සමනලයෙකු තටු ගසන්නාක් මෙන් දැනේ.', care: 'බබා සමඟ ආදරයෙන් කතා කරන්න. කුස පිරිමදිමින් සන්සුන් සංගීතයට සවන් දෙන්න.' },
-    19: { milestone: 'ආරක්ෂිත ආවරණය (Vernix)', length: '15.3 cm', weight: '240 g', baby: 'බබාගේ සම ආරක්ෂා කිරීමට Vernix Caseosa නමැති සුදුවැහැති සෛල තට්ටුවකින් මුළු ඇඟම වැසේ.', mom: 'යටිබඩ හෝ ඉණ දෙපස මාංශ පේශි ඇදීම නිසා සියුම් වේදනාවක් (Round Ligament Pain) දැනේ.', care: 'එකපාරටම ඇඳෙන් නැගිටීමෙන් වළකින්න. මුලින් ඇලයට හැරී පසුව නැගිටින්න.' },
-    20: { milestone: 'අර්ධ ගමනාන්තය (සති 20)', length: '25.6 cm', weight: '300 g', baby: 'ගර්භණී කාලයෙන් සති 40න් හරියටම අඩක් (සති 20) අවසන් වේ. බබාගේ ආහාර ජීර්ණ පද්ධතිය Meconium නිපදවයි.', mom: 'ගර්භාෂයේ ඉහළ සීමාව හරියටම ඔබේ බුරිය මට්ටමට පැමිණ ඇත.', care: 'සති 18-22 අතර කාලයේදී බබාගේ ව්‍යුහය බලන Anomaly Scan එක අනිවාර්යයෙන්ම කරගන්න.' },
-    21: { milestone: 'නොනවත්වා දඟලන සමය', length: '26.7 cm', weight: '360 g', baby: 'බබාගේ ඇහිබැම සහ ඇහිපිහාටු හොඳින් වැඩී ඇත. කුස තුළ සිටිමින් ඇඟිලි හැපීම වැනි දේ සිදුකරයි.', mom: 'ලේ ගමනාගමනය වැඩිවීම නිසා සමහර මව්වරුන්ගේ කකුල් ඉදිමීම (Edema) ආරම්භ විය හැක.', care: 'වැඩි වේලාවක් එක දිගට හිටගෙන සිටීමෙන් වළකින්න. වාඩි වී සිටින විට කකුල් මදක් ඉහළින් තබන්න.' },
-    22: { milestone: 'රස සංවේදනය දියුණු වීම', length: '27.8 cm', weight: '430 g', baby: 'ළදරුවාගේ රස සංවේදනය (Taste buds) වර්ධනය වේ. අම්මා කන කෑමවල රසය ඇම්නියොටික් දියරය හරහා බබාට දැනේ.', mom: 'සමේ ඇදීම නිසා බඩ සහ පියයුරු අවට තදින් කැසීමක් ඇතිවිය හැක.', care: 'සම කැසීම ඇති තැන්වල සබන් ගෑමෙන් වළකින්න, ඒ වෙනුවට මොයිස්චරයිසර් හෝ ඔලිව් ඔයිල් ගාන්න.' },
-    23: { milestone: 'ශබ්ද පැහැදිලිව ඇසීම', length: '28.9 cm', weight: '500 g', baby: 'කන් ඇතුළත ඇති සියුම් අස්ථි සම්පූර්ණයෙන්ම ශක්තිමත් වන නිසා දැන් බබාට බාහිර ශබ්ද ඉතා පැහැදිලිව ඇසේ.', mom: 'ගර්භණී සමයේ දියවැඩියාව (Gestational Diabetes) ඇත්දැයි බැලීමට සායනයෙන් පරීක්ෂණ සිදුකරයි.', care: 'සීනි සහ පිෂ්ඨය අධික කෑම පාලනය කරන්න. වෛද්‍ය උපදෙස් මත OGTT පරීක්ෂණය කරගන්න.' },
-    24: { milestone: 'නින්ද සහ අවදිවීමේ රටාව', length: '30 cm', weight: '600 g', baby: 'පෙනහළු ඇතුළත වාතය රඳවා ගන්නා Surfactant නමැති ද්‍රව්‍යය නිපදවීම ඇරඹේ. බබා නිදාගන්නා සහ අවදිවන වේලාවන් රටාවකට සිදුවේ.', mom: 'ගර්භාෂය ඉහළට තල්ලු වන නිසා පපුවේ දැවිල්ල (Heartburn) සහ ඇසිඩ් ගතිය ඇතිවිය හැක.', care: 'එකවර විශාල ආහාර වේල් ගැනීම වෙනුවට කුඩා ආහාර වේල් කිහිපයකට කන්න. කෑ සැනින් නිදාගන්න එපා.' },
-    25: { milestone: 'රෝස පැහැති සම', length: '34.6 cm', weight: '660 g', baby: 'බබාගේ සම යට කේශනාලිකා සෑදෙන නිසා සම රෝස පැහැයක් ගනී. කොන්ද කෙළින් තබාගැනීමේ හැකියාව ලැබේ.', mom: 'කොන්දේ කැක්කුම (Back pain) බහුලව ඇතිවිය හැක. ශරීරයේ බර කේන්ද්‍රය වෙනස් වීම මෙයට හේතුවයි.', care: 'බිම වැටුණු දේ ඇහිදීමේදී කොන්ද නමා නැමෙන්නේ නැතිව, දණහිස් නමා වාඩි වී ඇහිදින්න.' },
-    26: { milestone: 'පළමු වරට ඇස් ඇරීම', length: '35.6 cm', weight: '760 g', baby: 'බබා පළමු වරට ඇස් ඇරීම සිදුකරයි! ශබ්ද ඇසෙන විට හෘද ස්පන්දන වේගය වැඩිවන බව නිරීක්ෂණය කළ හැක.', mom: 'ගර්භාෂය පෙනහළු තද කරන නිසා සුළු වශයෙන් හුස්ම ගැනීමේ අපහසුවක් (Shortness of breath) දැනේ.', care: 'හුස්ම ගැනීමේ අපහසුවක් දැනෙන විට කෙළින් වාඩි වී දිගු හුස්ම (Deep breathing) ගන්න.' },
-    27: { milestone: 'මොළයේ වේගවත් වර්ධනය', length: '36.6 cm', weight: '875 g', baby: 'දෙවැනි ත්‍රෛමාසිකයේ අවසාන සතියයි. බබාගේ මොළයේ වර්ධනය ඉතා වේගවත් වන අතර නින්දේදී හීන පවා පෙනේ.', mom: 'රාත්‍රී කාලයේදී කෙණ්ඩ පෙරලීම (Leg cramps) සහ නිදි වැරීම බහුලව සිදුවිය හැක.', care: 'කෙණ්ඩ පෙරලෙන විට පාදය ඉදිරියට දිගු කර ඇඟිලි උඩට නමා සම්බාහනය කරන්න. කැල්සියම් ආහාර ගන්න.' },
-    28: { milestone: 'තුන්වැනි ත්‍රෛමාසිකයේ ඇරඹුම', length: '37.6 cm', weight: '1 kg', baby: 'තුන්වැනි ත්‍රෛමාසිකය ඇරඹේ! බබාගේ ඇස්වල කාච සම්පූර්ණ වේ. බබා දඟලන වාර ගණන හොඳින් දැනේ.', mom: 'සායන පොතට අනුව බබා දඟලන වාර ගණන (Kick Counts) දිනපතා සටහන් කිරීම ඇරඹිය යුතුය.', care: 'දිනපතා උදේ 9 සිට රෑ 9 දක්වා පැය 12 තුළ බබා අවම 10 වතාවක් දඟලනවාදැයි අපේ Kick Counter එකෙන් මනින්න.' },
-    29: { milestone: 'අස්ථි ශක්තිමත් වීම', length: '38.6 cm', weight: '1.2 kg', baby: 'බබාගේ අස්ථි පද්ධතිය වේගයෙන් කැල්සියම් උරාගනිමින් ශක්තිමත් වේ. මාංශ පේශි වර්ධනය වේ.', mom: 'උදරය විශාල වීම නිසා රෑට නින්ද යාම අපහසු වේ. වම් ඇලයට හැරී නිදාගැනීම අනිවාර්ය වේ.', care: 'නිදාගන්නා විට බඩ යටින් සහ කකුල් දෙක මැදින් කොට්ට තබා (Pregnancy pillow style) පහසුව සලසා ගන්න.' },
-    30: { milestone: 'රතු රුධිර සෛල නිපදවීම', length: '39.9 cm', weight: '1.3 kg', baby: 'බබාගේ ඇටමිදුළු (Bone marrow) මගින් රතු රුධිර සෛල නිපදවීම සම්පූර්ණයෙන්ම බාරගනී. හිසකෙස් බහුලව වැඩේ.', mom: 'ශරීරයේ බර වැඩිවීම නිසා ඉක්මනින් මහන්සි ගතිය දැනේ. මනස නොසන්සුන් වීම සිදුවිය හැක.', care: 'මානසික ආතතිය අඩු කරගැනීමට අපේ සංගීත පිටුවෙන් "භාවනා තනු" සහ "අංගුලිමාල පිරිත" ශ්‍රවණය කරන්න.' },
-    31: { milestone: 'මුත්‍රාශය ක්‍රියාකාරී වීම', length: '41.1 cm', weight: '1.5 kg', baby: 'බබාගේ මුත්‍රාශය හොඳින් වැඩ කරයි. දිනකට ඇම්නියොටික් දියර ලීටර් භාගයක් පමණ බබා පෙරා පිට කරයි.', mom: 'ගර්භාෂය මුත්‍රාශය තද කරන නිසා නැවත වතාවක් නිතර නිතර මුත්‍රා කිරීමේ අවශ්‍යතාවය මතු වේ.', care: 'මුත්‍රා ආසාදන (UTI) වැළැක්වීමට මුත්‍රා තද කරගෙන නොසිටින්න. දියර වර්ග බහුලව ගන්න.' },
-    32: { milestone: 'හුස්ම ගැනීමේ පෙරහුරුව', length: '42.4 cm', weight: '1.7 kg', baby: 'බබා උපතින් පසු හුස්ම ගන්නා ආකාරය පුහුණු වීමට කුස තුළදී හුස්ම ගැනීමේ ව්‍යායාම (Practice breaths) කරයි.', mom: 'ගර්භාෂය තද වීම නිසා ඇතිවන ව්‍යාජ ප්‍රසූත වේදනා (Braxton Hicks contractions) සියුම්ව දැනේ.', care: 'උදරය තද වන විට වතුර වීදුරුවක් බොන්න, ඉරියව්ව මාරු කරන්න. වේදනාව දිගටම පවතී නම් රෝහල් ගත වන්න.' },
-    33: { milestone: 'ප්‍රතිශක්තිකරණය ගලා යාම', length: '43.7 cm', weight: '1.9 kg', baby: 'බබාගේ ප්‍රතිශක්තිකරණ පද්ධතිය වර්ධනය වේ. අම්මාගේ ඇඟෙන් ප්‍රතිදේහ (Antibodies) බබාට ගලා යයි.', mom: 'බඩේ සම උපරිමයටම ඇදෙන නිසා බුරිය පිටතට නෙරා ඒම සිදුවිය හැක.', care: 'නිතර තන කිරි දීමට සූදානම් වීමක් ලෙස පියයුරු මෘදුව පිරිසිදු කරන්න.' },
-    34: { milestone: 'ස්නායු පද්ධතිය සම්පූර්ණ වීම', length: '45 cm', weight: '2.1 kg', baby: 'බබාගේ ස්නායු පද්ධතිය සහ මොළය උපරිම මට්ටමට වැඩී ඇත. දැන් බබා ඇස් ඇරගෙන නිදාගැනීම සහ අවදිවීම කරයි.', mom: 'ශ්‍රෝණි අස්ථි අවට මාංශ පේශි ලිහිල් වන නිසා ඇවිදීමේදී සියුම් අපහසුතාවයක් දැනේ.', care: 'හුදකලා නොවී පවුලේ අය සමඟ සතුටින් කාලය ගත කරන්න. ප්‍රසූතිය පිළිබඳ බිය දුරු කරගන්න.' },
-    35: { milestone: 'රෝහල් ගමනට සූදානම', length: '46.2 cm', weight: '2.4 kg', baby: 'කුස තුළ ඉඩකඩ මදි නිසා බබාගේ පෙරලීම් අඩු වන නමුත් අත් පා වලින් තල්ලු කිරීම් හොඳින් දැනේ.', mom: 'ප්‍රසූතිය සඳහා රෝහලට රැගෙන යන "රෝහල් බෑගය" (Hospital Bag) ලෑස්ති කර අවසන් කිරීමට හොඳම කාලයයි.', care: 'අපේ ඇප් එකේ ඇති "රෝහල් බෑගයේ සූදානම" චෙක්ලිස්ට් එක බලා බඩු බාහිරාදිය සියල්ල අසුරා ගන්න.' },
-    36: { milestone: 'පහළට හැරීම (Lightening)', length: '47.4 cm', weight: '2.6 kg', baby: 'බබාගේ කන්පෙති වල කාටිලේජ හොඳින් වැඩේ. ශරීරයේ මේද තට්ටුව පිරී ඇති නිසා බබා දැන් ලස්සනට පෙනේ.', mom: 'බබා ක්‍රමයෙන් පහළට හැරීම (Lightening) සිදුවේ. පපුවේ දැවිල්ල අඩු වන නමුත් ඇවිදීම අපහසු වේ.', care: 'සතිපතා පවත්වන සායන (Weekly Clinics) සඳහා මඟ හැරීමකින් තොරව සහභාගී වන්න.' },
-    37: { milestone: 'පූර්ණ වර්ධනය (Early Term)', length: '48.6 cm', weight: '2.9 kg', baby: 'බබාගේ වර්ධනය දැන් සම්පූර්ණයි (Early Term). ඕනෑම මොහොතක උපත ලැබුවහොත් බාහිර ලෝකයේ ජීවත් විය හැක.', mom: 'යෝනි මාර්ගයෙන් සුදු පැහැති ශ්‍රාවයන් පිටවීම වැඩි විය හැක. ප්‍රසූත වේදනා ඕනෑම විටක ආ හැක.', care: 'රෝහල් කාඩ්පත, හැඳුනුම්පත සහ රෝහල් බෑගය ලෙහෙසියෙන් ගත හැකි තැනක සූදානම් කර තබන්න.' },
-    38: { milestone: 'ප්‍රසූතියට ආසන්න වීම', length: '49.8 cm', weight: '3.1 kg', baby: 'බබාගේ බඩවැල් තුළ ඇති මුල්ම අසූචි (Meconium) බහුලව තැන්පත් වේ. උපතින් පසු මුල් පැය කිහිපයේදී මේවා පිටවේ.', mom: 'ශරීරය ප්‍රසූතියට හෝමෝනමය වශයෙන් සූදානම් වන නිසා නිතර බඩ බුරුල් වී යාම සිදුවිය හැක.', care: 'උදරයේ දැඩි තද වීම්, කොන්දෙන් පටන් ගන්නා වේදනා විනාඩි 10න් 10ට එයි නම් වහාම රෝහලට යන්න.' },
-    39: { milestone: 'මුල් කිරි (Colostrum) ශ්‍රාවය', length: '50.7 cm', weight: '3.3 kg', baby: 'බබාගේ වැදෑමහ (Placenta) මගින් දෙන හෝමෝන නිසා මවගේ පියයුරු වලින් මුල් කිරි (Colostrum) ශ්‍රාවය වීම ඇරඹේ.', mom: 'යෝනි මාර්ගයෙන් රෝස පැහැති ශ්ලේෂ්මල දියරයක් (Show) පිටවීම සිදුවේ නම් එය ප්‍රසූතියේ ලක්ෂණයකි.', care: 'ඇම්නියොටික් දියර බෑගය පිපිරීමක් (වතුර යෑමක්) සිදුවුවහොත් වේදනාවක් නැතත් වහාම රෝහල් ගත වන්න.' },
-    40: { milestone: 'සුන්දර හමුවීමට සූදානම්', length: '51.2 cm', weight: '3.5 kg', baby: 'සුභ පැතුම්! දින 280ක ගමනාන්තයයි. ඔබේ ආදරණීය පැටියා මෙලොව එළිය දැකීමට සියයට සියයක් සූදානම්!', mom: 'නියමිත දිනට (EDD) ප්‍රසූත වේදනා නොආවද, වෛද්‍යවරුන් සති 41 දක්වා බලා සිට ප්‍රසූතිය සිදුකරනු ලබයි.', care: 'ධෛර්යවන්ත වන්න! ඔබ උතුම් මව් පදවිය ලැබීමට සූදානම්. සියලුම වෛද්‍ය වාර්තා සමඟ සන්සුන්ව රෝහලට ඇතුළත් වන්න.' }
-};
+            const weeksData = {
+                1: { milestone: 'පිළිසිඳ ගැනීමට සූදානම්', length: '~ 0.1 mm', weight: '< 1 g', baby: 'මෙම සතියේදී ඔබේ ශරීරය පිළිසිඳ ගැනීමක් සඳහා සූදානම් වේ.', mom: 'බාහිරව කිසිදු වෙනසක් නැත. සෞඛ්‍ය සම්පන්නව සිටීම වැදගත් වේ.', care: 'වෛද්‍ය උපදෙස් මත දිනපතා ෆෝලික් ඇසිඩ් (Folic Acid) පෙත්තක් ගැනීම අරඹන්න.' },
+                2: { milestone: 'ජීවයක ආරම්භය', length: '~ 0.2 mm', weight: '< 1 g', baby: 'ඩිම්බ මෝචනය සිදුවී සංසේචිත ඩිම්බය නිර්මාණය වන සති අන්තයයි.', mom: 'හෝමෝන මට්ටම් වෙනස් වීමට පටන් ගනී.', care: 'දුම්පානය, මත්පැන් සහ අනවශ්‍ය බරපතල ඖෂධ ගැනීම් වලින් වළකින්න.' },
+                3: { milestone: 'සෛල බෙදීමේ අරුමය', length: '~ 0.5 mm', weight: '< 1 g', baby: 'සංසේචිත සෛල සමූහය ගර්භාෂය වෙත ගමන් කරමින් වේගයෙන් බෙදේ.', mom: 'ශරීරය තුළ hCG හෝමෝනය ශ්‍රාවය වීම ඇරඹේ.', care: 'පෝෂණීය ආහාර වේලක් ගන්න. ශරීරයට අධික වෙහෙසක් දෙන ක්‍රියාවලින් බැහැර වන්න.' },
+                4: { milestone: 'ගර්භාෂයේ සුරක්ෂිත වීම', length: '~ 1.0 mm', weight: '< 1 g', baby: 'කළලය ගර්භාෂ බිත්තියේ සාර්ථකව තැන්පත් වේ (Implantation).', mom: 'ඔසප් දිනය මඟ හැරීම සිදුවේ. පියයුරු වල මෘදු බවක් දැනිය හැක.', care: 'ගර්භණී බව ස්ථිර වූ වහාම පවුල් සෞඛ්‍ය සේවා නිලධාරිනිය (Midwife) හමුවන්න.' },
+                5: { milestone: 'පළමු හෘද ස්පන්දනය', length: '~ 2.0 mm', weight: '< 1 g', baby: 'කළලයේ හෘද ස්පන්දනය ඇරඹෙන මුල්ම අවධියයි.', mom: 'නිතර තෙහෙට්ටුව, ක්ලාන්ත ගතිය හෝ වමනය යාම මතු විය හැක.', care: 'නියමිත පරිදි විටමින් පෙති වර්ග ලබා ගන්න. සැහැල්ලු කෑම වේල් ගන්න.' },
+                6: { milestone: 'පුංචි අත් පා වැඩෙන සමය', length: '4 - 5 mm', weight: '< 1 g', baby: 'බබාගේ අත් සහ පාද නිර්මාණය වීමට පටන් ගන්නා අවධියයි. ස්නායු නාලය සම්පූර්ණයෙන්ම වැසී යයි.', mom: 'උදෑසන වමනය ගතිය (Morning Sickness) සහ නිතර මුත්‍රා කිරීමේ අවශ්‍යතාවය වැඩි විය හැක.', care: 'නිතර වතුර බොන්න. තෙල් අධික සහ සැර ආහාර ගැනීමෙන් වළකින්න.' },
+                7: { milestone: 'මුහුණේ හැඩය මතුවීම', length: '10 - 13 mm', weight: '< 1 g', baby: 'බබාගේ මුහුණේ කොටස් (ඇස්, නාසය) සහ මොළයේ සෛල වේගයෙන් වර්ධනය වේ. පුංචි වලිගය වැනි කොටස නැති වී යයි.', mom: 'ගර්භාෂය ක්‍රමයෙන් ලොකු වන නිසා යටි බඩේ සුළු ඇදෙන ස්වභාවයක් දැනිය හැක.', care: 'ප්‍රමාණවත් විවේකයක් ගන්න. බර දේවල් එසවීමෙන් සම්පූර්ණයෙන්ම වැළකී සිටින්න.' },
+                8: { milestone: 'පුංචි ඇඟිලි නිර්මාණය වීම', length: '1.6 cm', weight: '1 - 2 g', baby: 'පැටියාගේ අත් පා වල ඇඟිලි වෙන වෙනම වර්ධනය වීම ඇරඹේ. කුඩා චලනයන් ආරම්භ වුවත් මවට එය තවම දැනෙන්නේ නැත.', mom: 'ශරීරයේ රුධිර ප්‍රමාණය වැඩි වන අතර, පියයුරු වල ප්‍රමාණය විශාල වීම සිදුවේ.', care: 'පවුල් සෞඛ්‍ය සායනයට (Clinic) ගොස් රජයේ සායන පොත සහ මූලික රුධිර පරීක්ෂණ (Hb, Blood Group) සිදුකර ගන්න.' },
+                9: { milestone: 'කළලයෙන් බිළිඳෙකු වීම', length: '2.3 cm', weight: '2 g', baby: 'කළල අවධිය අවසන් වී බිළිඳු (Fetus) අවධිය ඇරඹේ. හෘදයේ කුටීර 4 නිවැරදිව ක්‍රියා කරයි.', mom: 'හෝමෝන උච්චතම අවස්ථාවට පැමිණෙන නිසා මනෝභාවයන් වෙනස් වීම (Mood Swings) බහුල වේ.', care: 'දිනපතා පිරිසිදු වතුර ලීටර් 2-3ක් පානය කර ශරීරය සජලීයව තබාගන්න.' },
+                10: { milestone: 'අත්‍යවශ්‍ය අවයව සම්පූර්ණ වීම', length: '3.1 cm', weight: '4 g', baby: 'සියලුම අත්‍යවශ්‍ය අවයව (වකුගඩු, අක්මාව, බඩවැල්) වැඩී ඇත. බබා කුස තුළ ගිලීමේ චලනයන් කරයි.', mom: 'උදරයේ නහර මතු වී පෙනෙන්නට පුළුවන. වමනය ගතිය කෙමෙන් අඩු වේ.', care: 'දන්ත සෞඛ්‍යය ගැන සැලකිලිමත් වන්න. විදුරුමස් ලේ වැගිරීම් ඇත්නම් වෛද්‍යවරයකුට පෙන්වන්න.' },
+                11: { milestone: 'පුංචි දත් මූල සෑදීම', length: '4.1 cm', weight: '7 g', baby: 'බබාගේ බාහිර ලිංගික අවයව සෑදීම ඇරඹේ. දත්වල මූලික සෛල විදුරුමස් ඇතුළත නිර්මාණය වේ.', mom: 'ශරීරයේ පරිවෘත්තීය ක්‍රියා වේගවත් වන නිසා අධික උණුසුමක් හෝ දහඩිය දැමීමක් දැනේ.', care: 'පෝෂ්‍යදායී සමබර ආහාර වේලක් ගන්න. කැල්සියම් අඩංගු කිරි නිෂ්පාදන වැඩිපුර ගන්න.' },
+                12: { milestone: 'පළමු ත්‍රෛමාසිකයේ නිමාව', length: '5.4 cm', weight: '14 g', baby: 'පළමු ත්‍රෛමාසිකයේ අවසානයයි. බබාගේ ඇඟිලි සලකුණු (Fingerprints) පවා මේ වන විට සෑදී ඇත.', mom: 'ගබ්සා වීමේ අවදානම 65% කින් අඩු වන සන්ධිස්ථානයකි. බඩ තරමක් මතු වේ.', care: 'සති 11-14 අතර කාලයේදී කරන NT Scan පරීක්ෂණය වෛද්‍ය උපදෙස් මත සිදුකර ගන්න.' },
+                13: { milestone: 'දෙවැනි ත්‍රෛමාසිකයේ ඇරඹුම', length: '7.4 cm', weight: '23 g', baby: 'දෙවැනි ත්‍රෛමාසිකය ඇරඹේ. බබාගේ මුත්‍රා පද්ධතිය වැඩ කරන අතර, ඇම්නියොටික් දියරයට මුත්‍රා පිට කරයි.', mom: 'ශක්තිමත් ගතියක් දැනේ. කෑම රුචිය වර්ධනය වන අතර උදෑසන අපහසුතා පහව යයි.', care: 'යකඩ (Iron) සහ විටමින් C බහුල ආහාර එකට ගන්න. (යකඩ පෙත්ත සමඟ දොඩම් යුෂ බොන්න)' },
+                14: { milestone: 'මුහුණේ ඉරියව් වෙනස් වීම', length: '8.7 cm', weight: '43 g', baby: 'බබාගේ බෙල්ල දිගු වන අතර මුහුණේ මාංශ පේශි ක්‍රියාකාරී වේ. නළල රැලි කිරීම් සිදුවේ.', mom: 'ගර්භාෂය ශ්‍රෝණි කුහරයෙන් ඉහළට පැමිණෙන නිසා මුත්‍රා කිරීමේ තදබදය තරමක් අඩු වේ.', care: 'පහසු සැහැල්ලු ඇඳුම් (Maternity Clothes) භාවිතය ආරම්භ කරන්න.' },
+                15: { milestone: 'ආලෝකය හඳුනා ගැනීම', length: '10.1 cm', weight: '70 g', baby: 'බබාගේ සම ඉතා සිහින් වන අතර රුධිර වාහිනී පෙනේ. ඇස් වසාගෙන ආලෝකය හඳුනාගත හැක.', mom: 'සමේ වර්ණක වෙනස් වීම නිසා උදරය මැද කළු ඉරක් (Linea Nigra) මතු විය හැක.', care: 'සිරුර කෙළින් තබාගෙන නිවැරදි ඉරියව්වෙන් වාඩි වීමට හා ඇවිදීමට පුරුදු වන්න.' },
+                16: { milestone: 'හෘදය වේගයෙන් ක්‍රියා කිරීම', length: '11.6 cm', weight: '100 g', baby: 'බබාගේ හිස්කබලේ ඇටකටු ශක්තිමත් වේ. හෘදය දිනකට ලීටර් 25ක ලේ ප්‍රමාණයක් පොම්ප කරයි.', mom: 'දෙවැනි ප්‍රධාන ස්කෑන් පරීක්ෂණයට (Anomaly Scan) කාලය ලඟා වේ.', care: 'වෛද්‍යවරයා නියම කරන යකඩ, කැල්සියම් සහ විටමින් පෙති නොකඩවා ගන්න.' },
+                17: { milestone: 'සන්ධි චලනය වීම', length: '13 cm', weight: '140 g', baby: 'බබාගේ සන්ධි චලනය කළ හැක. ශරීරයේ මේද තට්ටුවක් (Adipose Tissue) තැන්පත් වීම ඇරඹේ.', mom: 'උදරය කැසීම සහ සම ඇදීම නිසා Stretch Marks මතු වීමට පටන් ගනී.', care: 'උදරයේ සම වියළි වීම වැළැක්වීමට මොයිස්චරයිසර් ක්‍රීම් එකක් හෝ පොල්තෙල් ගාන්න.' },
+                18: { milestone: 'ඔබේ ආදරණීය පැටියාගේ හඬ', length: '14.2 cm', weight: '190 g', baby: 'බබාගේ ශ්‍රවණ පද්ධතිය වැඩ කරයි. මවගේ හෘද ස්පන්දනය සහ බාහිර තද ශබ්ද බබාට ඇසේ.', mom: 'සමහර අම්මලාට බබාගේ පළමු සියුම් සෙලවීම (Quickening) සමනලයෙකු තටු ගසන්නාක් මෙන් දැනේ.', care: 'බබා සමඟ ආදරයෙන් කතා කරන්න. කුස පිරිමදිමින් සන්සුන් සංගීතයට සවන් දෙන්න.' },
+                19: { milestone: 'ආරක්ෂිත ආවරණය (Vernix)', length: '15.3 cm', weight: '240 g', baby: 'බබාගේ සම ආරක්ෂා කිරීමට Vernix Caseosa නමැති සුදුවැහැති සෛල තට්ටුවකින් මුළු ඇඟම වැසේ.', mom: 'යටිබඩ හෝ ඉණ දෙපස මාංශ පේශි ඇදීම නිසා සියුම් වේදනාවක් (Round Ligament Pain) දැනේ.', care: 'එකපාරටම ඇඳෙන් නැගිටීමෙන් වළකින්න. මුලින් ඇලයට හැරී පසුව නැගිටින්න.' },
+                20: { milestone: 'අර්ධ ගමනාන්තය (සති 20)', length: '25.6 cm', weight: '300 g', baby: 'ගර්භණී කාලයෙන් සති 40න් හරියටම අඩක් (සති 20) අවසන් වේ. බබාගේ ආහාර ජීර්ණ පද්ධතිය Meconium නිපදවයි.', mom: 'ගර්භාෂයේ ඉහළ සීමාව හරියටම ඔබේ බුරිය මට්ටමට පැමිණ ඇත.', care: 'සති 18-22 අතර කාලයේදී බබාගේ ව්‍යුහය බලන Anomaly Scan එක අනිවාර්යයෙන්ම කරගන්න.' },
+                21: { milestone: 'නොනවත්වා දඟලන සමය', length: '26.7 cm', weight: '360 g', baby: 'බබාගේ ඇහිබැම සහ ඇහිපිහාටු හොඳින් වැඩී ඇත. කුස තුළ සිටිමින් ඇඟිලි හැපීම වැනි දේ සිදුකරයි.', mom: 'ලේ ගමනාගමනය වැඩිවීම නිසා සමහර මව්වරුන්ගේ කකුල් ඉදිමීම (Edema) ආරම්භ විය හැක.', care: 'වැඩි වේලාවක් එක දිගට හිටගෙන සිටීමෙන් වළකින්න. වාඩි වී සිටින විට කකුල් මදක් ඉහළින් තබන්න.' },
+                22: { milestone: 'රස සංවේදනය දියුණු වීම', length: '27.8 cm', weight: '430 g', baby: 'ළදරුවාගේ රස සංවේදනය (Taste buds) වර්ධනය වේ. අම්මා කන කෑමවල රසය ඇම්නියොටික් දියරය හරහා බබාට දැනේ.', mom: 'සමේ ඇදීම නිසා බඩ සහ පියයුරු අවට තදින් කැසීමක් ඇතිවිය හැක.', care: 'සම කැසීම ඇති තැන්වල සබන් ගෑමෙන් වළකින්න, ඒ වෙනුවට මොයිස්චරයිසර් හෝ ඔලිව් ඔයිල් ගාන්න.' },
+                23: { milestone: 'ශබ්ද පැහැදිලිව ඇසීම', length: '28.9 cm', weight: '500 g', baby: 'කන් ඇතුළත ඇති සියුම් අස්ථි සම්පූර්ණයෙන්ම ශක්තිමත් වන නිසා දැන් බබාට බාහිර ශබ්ද ඉතා පැහැදිලිව ඇසේ.', mom: 'ගර්භණී සමයේ දියවැඩියාව (Gestational Diabetes) ඇත්දැයි බැලීමට සායනයෙන් පරීක්ෂණ සිදුකරයි.', care: 'සීනි සහ පිෂ්ඨය අධික කෑම පාලනය කරන්න. වෛද්‍ය උපදෙස් මත OGTT පරීක්ෂණය කරගන්න.' },
+                24: { milestone: 'නින්ද සහ අවදිවීමේ රටාව', length: '30 cm', weight: '600 g', baby: 'පෙනහළු ඇතුළත වාතය රඳවා ගන්නා Surfactant නමැති ද්‍රව්‍යය නිපදවීම ඇරඹේ. බබා නිදාගන්නා සහ අවදිවන වේලාවන් රටාවකට සිදුවේ.', mom: 'ගර්භාෂය ඉහළට තල්ලු වන නිසා පපුවේ දැවිල්ල (Heartburn) සහ ඇසිඩ් ගතිය ඇතිවිය හැක.', care: 'එකවර විශාල ආහාර වේල් ගැනීම වෙනුවට කුඩා ආහාර වේල් කිහිපයකට කන්න. කෑ සැනින් නිදාගන්න එපා.' },
+                25: { milestone: 'රෝස පැහැති සම', length: '34.6 cm', weight: '660 g', baby: 'බබාගේ සම යට කේශනාලිකා සෑදෙන නිසා සම රෝස පැහැයක් ගනී. කොන්ද කෙළින් තබාගැනීමේ හැකියාව ලැබේ.', mom: 'කොන්දේ කැක්කුම (Back pain) බහුලව ඇතිවිය හැක. ශරීරයේ බර කේන්ද්‍රය වෙනස් වීම මෙයට හේතුවයි.', care: 'බිම වැටුණු දේ ඇහිදීමේදී කොන්ද නමා නැමෙන්නේ නැතිව, දණහිස් නමා වාඩි වී ඇහිදින්න.' },
+                26: { milestone: 'පළමු වරට ඇස් ඇරීම', length: '35.6 cm', weight: '760 g', baby: 'බබා පළමු වරට ඇස් ඇරීම සිදුකරයි! ශබ්ද ඇසෙන විට හෘද ස්පන්දන වේගය වැඩිවන බව නිරීක්ෂණය කළ හැක.', mom: 'ගර්භාෂය පෙනහළු තද කරන නිසා සුළු වශයෙන් හුස්ම ගැනීමේ අපහසුවක් (Shortness of breath) දැනේ.', care: 'හුස්ම ගැනීමේ අපහසුවක් දැනෙන විට කෙළින් වාඩි වී දිගු හුස්ම (Deep breathing) ගන්න.' },
+                27: { milestone: 'මොළයේ වේගවත් වර්ධනය', length: '36.6 cm', weight: '875 g', baby: 'දෙවැනි ත්‍රෛමාසිකයේ අවසාන සතියයි. බබාගේ මොළයේ වර්ධනය ඉතා වේගවත් වන අතර නින්දේදී හීන පවා පෙනේ.', mom: 'රාත්‍රී කාලයේදී කෙණ්ඩ පෙරලීම (Leg cramps) සහ නිදි වැරීම බහුලව සිදුවිය හැක.', care: 'කෙණ්ඩ පෙරලෙන විට පාදය ඉදිරියට දිගු කර ඇඟිලි උඩට නමා සම්බාහනය කරන්න. කැල්සියම් ආහාර ගන්න.' },
+                28: { milestone: 'තුන්වැනි ත්‍රෛමාසිකයේ ඇරඹුම', length: '37.6 cm', weight: '1 kg', baby: 'තුන්වැනි ත්‍රෛමාසිකය ඇරඹේ! බබාගේ ඇස්වල කාච සම්පූර්ණ වේ. බබා දඟලන වාර ගණන හොඳින් දැනේ.', mom: 'සායන පොතට අනුව බබා දඟලන වාර ගණන (Kick Counts) දිනපතා සටහන් කිරීම ඇරඹිය යුතුය.', care: 'දිනපතා උදේ 9 සිට රෑ 9 දක්වා පැය 12 තුළ බබා අවම 10 වතාවක් දඟලනවාදැයි අපේ Kick Counter එකෙන් මනින්න.' },
+                29: { milestone: 'අස්ථි ශක්තිමත් වීම', length: '38.6 cm', weight: '1.2 kg', baby: 'බබාගේ අස්ථි පද්ධතිය වේගයෙන් කැල්සියම් උරාගනිමින් ශක්තිමත් වේ. මාංශ පේශි වර්ධනය වේ.', mom: 'උදරය විශාල වීම නිසා රෑට නින්ද යාම අපහසු වේ. වම් ඇලයට හැරී නිදාගැනීම අනිවාර්ය වේ.', care: 'නිදාගන්නා විට බඩ යටින් සහ කකුල් දෙක මැදින් කොට්ට තබා (Pregnancy pillow style) පහසුව සලසා ගන්න.' },
+                30: { milestone: 'රතු රුධිර සෛල නිපදවීම', length: '39.9 cm', weight: '1.3 kg', baby: 'බබාගේ ඇටමිදුළු (Bone marrow) මගින් රතු රුධිර සෛල නිපදවීම සම්පූර්ණයෙන්ම බාරගනී. හිසකෙස් බහුලව වැඩේ.', mom: 'ශරීරයේ බර වැඩිවීම නිසා ඉක්මනින් මහන්සි ගතිය දැනේ. මනස නොසන්සුන් වීම සිදුවිය හැක.', care: 'මානසික ආතතිය අඩු කරගැනීමට අපේ සංගීත පිටුවෙන් "භාවනා තනු" සහ "අංගුලිමාල පිරිත" ශ්‍රවණය කරන්න.' },
+                31: { milestone: 'මුත්‍රාශය ක්‍රියාකාරී වීම', length: '41.1 cm', weight: '1.5 kg', baby: 'බබාගේ මුත්‍රාශය හොඳින් වැඩ කරයි. දිනකට ඇම්නියොටික් දියර ලීටර් භාගයක් පමණ බබා පෙරා පිට කරයි.', mom: 'ගර්භාෂය මුත්‍රාශය තද කරන නිසා නැවත වතාවක් නිතර නිතර මුත්‍රා කිරීමේ අවශ්‍යතාවය මතු වේ.', care: 'මුත්‍රා ආසාදන (UTI) වැළැක්වීමට මුත්‍රා තද කරගෙන නොසිටින්න. දියර වර්ග බහුලව ගන්න.' },
+                32: { milestone: 'හුස්ම ගැනීමේ පෙරහුරුව', length: '42.4 cm', weight: '1.7 kg', baby: 'බබා උපතින් පසු හුස්ම ගන්නා ආකාරය පුහුණු වීමට කුස තුළදී හුස්ම ගැනීමේ ව්‍යායාම (Practice breaths) කරයි.', mom: 'ගර්භාෂය තද වීම නිසා ඇතිවන ව්‍යාජ ප්‍රසූත වේදනා (Braxton Hicks contractions) සියුම්ව දැනේ.', care: 'උදරය තද වන විට වතුර වීදුරුවක් බොන්න, ඉරියව්ව මාරු කරන්න. වේදනාව දිගටම පවතී නම් රෝහල් ගත වන්න.' },
+                33: { milestone: 'ප්‍රතිශක්තිකරණය ගලා යාම', length: '43.7 cm', weight: '1.9 kg', baby: 'බබාගේ ප්‍රතිශක්තිකරණ පද්ධතිය වර්ධනය වේ. අම්මාගේ ඇඟෙන් ප්‍රතිදේහ (Antibodies) බබාට ගලා යයි.', mom: 'බඩේ සම උපරිමයටම ඇදෙන නිසා බුරිය පිටතට නෙරා ඒම සිදුවිය හැක.', care: 'නිතර තන කිරි දීමට සූදානම් වීමක් ලෙස පියයුරු මෘදුව පිරිසිදු කරන්න.' },
+                34: { milestone: 'ස්නායු පද්ධතිය සම්පූර්ණ වීම', length: '45 cm', weight: '2.1 kg', baby: 'බබාගේ ස්නායු පද්ධතිය සහ මොළය උපරිම මට්ටමට වැඩී ඇත. දැන් බබා ඇස් ඇරගෙන නිදාගැනීම සහ අවදිවීම කරයි.', mom: 'ශ්‍රෝණි අස්ථි අවට මාංශ පේශි ලිහිල් වන නිසා ඇවිදීමේදී සියුම් අපහසුතාවයක් දැනේ.', care: 'හුදකලා නොවී පවුලේ අය සමඟ සතුටින් කාලය ගත කරන්න. ප්‍රසූතිය පිළිබඳ බිය දුරු කරගන්න.' },
+                35: { milestone: 'රෝහල් ගමනට සූදානම', length: '46.2 cm', weight: '2.4 kg', baby: 'කුස තුළ ඉඩකඩ මදි නිසා බබාගේ පෙරලීම් අඩු වන නමුත් අත් පා වලින් තල්ලු කිරීම් හොඳින් දැනේ.', mom: 'ප්‍රසූතිය සඳහා රෝහලට රැගෙන යන "රෝහල් බෑගය" (Hospital Bag) ලෑස්ති කර අවසන් කිරීමට හොඳම කාලයයි.', care: 'අපේ ඇප් එකේ ඇති "රෝහල් බෑගයේ සූදානම" චෙක්ලිස්ට් එක බලා බඩු බාහිරාදිය සියල්ල අසුරා ගන්න.' },
+                36: { milestone: 'පහළට හැරීම (Lightening)', length: '47.4 cm', weight: '2.6 kg', baby: 'බබාගේ කන්පෙති වල කාටිලේජ හොඳින් වැඩේ. ශරීරයේ මේද තට්ටුව පිරී ඇති නිසා බබා දැන් ලස්සනට පෙනේ.', mom: 'බබා ක්‍රමයෙන් පහළට හැරීම (Lightening) සිදුවේ. පපුවේ දැවිල්ල අඩු වන නමුත් ඇවිදීම අපහසු වේ.', care: 'සතිපතා පවත්වන සායන (Weekly Clinics) සඳහා මඟ හැරීමකින් තොරව සහභාගී වන්න.' },
+                37: { milestone: 'පූර්ණ වර්ධනය (Early Term)', length: '48.6 cm', weight: '2.9 kg', baby: 'බබාගේ වර්ධනය දැන් සම්පූර්ණයි (Early Term). ඕනෑම මොහොතක උපත ලැබුවහොත් බාහිර ලෝකයේ ජීවත් විය හැක.', mom: 'යෝනි මාර්ගයෙන් සුදු පැහැති ශ්‍රාවයන් පිටවීම වැඩි විය හැක. ප්‍රසූත වේදනා ඕනෑම විටක ආ හැක.', care: 'රෝහල් කාඩ්පත, හැඳුනුම්පත සහ රෝහල් බෑගය ලෙහෙසියෙන් ගත හැකි තැනක සූදානම් කර තබන්න.' },
+                38: { milestone: 'ප්‍රසූතියට ආසන්න වීම', length: '49.8 cm', weight: '3.1 kg', baby: 'බබාගේ බඩවැල් තුළ ඇති මුල්ම අසූචි (Meconium) බහුලව තැන්පත් වේ. උපතින් පසු මුල් පැය කිහිපයේදී මේවා පිටවේ.', mom: 'ශරීරය ප්‍රසූතියට හෝමෝනමය වශයෙන් සූදානම් වන නිසා නිතර බඩ බුරුල් වී යාම සිදුවිය හැක.', care: 'උදරයේ දැඩි තද වීම්, කොන්දෙන් පටන් ගන්නා වේදනා විනාඩි 10න් 10ට එයි නම් වහාම රෝහලට යන්න.' },
+                39: { milestone: 'මුල් කිරි (Colostrum) ශ්‍රාවය', length: '50.7 cm', weight: '3.3 kg', baby: 'බබාගේ වැදෑමහ (Placenta) මගින් දෙන හෝමෝන නිසා මවගේ පියයුරු වලින් මුල් කිරි (Colostrum) ශ්‍රාවය වීම ඇරඹේ.', mom: 'යෝනි මාර්ගයෙන් රෝස පැහැති ශ්ලේෂ්මල දියරයක් (Show) පිටවීම සිදුවේ නම් එය ප්‍රසූතියේ ලක්ෂණයකි.', care: 'ඇම්නියොටික් දියර බෑගය පිපිරීමක් (වතුර යෑමක්) සිදුවුවහොත් වේදනාවක් නැතත් වහාම රෝහල් ගත වන්න.' },
+                40: { milestone: 'සුන්දර හමුවීමට සූදානම්', length: '51.2 cm', weight: '3.5 kg', baby: 'සුභ පැතුම්! දින 280ක ගමනාන්තයයි. ඔබේ ආදරණීය පැටියා මෙලොව එළිය දැකීමට සියයට සියයක් සූදානම්!', mom: 'නියමිත දිනට (EDD) ප්‍රසූත වේදනා නොආවද, වෛද්‍යවරුන් සති 41 දක්වා බලා සිට ප්‍රසූතිය සිදුකරනු ලබයි.', care: 'ධෛර්යවන්ත වන්න! ඔබ උතුම් මව් පදවිය ලැබීමට සූදානම්. සියලුම වෛද්‍ය වාර්තා සමඟ සන්සුන්ව රෝහලට ඇතුළත් වන්න.' }
+            };
 
             // Baby Names Favorites State Management
             const [favorites, setFavorites] = useState(() => {
@@ -617,14 +868,14 @@ const weeksData = {
             };
 
             const confirmSubscription = () => {
-                    setShowPaywall(true);
+                setShowPaywall(true);
             };
 
             return (
                 <div className="app-frame relative flex flex-col min-h-screen text-brand-chocolate overflow-y-auto pb-24">
-                    
+
                     {/* 📢 Live Monetag Vignette Ad (Only for Free Users) */}
-{!isSubscribed && <MonetagAd />}
+                    {!isSubscribed && <MonetagAd />}
 
                     {/* 🌸 APP HEADER (LUXURY POLISHED VERSION) */}
                     <header className="p-4 bg-white/80 backdrop-blur-md border-b border-pink-100/50 flex items-center justify-between sticky top-0 z-10 shadow-[0_2px_15px_rgba(219,39,119,0.03)]">
@@ -643,11 +894,11 @@ const weeksData = {
                                     <i className="fa-solid fa-crown text-amber-300 animate-pulse"></i> PRO ACTIVE
                                 </span>
                             ) : (
-                                <button 
-                                    onClick={() => setShowPaywall(true)} 
+                                <button
+                                    onClick={() => setShowPaywall(true)}
                                     className="bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-brand-chocolate text-[11px] px-4 py-2 rounded-xl font-black shadow-[0_4px_15px_rgba(251,191,36,0.3)] hover:shadow-[0_4px_20px_rgba(251,191,36,0.5)] transition-all duration-300 active:scale-95 flex items-center gap-1.5 border border-amber-300/40"
                                 >
-                                    <i className="fa-solid fa-crown text-brand-chocolate animate-bounce"></i> 
+                                    <i className="fa-solid fa-crown text-brand-chocolate animate-bounce"></i>
                                     <span>PRO යමු</span>
                                 </button>
                             )}
@@ -659,7 +910,7 @@ const weeksData = {
                     {/* tab 1: HOME SCREEN (UPGRADED MATERNAL DASHBOARD) */}
                     {activeTab === 'home' && (
                         <div className="p-5 flex-grow animate-fade-in space-y-5">
-                                                        {/* Premium Welcome Hero Card */}
+                            {/* Premium Welcome Hero Card */}
                             <div className="bg-gradient-to-br from-pink-400 via-rose-400 to-brand-pink rounded-3xl p-5 text-white border border-pink-300/30 shadow-md relative overflow-hidden group">
                                 <div className="absolute -right-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
                                 <span className="text-[9px] bg-white/25 backdrop-blur-md px-2.5 py-1 rounded-full font-bold uppercase tracking-wider inline-block mb-2">
@@ -681,11 +932,11 @@ const weeksData = {
                                 <form onSubmit={calculatePregnancy} className="space-y-3">
                                     <div>
                                         <label className="text-[10px] text-brand-slate font-bold block mb-1.5">අවසන් වරට ඔසප් වූ පළමු දිනය (LMP):</label>
-                                        <input 
-                                            type="date" 
-                                            value={lmpDate} 
-                                            onChange={(e) => setLmpDate(e.target.value)} 
-                                            required 
+                                        <input
+                                            type="date"
+                                            value={lmpDate}
+                                            onChange={(e) => setLmpDate(e.target.value)}
+                                            required
                                             className="w-full px-3 py-2.5 border border-pink-100 rounded-xl text-xs focus:outline-none focus:border-brand-pink focus:ring-1 focus:ring-brand-pink transition-all"
                                         />
                                     </div>
@@ -694,28 +945,65 @@ const weeksData = {
                                     </button>
                                 </form>
 
-                                {edd && (
-                                    <div className="bg-pink-50/50 border border-pink-100 rounded-2xl p-4 space-y-3 animate-fade-in">
-                                        <div className="flex justify-between items-center text-xs">
-                                            <span className="text-brand-slate font-bold">ප්‍රසූත දිනය (EDD):</span>
-                                            <strong className="text-brand-darkpink">{edd}</strong>
-                                        </div>
-                                        {gestWeeks !== null && (
-                                            <div className="flex justify-between items-center text-xs">
-                                                <span className="text-brand-slate font-bold">වත්මන් ගර්භණී කාලය:</span>
-                                                <strong className="text-brand-darkpink">සති {gestWeeks} සහ දින {gestDays}</strong>
+                                {edd && (() => {
+                                    const today = new Date();
+                                    today.setHours(0, 0, 0, 0);
+                                    const lmp = new Date(lmpDate);
+                                    const eddDate = new Date(lmp);
+                                    eddDate.setDate(eddDate.getDate() + 280);
+
+                                    const diffTime = eddDate.getTime() - today.getTime();
+                                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                                    const daysRemaining = diffDays > 0 ? diffDays : 0;
+                                    const percentage = Math.min(Math.max(Math.round(((280 - daysRemaining) / 280) * 100), 0), 100);
+
+                                    let trimester = 1;
+                                    if (gestWeeks > 12 && gestWeeks <= 27) trimester = 2;
+                                    else if (gestWeeks >= 28) trimester = 3;
+
+                                    return (
+                                        <div className="bg-gradient-to-br from-pink-50/70 to-rose-50/70 border border-pink-100 rounded-3xl p-5 space-y-4 animate-fade-in shadow-inner">
+                                            <div className="flex justify-between items-center">
+                                                <div>
+                                                    <span className="text-[9px] text-brand-slate font-bold uppercase tracking-wider block">බලාපොරොත්තු වන දවස (EDD)</span>
+                                                    <strong className="text-sm font-black text-brand-chocolate">{edd}</strong>
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className="text-[9px] text-brand-slate font-bold uppercase tracking-wider block">ත්‍රෛමාසිකය (Trimester)</span>
+                                                    <strong className="text-xs font-black text-brand-darkpink">{trimester} වන ත්‍රෛමාසිකය</strong>
+                                                </div>
                                             </div>
-                                        )}
-                                        {gestWeeks !== null && gestWeeks >= 1 && gestWeeks <= 40 && (
-                                            <button 
-                                                onClick={saveCalculatedWeek}
-                                                className="w-full bg-white border border-pink-200 hover:border-brand-pink text-brand-darkpink font-black text-[10px] py-2 rounded-lg transition-all shadow-sm flex items-center justify-center gap-1.5"
-                                            >
-                                                <i className="fa-solid fa-thumbtack"></i> මෙය මගේ වර්තමාන සතිය ලෙස සකසන්න
-                                            </button>
-                                        )}
-                                    </div>
-                                )}
+
+                                            {/* Trimester Progress Bar */}
+                                            <div className="space-y-1.5">
+                                                <div className="flex justify-between text-[10px] text-brand-slate font-bold">
+                                                    <span>ගර්භණී කාලයෙන් නිමාව: {percentage}%</span>
+                                                    <span>තව දින {daysRemaining} යි</span>
+                                                </div>
+                                                <div className="w-full bg-gray-200/80 rounded-full h-2.5 overflow-hidden">
+                                                    <div className="bg-gradient-to-r from-pink-400 to-brand-darkpink h-full rounded-full transition-all duration-1000" style={{ width: `${percentage}%` }}></div>
+                                                </div>
+                                            </div>
+
+                                            {gestWeeks !== null && (
+                                                <div className="flex justify-between items-center text-xs bg-white/60 p-2.5 rounded-xl border border-pink-100/30">
+                                                    <span className="text-brand-slate font-bold">වත්මන් ගර්භණී කාලය:</span>
+                                                    <strong className="text-brand-darkpink">සති {gestWeeks} සහ දින {gestDays}</strong>
+                                                </div>
+                                            )}
+
+                                            {gestWeeks !== null && gestWeeks >= 1 && gestWeeks <= 40 && (
+                                                <button
+                                                    onClick={saveCalculatedWeek}
+                                                    className="w-full bg-white border border-pink-200 hover:border-brand-pink text-brand-darkpink font-black text-[10px] py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5"
+                                                >
+                                                    <i className="fa-solid fa-thumbtack"></i> මෙය මගේ වර්තමාන සතිය ලෙස සකසන්න
+                                                </button>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
                             </div>
 
 
@@ -744,7 +1032,7 @@ const weeksData = {
                                     මූලික සේවාවන් <span className="text-[10px] text-brand-slate font-normal font-sans">(නොමිලේ)</span>
                                 </h3>
 
-                                {/* Grid of Free Services (Updated with 3 new features) */}
+                                {/* Grid of Free Services (Reordered Layout) */}
                                 <div className="grid grid-cols-2 gap-3.5">
                                     <div onClick={() => setActiveTab('strips')} className="bg-white p-4 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex flex-col items-center text-center group">
                                         <div className="w-10 h-10 rounded-xl bg-pink-50 text-brand-darkpink flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform shadow-inner">
@@ -761,7 +1049,7 @@ const weeksData = {
                                         <h4 className="font-bold text-xs text-brand-chocolate mb-0.5">ළදරු නම් පොත</h4>
                                         <p className="text-[9px] text-brand-slate leading-tight">අර්ථ සහ ලග්න</p>
                                     </div>
-                                    
+
                                     <div onClick={() => setActiveTab('reminders')} className="bg-white p-4 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex flex-col items-center text-center group">
                                         <div className="w-10 h-10 rounded-xl bg-pink-50 text-brand-darkpink flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform shadow-inner">
                                             <i className="fa-solid fa-bell text-lg"></i>
@@ -769,7 +1057,7 @@ const weeksData = {
                                         <h4 className="font-bold text-xs text-brand-chocolate mb-0.5">සිහිකැඳවනය</h4>
                                         <p className="text-[9px] text-brand-slate leading-tight">විටමින් සහ වතුර</p>
                                     </div>
-                                    
+
                                     <div onClick={() => setActiveTab('notes')} className="bg-white p-4 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex flex-col items-center text-center group">
                                         <div className="w-10 h-10 rounded-xl bg-pink-50 text-brand-darkpink flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform shadow-inner">
                                             <i className="fa-solid fa-stethoscope text-lg"></i>
@@ -777,14 +1065,40 @@ const weeksData = {
                                         <h4 className="font-bold text-xs text-brand-chocolate mb-0.5">සායනයට ප්‍රශ්න</h4>
                                         <p className="text-[9px] text-brand-slate leading-tight">අහන්න තියෙන දේවල්</p>
                                     </div>
-                                    
+
+                                    <div onClick={() => setActiveTab('safety')} className="bg-white p-4 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex flex-col items-center text-center group">
+                                        <div className="w-10 h-10 rounded-xl bg-pink-50 text-brand-darkpink flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform shadow-inner">
+                                            <i className="fa-solid fa-shield-halved text-lg"></i>
+                                        </div>
+                                        <h4 className="font-bold text-xs text-brand-chocolate mb-0.5">ආරක්ෂණ මාර්ගෝපදේශය</h4>
+                                        <p className="text-[9px] text-brand-slate leading-tight">ආහාර සහ ක්‍රියාකාරකම්</p>
+                                    </div>
+
+                                    <div onClick={() => setActiveTab('scheduler')} className="bg-white p-4 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex flex-col items-center text-center group">
+                                        <div className="w-10 h-10 rounded-xl bg-pink-50 text-brand-darkpink flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform shadow-inner">
+                                            <i className="fa-solid fa-calendar-days text-lg"></i>
+                                        </div>
+                                        <h4 className="font-bold text-xs text-brand-chocolate mb-0.5">සායන සැලසුම්කරු</h4>
+                                        <p className="text-[9px] text-brand-slate leading-tight">මීළඟ සායන දින</p>
+                                    </div>
+
+                                    <div onClick={() => setActiveTab('babyweight')} className="col-span-2 bg-gradient-to-r from-rose-50 to-amber-50 p-4 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex items-center justify-center gap-4 group">
+                                        <div className="w-11 h-11 rounded-xl bg-white text-brand-darkpink flex items-center justify-center group-hover:scale-105 transition-transform shadow-sm">
+                                            <i className="fa-solid fa-weight-scale text-xl"></i>
+                                        </div>
+                                        <div className="text-left flex-1">
+                                            <h4 className="font-bold text-xs text-brand-chocolate mb-0.5">ළදරු බර මාපකය (Baby Weight Chart)</h4>
+                                            <p className="text-[10px] text-brand-slate leading-tight">උපතේ සිට මාස 24 දක්වා බබාගේ බර නිවැරදිදැයි (WHO ක්‍රමයට) සජීවීව බලන්න.</p>
+                                        </div>
+                                    </div>
+
                                     <div onClick={() => setActiveTab('gender')} className="col-span-2 bg-gradient-to-r from-blue-50 to-pink-50 p-4 rounded-2xl border border-pink-100/60 shadow-sm cursor-pointer hover:border-brand-pink/60 transition-all hover:shadow-md flex items-center justify-center gap-4 group">
                                         <div className="w-11 h-11 rounded-xl bg-white text-purple-500 flex items-center justify-center group-hover:scale-105 transition-transform shadow-sm">
                                             <i className="fa-solid fa-venus-mars text-xl"></i>
                                         </div>
-                                        <div className="text-left">
+                                        <div className="text-left flex-1">
                                             <h4 className="font-bold text-xs text-brand-chocolate mb-0.5">පුතෙක්ද? දුවෙක්ද?</h4>
-                                            <p className="text-[10px] text-brand-slate leading-tight">විනෝදයට දරුවාගේ ලිංගිකත්වය අනුමාන කරමු (Game)</p>
+                                            <p className="text-[10px] text-brand-slate leading-tight">දරුවාගේ ලිංගිකත්වය අනුමාන කරමු</p>
                                         </div>
                                     </div>
                                 </div>
@@ -979,7 +1293,201 @@ const weeksData = {
                                 </div>
                             </div>
 
-                            
+
+                        </div>
+                    )}
+
+                    {/* 🍼 tab: BABY WEIGHT CALCULATOR & CHART */}
+                    {activeTab === 'babyweight' && (
+                        <div className="p-5 flex-grow animate-fade-in flex flex-col h-full">
+                            <button onClick={() => { setActiveTab('home'); setWeightStatusResult(null); setBabyWeightInput(''); }} className="text-brand-darkpink font-bold text-xs mb-4 flex items-center gap-1 hover:underline">
+                                <i className="fa-solid fa-arrow-left"></i> ආපසු මුල් පිටුවට
+                            </button>
+
+                            <h2 className="text-xl font-bold mb-1 text-brand-chocolate">ළදරු බර මාපක සහායකයා</h2>
+                            <p className="text-xs text-brand-slate mb-5">ලෝක සෞඛ්‍ය සංවිධානයේ (WHO) ප්‍රමිතීන්ට අනුව බබාගේ බර නිවැරදිදැයි ක්ෂණිකව පරීක්ෂා කරගන්න.</p>
+
+                            <div className="bg-white border border-pink-100 rounded-3xl p-5 shadow-sm mb-5">
+                                <form onSubmit={checkBabyWeight} className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-3.5">
+                                        <div>
+                                            <label className="text-[11px] text-brand-slate font-bold block mb-1.5">බබාගේ ලිංගිකත්වය:</label>
+                                            <select value={babyGender} onChange={(e) => setBabyGender(e.target.value)} className="w-full px-3 py-2.5 border border-pink-100 rounded-xl text-xs focus:outline-none focus:border-brand-pink bg-gray-50 font-bold">
+                                                <option value="boy">💙 පුතෙක් (Male)</option>
+                                                <option value="girl">💗 දුවෙක් (Female)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-[11px] text-brand-slate font-bold block mb-1.5">බබාගේ වයස (මාස):</label>
+                                            <select value={babyAgeMonth} onChange={(e) => setBabyAgeMonth(e.target.value)} className="w-full px-3 py-2.5 border border-pink-100 rounded-xl text-xs focus:outline-none focus:border-brand-pink bg-gray-50 font-bold">
+                                                <option value="0">උපතේදී (0 Month)</option>
+                                                {Array.from({ length: 24 }, (_, i) => i + 1).map(m => (
+                                                    <option key={m} value={m}>මාස {m} යි</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="text-[11px] text-brand-slate font-bold block mb-1.5">බබාගේ වර්තමාන බර (kg වලින්):</label>
+                                        <input type="number" step="0.01" placeholder="උදා: 6.5" value={babyWeightInput} onChange={(e) => setBabyWeightInput(e.target.value)} required className="w-full px-4 py-3 border border-pink-100 rounded-xl text-sm focus:outline-none focus:border-brand-pink text-center font-bold bg-gray-50" />
+                                    </div>
+                                    <button type="submit" className="w-full bg-gradient-to-r from-pink-400 to-brand-darkpink text-white font-black text-xs py-3 rounded-xl shadow-md active:scale-95 transition-all">
+                                        <i className="fa-solid fa-scale-balanced mr-1.5"></i> බර පරීක්ෂා කරන්න
+                                    </button>
+                                </form>
+                            </div>
+
+                            {weightStatusResult && (
+                                <div className={`border p-5 rounded-3xl animate-[scaleUp_0.3s_ease-out] shadow-sm text-center ${weightStatusResult.css}`}>
+                                    <div className="mb-2"><i className={`fa-solid ${weightStatusResult.icon} text-3xl`}></i></div>
+                                    <h3 className="text-sm font-black mb-1">{weightStatusResult.text}</h3>
+                                    <p className="text-[11px] opacity-90 leading-relaxed mt-2">
+                                        {babyAgeMonth === '0' ? 'උපතේදී' : `මාස ${babyAgeMonth}`} වයසේ පසුවන {babyGender === 'boy' ? 'පිරිමි' : 'ගැහැණු'} දරුවෙකුගේ සාමාන්‍ය බර සීමාව වන්නේ <strong>කිලෝග්‍රෑම් {weightStatusResult.min} ත් {weightStatusResult.max} ත් අතර</strong> ප්‍රමාණයකි.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* 🛡️ tab: PREGNANCY SAFETY CHECKER */}
+                    {activeTab === 'safety' && (
+                        <div className="p-5 flex-grow animate-fade-in flex flex-col h-full">
+                            <button onClick={() => { setActiveTab('home'); setSafetySearchQuery(''); setSafetyCategory('all'); }} className="text-brand-darkpink font-bold text-xs mb-4 flex items-center gap-1 hover:underline">
+                                <i className="fa-solid fa-arrow-left"></i> ආපසු මුල් පිටුවට
+                            </button>
+
+                            <h2 className="text-xl font-bold mb-1 text-brand-chocolate">ආරක්ෂණ මාර්ගෝපදේශය</h2>
+                            <p className="text-xs text-brand-slate mb-5">ගර්භණී සමයේදී විවිධ ආහාර, බීම සහ ක්‍රියාකාරකම් බබාට ආරක්ෂිතදැයි මෙතැනින් සොයා ගන්න.</p>
+
+                            {/* Search and Filters */}
+                            <div className="mb-4 space-y-3">
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        placeholder="ආහාරයක් හෝ ක්‍රියාකාරකමක් මෙතනින් සොයන්න..."
+                                        value={safetySearchQuery}
+                                        onChange={(e) => setSafetySearchQuery(e.target.value)}
+                                        className="w-full pl-4 pr-10 py-3 rounded-xl border border-pink-100 text-xs focus:outline-none focus:border-brand-pink focus:bg-white shadow-sm transition-all"
+                                    />
+                                    <div className="absolute right-3 top-3.5 flex items-center gap-2">
+                                        {safetySearchQuery && (
+                                            <button onClick={() => setSafetySearchQuery('')} className="text-gray-400 hover:text-brand-pink">
+                                                <i className="fa-solid fa-xmark text-xs"></i>
+                                            </button>
+                                        )}
+                                        <i className="fa-solid fa-magnifying-glass text-brand-pink text-xs"></i>
+                                    </div>
+                                </div>
+
+                                {/* Category filter buttons */}
+                                <div className="flex bg-pink-50/60 p-1 rounded-xl border border-pink-100/50">
+                                    <button onClick={() => setSafetyCategory('all')} className={`flex-1 text-[11px] py-1.5 rounded-lg font-bold transition-all ${safetyCategory === 'all' ? 'bg-white text-brand-darkpink shadow-sm' : 'text-brand-slate hover:text-brand-chocolate'}`}>
+                                        සියල්ල
+                                    </button>
+                                    <button onClick={() => setSafetyCategory('food')} className={`flex-1 text-[11px] py-1.5 rounded-lg font-bold transition-all ${safetyCategory === 'food' ? 'bg-white text-brand-darkpink shadow-sm' : 'text-brand-slate'}`}>
+                                        🍔 ආහාර/බීම
+                                    </button>
+                                    <button onClick={() => setSafetyCategory('activity')} className={`flex-1 text-[11px] py-1.5 rounded-lg font-bold transition-all ${safetyCategory === 'activity' ? 'bg-white text-brand-darkpink shadow-sm' : 'text-brand-slate'}`}>
+                                        🏃‍♀️ ක්‍රියාකාරකම්
+                                    </button>
+                                    <button onClick={() => setSafetyCategory('medicine')} className={`flex-1 text-[11px] py-1.5 rounded-lg font-bold transition-all ${safetyCategory === 'medicine' ? 'bg-white text-brand-darkpink shadow-sm' : 'text-brand-slate'}`}>
+                                        💊 බෙහෙත්
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Safety list results */}
+                            <div className="space-y-3.5 flex-grow overflow-y-auto max-h-[360px] pr-1 no-scrollbar">
+                                {filteredSafetyItems.length > 0 ? (
+                                    filteredSafetyItems.map((item, idx) => {
+                                        let badgeColor = '';
+                                        let badgeText = '';
+                                        let icon = '';
+                                        if (item.status === 'safe') {
+                                            badgeColor = 'bg-emerald-50 border-emerald-200 text-emerald-800';
+                                            badgeText = '✅ ආරක්ෂිතයි (Safe)';
+                                            icon = 'fa-circle-check text-emerald-500';
+                                        } else if (item.status === 'moderate') {
+                                            badgeColor = 'bg-amber-50 border-amber-200 text-amber-800';
+                                            badgeText = '⚠️ සීමිතව (Moderate)';
+                                            icon = 'fa-triangle-exclamation text-amber-500';
+                                        } else {
+                                            badgeColor = 'bg-rose-50 border-rose-200 text-rose-800';
+                                            badgeText = '❌ මඟහරින්න (Avoid)';
+                                            icon = 'fa-circle-xmark text-rose-500';
+                                        }
+
+                                        return (
+                                            <div key={idx} className="bg-white border border-pink-100 rounded-2xl p-4 shadow-sm relative overflow-hidden transition-all hover:shadow-md">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <h4 className="font-bold text-xs text-brand-chocolate flex items-center gap-1.5">
+                                                        <i className={`fa-solid ${icon}`}></i> {item.name}
+                                                    </h4>
+                                                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border ${badgeColor}`}>
+                                                        {badgeText}
+                                                    </span>
+                                                </div>
+                                                <p className="text-[11px] text-brand-slate leading-relaxed bg-gray-50/50 p-2.5 rounded-xl border border-gray-100/30">
+                                                    {item.desc}
+                                                </p>
+                                            </div>
+                                        );
+                                    })
+                                ) : (
+                                    <div className="text-center py-12 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                        <i className="fa-solid fa-circle-question text-gray-300 text-3xl mb-2 block animate-pulse"></i>
+                                        <p className="text-xs text-brand-slate font-medium">කිසිවක් හමු නොවීය. කරුණාකර වෙනත් සෙවුම් පදයක් භාවිතා කරන්න.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 📅 tab: MOH CLINIC SCHEDULER */}
+                    {activeTab === 'scheduler' && (
+                        <div className="p-5 flex-grow animate-fade-in flex flex-col h-full">
+                            <button onClick={() => { setActiveTab('home'); setLastClinicDate(''); setNextClinicDates([]); }} className="text-brand-darkpink font-bold text-xs mb-4 flex items-center gap-1 hover:underline">
+                                <i className="fa-solid fa-arrow-left"></i> ආපසු මුල් පිටුවට
+                            </button>
+
+                            <h2 className="text-xl font-bold mb-1 text-brand-chocolate">සායන දින සැලසුම්කරු (MOH Clinic Scheduler)</h2>
+                            <p className="text-xs text-brand-slate mb-5">ඔබ අවසන් වරට සහභාගී වූ රජයේ සායන දිනය ඇතුළත් කර මීළඟ ඉදිරි සායන වාර 3 පැවැත්විය හැකි දින දළ වශයෙන් ගණනය කරගන්න.</p>
+
+                            <div className="bg-white border border-pink-100 rounded-3xl p-5 shadow-sm mb-5">
+                                <form onSubmit={calculateClinics} className="space-y-4">
+                                    <div>
+                                        <label className="text-[11px] text-brand-slate font-bold block mb-1.5">අවසන් වරට සායනයට ගිය දිනය (Last Clinic Date):</label>
+                                        <input
+                                            type="date"
+                                            value={lastClinicDate}
+                                            onChange={(e) => setLastClinicDate(e.target.value)}
+                                            required
+                                            className="w-full px-4 py-3 border border-pink-100 rounded-xl text-sm focus:outline-none focus:border-brand-pink text-center font-bold bg-gray-50"
+                                        />
+                                    </div>
+                                    <button type="submit" className="w-full bg-gradient-to-r from-pink-400 to-brand-darkpink text-white font-black text-xs py-3 rounded-xl shadow-md active:scale-95 transition-all">
+                                        <i className="fa-solid fa-calendar-check mr-1.5"></i> දින සැලසුම් කරන්න
+                                    </button>
+                                </form>
+                            </div>
+
+                            {nextClinicDates.length > 0 && (
+                                <div className="space-y-3 flex-grow overflow-y-auto max-h-[300px] pr-1 no-scrollbar mb-4">
+                                    <h3 className="font-bold text-xs text-brand-chocolate mb-1 pl-1">ඉදිරි සායන වාරයන්:</h3>
+                                    {nextClinicDates.map((c, idx) => (
+                                        <div key={idx} className="bg-white border border-pink-100 rounded-2xl p-4 shadow-sm relative overflow-hidden flex items-start gap-3 animate-fade-in">
+                                            <div className="w-8 h-8 bg-pink-50 text-brand-darkpink rounded-xl flex items-center justify-center font-black text-xs flex-shrink-0 mt-0.5 shadow-inner">
+                                                {c.count}
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-xs text-brand-chocolate mb-0.5">මීළඟ සායන වාරය {c.count}</h4>
+                                                <span className="text-[10px] text-brand-darkpink font-black block mb-1.5"><i className="fa-solid fa-calendar-days"></i> දළ වශයෙන් පැවැත්වෙන දිනය: {c.date}</span>
+                                                <p className="text-[11px] text-brand-slate leading-relaxed bg-gray-50/50 p-2 rounded-xl border border-gray-100/50">මෙම දිනය රජයේ නිවාඩු හෝ වෙනත් හේතූන් මත වෙනස් විය හැක. සායන පොතෙහි සටහන් වන දිනය අවසන් දිනය ලෙස සලකන්න.</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -996,28 +1504,26 @@ const weeksData = {
                             {/* 🔬 INTERACTIVE LIVE STRIP SIMULATOR CARD */}
                             <div className="bg-gradient-to-b from-pink-50 to-white border border-pink-100 rounded-2xl p-5 mb-6 shadow-sm text-center">
                                 <span className="text-[10px] text-brand-pink font-bold uppercase tracking-wider block mb-3">Live Strip Simulator • සජීවී පෙරදසුන</span>
-                                
+
                                 {/* Physical Pregnancy Strip Mockup */}
                                 <div className="relative w-full max-w-[280px] h-12 bg-gray-100 rounded-full border-4 border-white shadow-md mx-auto flex items-center justify-between px-6 mb-4">
                                     {/* Left grip area */}
                                     <div className="text-[9px] font-bold text-gray-400 select-none">MAX</div>
-                                    
+
                                     {/* Middle Reading Window */}
                                     <div className="flex-1 max-w-[120px] h-6 bg-white rounded-md border border-gray-200 flex justify-around items-center px-4 relative">
                                         {/* Test Line (T) */}
                                         <div className="flex flex-col items-center">
-                                            <div className={`w-1.5 h-5 rounded-sm transition-all duration-500 ${
-                                                stripResult === 'positive' ? 'bg-brand-darkpink shadow-[0_0_8px_#f72585]' : 'bg-gray-100'
-                                            }`}></div>
+                                            <div className={`w-1.5 h-5 rounded-sm transition-all duration-500 ${stripResult === 'positive' ? 'bg-brand-darkpink shadow-[0_0_8px_#f72585]' : 'bg-gray-100'
+                                                }`}></div>
                                             <span className="text-[8px] font-bold text-gray-400 mt-0.5">T</span>
                                         </div>
 
                                         {/* Control Line (C) */}
                                         <div className="flex flex-col items-center">
-                                            <div className={`w-1.5 h-5 rounded-sm transition-all duration-500 ${
-                                                stripResult === 'positive' || stripResult === 'negative' ? 'bg-brand-darkpink shadow-[0_0_8px_#f72585]' : 
+                                            <div className={`w-1.5 h-5 rounded-sm transition-all duration-500 ${stripResult === 'positive' || stripResult === 'negative' ? 'bg-brand-darkpink shadow-[0_0_8px_#f72585]' :
                                                 stripResult === 'invalid' ? 'bg-gray-100' : 'bg-gray-100'
-                                            }`}></div>
+                                                }`}></div>
                                             <span className="text-[8px] font-bold text-gray-400 mt-0.5">C</span>
                                         </div>
                                     </div>
@@ -1086,7 +1592,7 @@ const weeksData = {
                                         ප්‍රතිඵලය: ගර්භණීභාවය හඳුනාගෙන ඇත!
                                     </div>
                                     <p className="text-xs text-emerald-900 leading-relaxed">
-                                        සුභ පැතුම්! ඔබේ පරීක්ෂණ ප්‍රතිඵලය ධනාත්මකයි (Positive). දැන් ඔබ සැබවින්ම මවක් වීමට සූදානම්. 
+                                        සුභ පැතුම්! ඔබේ පරීක්ෂණ ප්‍රතිඵලය ධනාත්මකයි (Positive). දැන් ඔබ සැබවින්ම මවක් වීමට සූදානම්.
                                     </p>
                                     <div className="border-t border-emerald-100 pt-2">
                                         <span className="text-[11px] font-bold text-emerald-800 block mb-1">ඊළඟ පියවර:</span>
@@ -1173,7 +1679,7 @@ const weeksData = {
                             <div className="space-y-3">
                                 {/* Water Reminder */}
                                 <label className={`flex items-center gap-4 p-4 rounded-2xl border transition-all cursor-pointer shadow-sm ${reminders.water ? 'bg-blue-50/50 border-blue-200' : 'bg-white border-pink-100 hover:border-pink-300'}`}>
-                                    <input type="checkbox" checked={reminders.water} onChange={() => setReminders({...reminders, water: !reminders.water})} className="w-5 h-5 accent-blue-500 rounded" />
+                                    <input type="checkbox" checked={reminders.water} onChange={() => setReminders({ ...reminders, water: !reminders.water })} className="w-5 h-5 accent-blue-500 rounded" />
                                     <div className="flex-1">
                                         <h4 className={`font-bold text-sm ${reminders.water ? 'text-blue-700 line-through' : 'text-brand-chocolate'}`}>වතුර ලීටර් 3ක් පානය කිරීම</h4>
                                         <p className="text-[10px] text-brand-slate">ශරීරය සජලීයව තබාගැනීම අත්‍යවශ්‍යයි</p>
@@ -1183,7 +1689,7 @@ const weeksData = {
 
                                 {/* Folic Acid Reminder */}
                                 <label className={`flex items-center gap-4 p-4 rounded-2xl border transition-all cursor-pointer shadow-sm ${reminders.folic ? 'bg-emerald-50/50 border-emerald-200' : 'bg-white border-pink-100 hover:border-pink-300'}`}>
-                                    <input type="checkbox" checked={reminders.folic} onChange={() => setReminders({...reminders, folic: !reminders.folic})} className="w-5 h-5 accent-emerald-500 rounded" />
+                                    <input type="checkbox" checked={reminders.folic} onChange={() => setReminders({ ...reminders, folic: !reminders.folic })} className="w-5 h-5 accent-emerald-500 rounded" />
                                     <div className="flex-1">
                                         <h4 className={`font-bold text-sm ${reminders.folic ? 'text-emerald-700 line-through' : 'text-brand-chocolate'}`}>ෆෝලික් ඇසිඩ් (Folic Acid) පෙත්ත</h4>
                                         <p className="text-[10px] text-brand-slate">උදෑසන කෑමෙන් පසු</p>
@@ -1193,7 +1699,7 @@ const weeksData = {
 
                                 {/* Iron Reminder */}
                                 <label className={`flex items-center gap-4 p-4 rounded-2xl border transition-all cursor-pointer shadow-sm ${reminders.iron ? 'bg-purple-50/50 border-purple-200' : 'bg-white border-pink-100 hover:border-pink-300'}`}>
-                                    <input type="checkbox" checked={reminders.iron} onChange={() => setReminders({...reminders, iron: !reminders.iron})} className="w-5 h-5 accent-purple-500 rounded" />
+                                    <input type="checkbox" checked={reminders.iron} onChange={() => setReminders({ ...reminders, iron: !reminders.iron })} className="w-5 h-5 accent-purple-500 rounded" />
                                     <div className="flex-1">
                                         <h4 className={`font-bold text-sm ${reminders.iron ? 'text-purple-700 line-through' : 'text-brand-chocolate'}`}>යකඩ/කැල්සියම් (Iron/Calcium)</h4>
                                         <p className="text-[10px] text-brand-slate">වෛද්‍ය උපදෙස් පරිදි නියමිත වේලාවට</p>
@@ -1201,7 +1707,7 @@ const weeksData = {
                                     <i className="fa-solid fa-pills text-purple-400 text-xl"></i>
                                 </label>
                             </div>
-                            
+
                             <div className="mt-6 bg-pink-50 p-4 rounded-2xl border border-pink-100 text-center">
                                 <p className="text-xs text-brand-slate font-medium leading-relaxed">මෙම සටහන් දිනපතාම ඔබ විසින් අලුත් කරගත යුතුය. නිරෝගී මවක් වීමට මෙම පුරුදු උපකාරී වේ.</p>
                             </div>
@@ -1223,7 +1729,7 @@ const weeksData = {
                                     <i className="fa-solid fa-pen-to-square text-brand-pink"></i>
                                     <span className="text-xs font-bold text-brand-chocolate">මගේ සටහන්:</span>
                                 </div>
-                                <textarea 
+                                <textarea
                                     value={docNote}
                                     onChange={(e) => setDocNote(e.target.value)}
                                     placeholder="1. මට රෑට නින්ද යන්නේ නෑ...&#10;2. කොන්දේ කැක්කුමට මොකද කරන්නේ...&#10;&#10;(ඔබට අවශ්‍ය දෑ මෙහි ටයිප් කර තබාගන්න)"
@@ -1242,14 +1748,14 @@ const weeksData = {
                             </button>
 
                             <h2 className="text-xl font-bold mb-1 text-brand-chocolate">පුතෙක්ද? දුවෙක්ද?</h2>
-                            <p className="text-xs text-brand-slate mb-5">පැරණි දින දර්ශන ක්‍රම (Chinese Predictor) භාවිතා කර ඔබගේ කුස තුළ සිටින්නේ කුමන ලිංගිකත්වයේ දරුවෙක්දැයි විනෝදයට අනුමාන කර බලමු!</p>
+                            <p className="text-xs text-brand-slate mb-5">පැරණි දින දර්ශන ක්‍රම (Chinese Predictor) භාවිතා කර ඔබගේ කුස තුළ සිටින්නේ කුමන ලිංගිකත්වයේ දරුවෙක්දැයි අනුමාන කර බලමු!</p>
 
                             <div className="bg-white border border-pink-100 rounded-3xl p-5 shadow-sm mb-5">
                                 <form onSubmit={predictGender} className="space-y-4">
                                     <div>
                                         <label className="text-[11px] text-brand-slate font-bold block mb-1.5">බබා පිළිසිඳගන්නා විට මවගේ වයස:</label>
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             value={momAge}
                                             onChange={(e) => setMomAge(e.target.value)}
                                             placeholder="උදා: 25"
@@ -1258,13 +1764,13 @@ const weeksData = {
                                     </div>
                                     <div>
                                         <label className="text-[11px] text-brand-slate font-bold block mb-1.5">බබා පිළිසිඳගත් මාසය (LMP මාසය):</label>
-                                        <select 
+                                        <select
                                             value={conceptMonth}
                                             onChange={(e) => setConceptMonth(e.target.value)}
                                             className="w-full px-4 py-3 border border-pink-100 rounded-xl text-sm focus:outline-none focus:border-brand-pink bg-gray-50"
                                         >
                                             {['ජනවාරි', 'පෙබරවාරි', 'මාර්තු', 'අප්‍රේල්', 'මැයි', 'ජූනි', 'ජූලි', 'අගෝස්තු', 'සැප්තැම්බර්', 'ඔක්තෝබර්', 'නොවැම්බර්', 'දෙසැම්බර්'].map((m, i) => (
-                                                <option key={i} value={i+1}>{m}</option>
+                                                <option key={i} value={i + 1}>{m}</option>
                                             ))}
                                         </select>
                                     </div>
@@ -1308,9 +1814,9 @@ const weeksData = {
                             <div className="mb-4 space-y-3">
                                 {/* Search Bar */}
                                 <div className="relative">
-                                    <input 
-                                        type="text" 
-                                        placeholder="නම හෝ තේරුම මෙතැනින් සර්ච් කරන්න..." 
+                                    <input
+                                        type="text"
+                                        placeholder="නම හෝ තේරුම මෙතැනින් සර්ච් කරන්න..."
                                         value={namesSearch}
                                         onChange={(e) => setNamesSearch(e.target.value)}
                                         className="w-full pl-4 pr-10 py-3 rounded-xl border border-pink-100 text-xs focus:outline-none focus:border-brand-pink focus:bg-white shadow-sm transition-all"
@@ -1325,7 +1831,7 @@ const weeksData = {
                                     </div>
                                 </div>
 
-                                                                {/* Gender Filter Switcher */}
+                                {/* Gender Filter Switcher */}
                                 <div className="flex bg-pink-50/60 p-1 rounded-xl border border-pink-100/50">
                                     <button onClick={() => setNamesFilter('all')} className={`flex-1 text-xs py-2 rounded-lg font-bold transition-all ${namesFilter === 'all' ? 'bg-white text-brand-darkpink shadow-sm' : 'text-brand-slate hover:text-brand-chocolate'}`}>
                                         සියලුම නම්
@@ -1341,13 +1847,12 @@ const weeksData = {
                                 {/* Favorites Filter Toggle */}
                                 <div className="flex justify-between items-center bg-white p-2.5 rounded-xl border border-pink-100/50 shadow-sm px-4">
                                     <span className="text-[10px] text-brand-slate font-bold">මුළු නම් ගණන: {filteredNames.length}</span>
-                                    <button 
+                                    <button
                                         onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-                                        className={`text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
-                                            showFavoritesOnly 
-                                                ? 'bg-amber-400 text-brand-chocolate shadow-sm' 
-                                                : 'bg-gray-50 text-brand-slate border border-gray-100 hover:border-amber-200'
-                                        }`}
+                                        className={`text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 ${showFavoritesOnly
+                                            ? 'bg-amber-400 text-brand-chocolate shadow-sm'
+                                            : 'bg-gray-50 text-brand-slate border border-gray-100 hover:border-amber-200'
+                                            }`}
                                     >
                                         <i className="fa-solid fa-star text-amber-500"></i>
                                         {showFavoritesOnly ? 'ප්‍රියතම නම් පමණි (Favorites)' : 'ප්‍රියතම නම් බලන්න'}
@@ -1377,15 +1882,15 @@ const weeksData = {
                                         <div key={n.id} className={`border p-4 rounded-2xl shadow-sm bg-white transition-all hover:shadow-md flex flex-col justify-between relative overflow-hidden ${n.gender === 'boy' ? 'border-blue-100/70 hover:border-blue-300' : 'border-pink-100/70 hover:border-pink-300'}`}>
                                             {/* Side indicator styling */}
                                             <div className={`absolute left-0 top-0 bottom-0 w-1 ${n.gender === 'boy' ? 'bg-blue-400' : 'bg-brand-pink'}`}></div>
-                                            
+
                                             {/* Header Row */}
                                             <div className="flex justify-between items-center mb-1.5 pl-1">
                                                 <h4 className={`font-black text-base tracking-wide ${n.gender === 'boy' ? 'text-blue-700' : 'text-brand-darkpink'}`}>
                                                     {n.name}
                                                 </h4>
                                                 <div className="flex items-center gap-2.5">
-                                                    <button 
-                                                        onClick={() => toggleFavorite(n.id)} 
+                                                    <button
+                                                        onClick={() => toggleFavorite(n.id)}
                                                         className="text-base hover:scale-110 active:scale-95 transition-all text-amber-400 focus:outline-none"
                                                     >
                                                         <i className={favorites.includes(n.id) ? "fa-solid fa-star" : "fa-regular fa-star text-gray-300"}></i>
@@ -1442,14 +1947,13 @@ const weeksData = {
                                 <span className="text-[10px] text-brand-slate font-bold mb-1.5 block">ගර්භණී සතිය තෝරන්න:</span>
                                 <div className="flex gap-2 overflow-x-auto pb-2.5 no-scrollbar scroll-smooth">
                                     {Array.from({ length: 40 }, (_, i) => i + 1).map(week => (
-                                        <button 
-                                            key={week} 
+                                        <button
+                                            key={week}
                                             onClick={() => setSelectedWeek(week)}
-                                            className={`w-11 h-11 flex-shrink-0 rounded-xl font-black text-xs flex flex-col items-center justify-center transition-all relative ${
-                                                selectedWeek === week 
-                                                    ? 'bg-gradient-to-br from-brand-pink to-brand-darkpink text-white shadow-md scale-105' 
-                                                    : 'bg-white border border-pink-100 text-brand-chocolate hover:border-pink-300'
-                                            }`}
+                                            className={`w-11 h-11 flex-shrink-0 rounded-xl font-black text-xs flex flex-col items-center justify-center transition-all relative ${selectedWeek === week
+                                                ? 'bg-gradient-to-br from-brand-pink to-brand-darkpink text-white shadow-md scale-105'
+                                                : 'bg-white border border-pink-100 text-brand-chocolate hover:border-pink-300'
+                                                }`}
                                         >
                                             <span className="text-[8px] opacity-75 font-normal">සතිය</span>
                                             {week}
@@ -1488,26 +1992,26 @@ const weeksData = {
                                                 {selectedWeek <= 4 ? "1 වන මාසය" : `${Math.ceil(selectedWeek / 4)} වන මාසය`}
                                             </span>
                                         </div>
-                                        
+
                                         {/* 📌 Pro Feature: Mark / Save Current Week Action */}
                                         <div className="border-t border-white/20 pt-2.5 flex justify-between items-center">
                                             {myCurrentWeek === selectedWeek ? (
                                                 <span className="text-[11px] bg-white text-brand-darkpink font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm animate-fade-in animate-pulse">
-                                                    <i className="fa-solid fa-circle-check text-emerald-500 text-xs"></i> 
+                                                    <i className="fa-solid fa-circle-check text-emerald-500 text-xs"></i>
                                                     ඔබ දැනට පසුවන සතියයි
                                                 </span>
                                             ) : (
-                                                <button 
+                                                <button
                                                     onClick={() => handleMarkWeek(selectedWeek)}
                                                     className="text-[10px] bg-white/20 hover:bg-white/30 text-white font-bold px-3 py-1.5 rounded-xl border border-white/30 transition-all active:scale-95 flex items-center gap-1"
                                                 >
-                                                    <i className="fa-solid fa-thumbtack text-[9px]"></i> 
+                                                    <i className="fa-solid fa-thumbtack text-[9px]"></i>
                                                     මගේ වර්තමාන සතිය ලෙස සටහන් කරන්න
                                                 </button>
                                             )}
-                                            
+
                                             {myCurrentWeek && myCurrentWeek !== selectedWeek && (
-                                                <button 
+                                                <button
                                                     onClick={() => setSelectedWeek(myCurrentWeek)}
                                                     className="text-[9px] text-white/90 underline hover:text-white transition-all"
                                                 >
@@ -1517,11 +2021,11 @@ const weeksData = {
                                         </div>
                                     </div>
 
-                                                                        {/* 👶 3D BABY STYLE VISUALIZER CARD (ADVANCED) */}
+                                    {/* 👶 3D BABY STYLE VISUALIZER CARD (ADVANCED) */}
                                     <div className="bg-gradient-to-br from-rose-50 to-pink-100/40 border border-pink-200/60 rounded-2xl p-4 shadow-sm flex items-center gap-4 relative overflow-hidden group">
                                         {/* Background soft glow effect */}
                                         <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-pink-300/10 rounded-full blur-xl transition-all group-hover:scale-125"></div>
-                                        
+
                                         {/* 3D-Look Glowing Baby Avatar Container */}
                                         <div className="w-14 h-14 bg-gradient-to-tr from-white to-pink-50 rounded-2xl border-2 border-white shadow-md flex items-center justify-center text-3xl flex-shrink-0 relative overflow-hidden">
                                             <div className="absolute inset-0 bg-radial-gradient from-white/80 to-transparent opacity-50"></div>
@@ -1539,7 +2043,7 @@ const weeksData = {
                                                     Baby Development • කළලයේ වර්ධනය
                                                 </span>
                                             </div>
-                                            
+
                                             <p className="text-xs font-black text-brand-chocolate mb-2">
                                                 වත්මන් සන්ධිස්ථානය: <span className="text-brand-darkpink font-bold">{weeksData[selectedWeek] ? weeksData[selectedWeek].milestone : "පිළිසිඳ ගැනීමට සූදානම්"}</span>
                                             </p>
@@ -1614,7 +2118,7 @@ const weeksData = {
                             </button>
 
                             <h2 className="text-xl font-bold mb-1 text-brand-chocolate flex items-center gap-2">
-                                සායන කාඩ්පත් සහයකයා 
+                                සායන කාඩ්පත් සහයකයා
                                 <span className="text-[10px] bg-gradient-to-r from-amber-400 to-amber-500 text-brand-chocolate px-2.5 py-0.5 rounded-full font-black shadow-sm">PRO</span>
                             </h2>
                             <p className="text-xs text-brand-slate mb-4">රජයේ සායන පොතේ (H507 Form) වෛද්‍යවරුන් සහ සායන නිලධාරීන් ලියන සංකීර්ණ කෙටි යෙදුම්වල සැබෑ සිංහල තේරුම මෙතැනින් ක්ෂණිකව සොයා ගන්න.</p>
@@ -1695,7 +2199,7 @@ const weeksData = {
                                 <i className="fa-solid fa-arrow-left"></i> ආපසු මුල් පිටුවට
                             </button>
 
-                                                        <div className="flex justify-between items-center mb-4">
+                            <div className="flex justify-between items-center mb-4">
                                 <div>
                                     <h2 className="text-xl font-bold mb-1 text-brand-chocolate flex items-center gap-2">
                                         ගර්භණී පෝෂණ සැලසුම
@@ -1703,7 +2207,7 @@ const weeksData = {
                                     </h2>
                                     <p className="text-[11px] text-brand-slate">විශේෂඥ වෛද්‍ය උපදෙස් මත සකස් කළ ලාංකීය ආහාර සැලසුම</p>
                                 </div>
-                                <button 
+                                <button
                                     onClick={downloadDietPDF}
                                     className="bg-brand-pink hover:bg-brand-darkpink text-white text-[10px] px-3 py-2 rounded-xl font-black transition-all shadow-sm flex items-center gap-1 active:scale-95 flex-shrink-0"
                                 >
@@ -1727,7 +2231,7 @@ const weeksData = {
 
                             {/* Nutrition Dynamic Content View */}
                             <div className="space-y-4 flex-grow overflow-y-auto max-h-[400px] pr-1 no-scrollbar">
-                                
+
                                 {/* Trimester 1 Info */}
                                 {selectedWeek <= 12 && (
                                     <div className="space-y-3.5 animate-fade-in">
@@ -1815,31 +2319,52 @@ const weeksData = {
                             </h2>
                             <p className="text-xs text-brand-slate mb-5">කුස තුළ සිටින බිළිඳාගේ බුද්ධි වර්ධනය උත්තේජනය කරන සජීවී සංගීත චිකිත්සාව. (ශ්‍රවණය සඳහා හෙඩ්ෆෝන් භාවිත කරන්න)</p>
 
-                                                        {/* 🎧 Advanced Audio Player Visualizer (Live Operational) */}
-                            <div className="bg-gradient-to-b from-purple-950 to-indigo-900 rounded-3xl p-5 text-white shadow-xl text-center relative overflow-hidden mb-5">
-                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 to-transparent"></div>
-                                
-                                <span className="text-[9px] text-pink-300 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-full font-bold uppercase tracking-wider inline-block mb-4 border border-white/5">
-                                    {isPlaying ? "Now Playing • දැන් ශ්‍රවණය වේ" : "Player Paused • නතර කර ඇත"}
-                                </span>
+                            {/* 🎧 Advanced Premium Audio Player Visualizer (Live Operational) */}
+                            <div className="bg-gradient-to-b from-purple-950 to-indigo-950 rounded-3xl p-5 text-white shadow-xl text-center relative overflow-hidden mb-5">
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 to-transparent pointer-events-none"></div>
 
-                                {/* Rotating Disc animation hooks into dynamic isPlaying state */}
-                                <div className={`w-20 h-20 bg-gradient-to-tr from-pink-500 via-purple-600 to-indigo-500 rounded-full mx-auto mb-3 flex items-center justify-center border-4 border-white/10 shadow-2xl relative ${isPlaying ? 'animate-[spin_6s_linear_infinite]' : ''}`}>
-                                    <div className="w-6 h-6 bg-purple-950 rounded-full border-2 border-white/20 z-10"></div>
-                                    <i className="fa-solid fa-compact-disc text-white/20 text-4xl absolute"></i>
+                                <div className="flex justify-between items-center mb-4 relative z-10">
+                                    <span className="text-[9px] text-pink-300 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-white/5">
+                                        {isPlaying ? "Now Playing • ධාවනය වේ" : "Paused • නතර කර ඇත"}
+                                    </span>
+                                    {sleepTimer !== null && (
+                                        <span className="text-[9px] text-amber-300 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-full font-bold uppercase tracking-wider border border-white/5">
+                                            <i className="fa-solid fa-clock mr-1 animate-pulse"></i>
+                                            {Math.floor(sleepTimer / 60)}m {sleepTimer % 60}s
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Animated Equalizer & Rotating Disc combined inside a center area */}
+                                <div className="flex flex-col items-center mb-3">
+                                    <div className={`w-20 h-20 bg-gradient-to-tr from-pink-500 via-purple-600 to-indigo-500 rounded-full flex items-center justify-center border-4 border-white/15 shadow-2xl relative ${isPlaying ? 'animate-[spin_8s_linear_infinite]' : ''}`}>
+                                        <div className="w-6 h-6 bg-purple-950 rounded-full border-2 border-white/20 z-10"></div>
+                                        <i className="fa-solid fa-compact-disc text-white/20 text-4xl absolute"></i>
+                                    </div>
+
+                                    {/* CSS Sound Wave Equalizer */}
+                                    <div className="flex justify-center items-end gap-1.5 h-8 mt-4">
+                                        {audioFrequencies.map((val, i) => (
+                                            <div
+                                                key={i}
+                                                className={`w-1.5 rounded-full transition-all duration-75 ${isPlaying ? 'bg-gradient-to-t from-brand-pink to-brand-purple' : 'bg-white/40'}`}
+                                                style={{ height: `${Math.max(20, (val / 255) * 100)}%` }}
+                                            ></div>
+                                        ))}
+                                    </div>
                                 </div>
 
                                 <h3 className="font-black text-sm tracking-wide mb-0.5">{playlist[currentTrack].title}</h3>
-                                <p className="text-[10px] text-indigo-200/80 mb-4">{playlist[currentTrack].sub}</p>
+                                <p className="text-[10px] text-indigo-200/80 mb-3">{playlist[currentTrack].sub}</p>
 
                                 {/* 🎚️ Active Scrubber Progress Bar */}
-                                <div className="space-y-1.5 mb-5 px-1">
-                                    <input 
-                                        type="range" 
-                                        min="0" 
-                                        max={duration || 100} 
-                                        value={currentTime} 
-                                        onChange={handleSeek} 
+                                <div className="space-y-1 mb-3 px-1">
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max={duration || 100}
+                                        value={currentTime}
+                                        onChange={handleSeek}
                                         className="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-brand-pink outline-none"
                                     />
                                     <div className="flex justify-between text-[9px] text-indigo-200/70 font-semibold select-none">
@@ -1849,12 +2374,47 @@ const weeksData = {
                                 </div>
 
                                 {/* Player Controls */}
-                                <div className="flex justify-center items-center gap-6 text-xl">
+                                <div className="flex justify-center items-center gap-6 text-xl mb-4">
                                     <button onClick={() => togglePlay((currentTrack - 1 + playlist.length) % playlist.length)} className="text-white/60 hover:text-white transition-all active:scale-90"><i className="fa-solid fa-backward-step"></i></button>
                                     <button onClick={() => togglePlay(currentTrack)} className="w-12 h-12 bg-white text-purple-950 rounded-full flex items-center justify-center text-lg shadow-lg hover:scale-105 active:scale-95 transition-all">
                                         <i className={`fa-solid ${isPlaying ? 'fa-pause' : 'fa-play pl-0.5'}`}></i>
                                     </button>
                                     <button onClick={() => togglePlay((currentTrack + 1) % playlist.length)} className="text-white/60 hover:text-white transition-all active:scale-90"><i className="fa-solid fa-forward-step"></i></button>
+                                </div>
+
+                                {/* 🎛️ Premium Player Toolbar (Speed & Sleep Timer - Stacked layout for perfect mobile responsiveness) */}
+                                <div className="border-t border-white/10 pt-4 mt-2 space-y-3.5">
+
+
+                                    {/* Sleep Timer Controls */}
+                                    <div className="flex items-center justify-between px-2">
+                                        <span
+                                            onClick={cycleSleepTimer}
+                                            className="text-[10px] text-indigo-200/80 font-bold tracking-wider cursor-pointer hover:text-white transition-all active:scale-95 flex items-center select-none"
+                                            title="Click icon to cycle sleep timer"
+                                        >
+                                            <i className="fa-solid fa-hourglass-half text-amber-300 mr-2 text-xs animate-[pulse_2s_infinite]"></i> ටයිමරය (Sleep)
+                                        </span>
+                                        <div className="flex bg-white/5 rounded-xl p-0.5 border border-white/10">
+                                            {[
+                                                { label: 'Off', val: null },
+                                                { label: '10m', val: 600 },
+                                                { label: '30m', val: 1800 },
+                                                { label: '60m', val: 3600 }
+                                            ].map(opt => (
+                                                <button
+                                                    key={opt.label}
+                                                    onClick={() => { setSelectedSleepDuration(opt.val); setSleepTimer(opt.val); }}
+                                                    className={`px-3.5 py-1 text-[10px] font-black rounded-lg transition-all active:scale-95 ${selectedSleepDuration === opt.val
+                                                        ? 'bg-brand-pink text-white shadow-md scale-105'
+                                                        : 'text-indigo-200 hover:text-white hover:bg-white/5'
+                                                        }`}
+                                                >
+                                                    {opt.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1862,14 +2422,13 @@ const weeksData = {
                             <span className="text-[10px] text-brand-slate font-black mb-2.5 block pl-0.5 uppercase tracking-wider">සංගීත එකතුව (Playlist):</span>
                             <div className="space-y-2.5 flex-grow overflow-y-auto max-h-[220px] pr-1 no-scrollbar">
                                 {playlist.map((track, index) => (
-                                    <div 
-                                        key={track.id} 
+                                    <div
+                                        key={track.id}
                                         onClick={() => togglePlay(index)}
-                                        className={`p-3 rounded-2xl shadow-sm flex items-center justify-between transition-all cursor-pointer border ${
-                                            currentTrack === index && isPlaying
-                                                ? 'bg-purple-50/70 border-brand-pink border-l-4' 
-                                                : 'bg-white border-gray-100 hover:border-purple-200'
-                                        }`}
+                                        className={`p-3 rounded-2xl shadow-sm flex items-center justify-between transition-all cursor-pointer border ${currentTrack === index && isPlaying
+                                            ? 'bg-purple-50/70 border-brand-pink border-l-4'
+                                            : 'bg-white border-gray-100 hover:border-purple-200'
+                                            }`}
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs ${currentTrack === index && isPlaying ? 'bg-pink-100 text-brand-darkpink' : 'bg-gray-50 text-brand-slate'}`}>
@@ -1904,7 +2463,7 @@ const weeksData = {
                             {/* 🎯 Main Huge Counter Interactive Card */}
                             <div className="bg-white border border-pink-100 rounded-3xl p-6 text-center shadow-sm mb-5 space-y-5">
                                 <span className="text-[10px] text-brand-pink font-bold uppercase tracking-wider block">Daily Kick Tracker • දෛනික ගණනය</span>
-                                
+
                                 {/* Big Number Display */}
                                 <div className="w-28 h-28 bg-gradient-to-tr from-pink-50 to-rose-100/30 rounded-full border-4 border-white shadow-inner flex flex-col items-center justify-center mx-auto">
                                     <span className="text-4xl font-black text-brand-darkpink">{kickCount}</span>
@@ -1925,7 +2484,7 @@ const weeksData = {
                                 </div>
 
                                 {/* Huge Click Action Button */}
-                                <button 
+                                <button
                                     onClick={() => setKickCount(kickCount + 1)}
                                     className="w-full bg-gradient-to-r from-brand-pink to-brand-darkpink hover:from-brand-darkpink hover:to-brand-pink text-white font-black py-4 rounded-2xl shadow-md active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 text-sm select-none"
                                 >
@@ -1934,7 +2493,7 @@ const weeksData = {
 
                                 {/* Reset Button */}
                                 {kickCount > 0 && (
-                                    <button 
+                                    <button
                                         onClick={() => setKickCount(0)}
                                         className="text-xs text-gray-400 hover:text-brand-darkpink font-bold transition-all underline active:scale-95"
                                     >
@@ -1973,7 +2532,7 @@ const weeksData = {
 
                             {/* Checklist Container */}
                             <div className="space-y-4 flex-grow overflow-y-auto max-h-[460px] pr-1 no-scrollbar mb-4">
-                                
+
                                 {/* Section 1: Documents */}
                                 <div className="bg-white border border-pink-100 rounded-2xl p-4 shadow-sm">
                                     <h4 className="font-black text-xs text-brand-darkpink mb-3 flex items-center gap-1.5 border-b border-pink-50 pb-1.5">
@@ -2055,9 +2614,9 @@ const weeksData = {
                             {/* 🗓️ DOB Input Card */}
                             <div className="bg-white border border-pink-100 rounded-3xl p-4 shadow-sm mb-5">
                                 <label className="text-[11px] text-brand-slate font-bold block mb-1.5">දරුවා උපන් දිනය හෝ බලාපොරොත්තු වන ප්‍රසූත දිනය (EDD) ඇතුළත් කරන්න:</label>
-                                <input 
-                                    type="date" 
-                                    value={babyDob} 
+                                <input
+                                    type="date"
+                                    value={babyDob}
                                     onChange={(e) => setBabyDob(e.target.value)}
                                     className="w-full px-3 py-2.5 border border-pink-100 rounded-xl text-xs focus:outline-none focus:border-brand-pink transition-all"
                                 />
@@ -2068,8 +2627,8 @@ const weeksData = {
                                 {babyDob ? (
                                     [
                                         { ageDays: 0, name: 'BCG එන්නත', desc: 'ක්ෂය රෝගයෙන් (TB) ආරක්ෂා වීමට උපත ලැබූ වහාම රෝහලෙන් ලබා දේ.' },
-                                        { ageDays: 60, name: 'පංචසංයුජ එන්නත (Pentavalent 1) + OPV 1 + Rotavirus 1', desc: 'කෝකටුයියා, පිටගැස්ම, හෙපටයිටිස් B, fසමූහ උණ සහ පෝලියෝ රෝගයෙන් ආරක්ෂා වීමට (මාස 2 දී).' },
-                                        { ageDays: 120, name: 'පංචසංයුජ එන්නත (Pentavalent 2) + OPV 2 + ffIPV', desc: 'එන්නතේ දෙවන මාත්‍රාව (මාස 4 දී).' },
+                                        { ageDays: 60, name: 'පංචසංයුජ එන්නත (Pentavalent 1) + OPV 1 + Rotavirus 1', desc: 'කෝකටුයියා, පිටගැස්ම, හෙපටයිටිස් B, Hib සමූහ උණ සහ පෝලියෝ රෝගයෙන් ආරක්ෂා වීමට (මාස 2 දී).' },
+                                        { ageDays: 120, name: 'පංචසංයුජ එන්නත (Pentavalent 2) + OPV 2 + fIPV', desc: 'එන්නතේ දෙවන මාත්‍රාව (මාස 4 දී).' },
                                         { ageDays: 180, name: 'පංචසංයුජ එන්නත (Pentavalent 3) + OPV 3 + Rotavirus 2', desc: 'එන්නතේ තෙවන මාත්‍රාව (මාස 6 දී).' },
                                         { ageDays: 270, name: 'පළමු MMR එන්නත + Live JE එන්නත', desc: 'පරිප්පු උණ (Measles), කම්මුල්ගාය (Mumps), රුබෙල්ලා සහ ජපන් එන්සෙෆලයිටිස් රෝගයට (මාස 9 දී).' },
                                         { ageDays: 540, name: 'DPT බූස්ටර් මාත්‍රාව + OPV 4 මාත්‍රාව', desc: 'ශක්තිමත් කිරීමේ බූස්ටර් මාත්‍රාව (අවුරුදු 1 හමාරේදී).' },
@@ -2078,12 +2637,12 @@ const weeksData = {
                                     ].map((v, idx) => {
                                         const originalDate = new Date(babyDob);
                                         originalDate.setDate(originalDate.getDate() + v.ageDays);
-                                        const formattedVacDate = originalDate.toLocaleDateString('si-LK', { year: 'numeric', month: 'long', day: 'numeric' });
-                                        
+                                        const formattedVacDate = formatSinhalaDate(originalDate);
+
                                         return (
                                             <div key={idx} className="bg-white border border-pink-100 rounded-2xl p-4 shadow-sm relative overflow-hidden flex items-start gap-3">
                                                 <div className="w-8 h-8 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-black text-xs flex-shrink-0 mt-0.5">
-                                                    {v.ageDays === 0 ? "උපතේදී" : `${v.ageDays >= 365 ? `අවු. ${Math.floor(v.ageDays/365)}` : `මාස ${Math.floor(v.ageDays/30)}`}`}
+                                                    {v.ageDays === 0 ? "උපතේදී" : `${v.ageDays >= 365 ? `අවු. ${Math.floor(v.ageDays / 365)}` : `මාස ${Math.floor(v.ageDays / 30)}`}`}
                                                 </div>
                                                 <div>
                                                     <h4 className="font-black text-xs text-brand-chocolate mb-0.5">{v.name}</h4>
@@ -2122,24 +2681,24 @@ const weeksData = {
                                     <div className="grid grid-cols-2 gap-3.5">
                                         <div>
                                             <label className="text-[10px] text-brand-slate font-bold block mb-1">ගැබ් ගැනීමට පෙර බර (kg):</label>
-                                            <input 
-                                                type="number" 
+                                            <input
+                                                type="number"
                                                 step="0.1"
                                                 placeholder="උදා: 55"
-                                                value={prePregnancyWeight} 
-                                                onChange={(e) => setPrePregnancyWeight(e.target.value)} 
-                                                required 
+                                                value={prePregnancyWeight}
+                                                onChange={(e) => setPrePregnancyWeight(e.target.value)}
+                                                required
                                                 className="w-full px-3 py-2 border border-pink-100 rounded-xl text-xs focus:outline-none focus:border-brand-pink text-center"
                                             />
                                         </div>
                                         <div>
                                             <label className="text-[10px] text-brand-slate font-bold block mb-1">ඔබේ උස (cm):</label>
-                                            <input 
-                                                type="number" 
+                                            <input
+                                                type="number"
                                                 placeholder="උදා: 152"
-                                                value={motherHeight} 
-                                                onChange={(e) => setMotherHeight(e.target.value)} 
-                                                required 
+                                                value={motherHeight}
+                                                onChange={(e) => setMotherHeight(e.target.value)}
+                                                required
                                                 className="w-full px-3 py-2 border border-pink-100 rounded-xl text-xs focus:outline-none focus:border-brand-pink text-center"
                                             />
                                         </div>
@@ -2170,7 +2729,7 @@ const weeksData = {
                                                 <strong className="text-base font-black text-emerald-700">+{maxWeightGain} kg</strong>
                                             </div>
                                         </div>
-                                        <p className="text-[10px] text-brand-slate leading-relaxed font-medium">ප්‍රසූතිය දක්වා සති 40 ඇතුළත ඔබේ මුළු බර **කිලෝග්‍රෑම් {minWeightGain} ත් {maxWeightGain} ත් අතර** ප්‍රමාණයකින් වැඩිවීම වඩාත් සෞඛ්‍ය සම්පන්න වේ.</p>
+                                        <p className="text-[10px] text-brand-slate leading-relaxed font-medium">ප්‍රසූතිය දක්වා සති 40 ඇතුළත ඔබේ මුළු බර <strong>කිලෝග්‍රෑම් {minWeightGain} ත් {maxWeightGain} ත් අතර</strong> ප්‍රමාණයකින් වැඩිවීම වඩාත් සෞඛ්‍ය සම්පන්න වේ.</p>
                                     </div>
                                 )}
                             </div>
@@ -2200,11 +2759,11 @@ const weeksData = {
                                 අන්තරාදායක ලක්ෂණ (Danger Signs)
                                 <span className="text-[10px] bg-gradient-to-r from-amber-400 to-amber-500 text-brand-chocolate px-2.5 py-0.5 rounded-full font-black shadow-sm">PRO</span>
                             </h2>
-                            <p className="text-xs text-brand-slate mb-5">ගර්භණී සමයේදී පහත දැක්වෙන යම් ලක්ෂණයක් හෝ මතු වුවහොත්, සායන දිනය එනතෙක් බලා නොසිට **වහාම ළඟම ඇති රජයේ රෝහලට** ඇතුළත් වන්න.</p>
+                            <p className="text-xs text-brand-slate mb-5">ගර්භණී සමයේදී පහත දැක්වෙන යම් ලක්ෂණයක් හෝ මතු වුවහොත්, සායන දිනය එනතෙක් බලා නොසිට <strong>වහාම ළඟම ඇති රජයේ රෝහලට</strong> ඇතුළත් වන්න.</p>
 
                             {/* Danger Signs Grid/List */}
                             <div className="space-y-3.5 flex-grow overflow-y-auto max-h-[440px] pr-1 no-scrollbar mb-4">
-                                
+
                                 {/* Sign 1 */}
                                 <div className="bg-red-50/50 border border-red-100 rounded-2xl p-4 shadow-sm flex items-start gap-3 relative overflow-hidden">
                                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500"></div>
@@ -2289,15 +2848,15 @@ const weeksData = {
                                         {formatContractionTime(elapsedTime)}
                                     </span>
                                 </div>
-                                
-                                <button 
+
+                                <button
                                     onClick={handleContractionToggle}
                                     className={`w-full text-white font-black py-4 rounded-2xl shadow-md active:scale-[0.97] transition-all flex items-center justify-center gap-2.5 text-sm select-none ${isTracking ? 'bg-gradient-to-r from-red-500 to-rose-600 hover:from-rose-600 hover:to-red-500' : 'bg-gradient-to-r from-brand-pink to-brand-darkpink hover:from-brand-darkpink hover:to-brand-pink'}`}
                                 >
-                                    <i className={`fa-solid ${isTracking ? 'fa-stop' : 'fa-play'}`}></i> 
+                                    <i className={`fa-solid ${isTracking ? 'fa-stop' : 'fa-play'}`}></i>
                                     {isTracking ? 'වේදනාව නැවතුණා (Stop)' : 'වේදනාව පටන් ගත්තා (Start)'}
                                 </button>
-                                
+
                                 {contractions.length > 0 && !isTracking && (
                                     <button onClick={() => setContractions([])} className="mt-4 text-[10px] text-gray-400 hover:text-red-500 font-bold transition-all underline">
                                         සියලු දත්ත මකා දමන්න (Reset)
@@ -2328,9 +2887,9 @@ const weeksData = {
                                         <div key={c.id} className="bg-white border border-pink-50 p-3 rounded-xl shadow-sm flex justify-between items-center text-xs">
                                             <div>
                                                 <span className="font-bold text-brand-darkpink block mb-1">
-                                                    වාරය {contractions.length - idx} 
+                                                    වාරය {contractions.length - idx}
                                                     <span className="text-[9px] text-gray-400 font-normal ml-2">
-                                                        ({new Date(c.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})})
+                                                        ({new Date(c.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
                                                     </span>
                                                 </span>
                                                 <div className="flex gap-4 text-[10px] text-brand-slate">
@@ -2345,11 +2904,11 @@ const weeksData = {
                         </div>
                     )}
 
-                   {/* 🔒 PREMIUM SUBSCRIPTION PAYWALL MODAL (PERFECT SCROLLABLE LUXURY IOS LAYOUT) */}
+                    {/* 🔒 PREMIUM SUBSCRIPTION PAYWALL MODAL (PERFECT SCROLLABLE LUXURY IOS LAYOUT) */}
                     {showPaywall && (
                         <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex justify-center items-center p-3 z-[9999] animate-fade-in">
                             <div className="bg-gradient-to-b from-white to-pink-50 rounded-3xl w-full max-w-[360px] border border-pink-200/80 shadow-2xl relative max-h-[85vh] flex flex-col shadow-pink-950/20 overflow-hidden">
-                                
+
                                 {/* Close Button */}
                                 <button onClick={() => setShowPaywall(false)} className="absolute right-3 top-3 text-gray-400 hover:text-brand-chocolate transition-all active:scale-90 bg-gray-100 w-7 h-7 rounded-full flex items-center justify-center z-50 shadow-sm">
                                     <i className="fa-solid fa-xmark text-sm"></i>
@@ -2357,7 +2916,7 @@ const weeksData = {
 
                                 {/* 📜 MAIN SCROLLABLE WRAPPER */}
                                 <div className="overflow-y-auto flex-1 no-scrollbar pb-4">
-                                    
+
                                     {/* Top Header Gradient Design */}
                                     <div className="bg-gradient-to-br from-purple-600 via-brand-pink to-brand-darkpink p-4 text-center text-white relative mb-3">
                                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white/10 to-transparent"></div>
@@ -2395,11 +2954,11 @@ const weeksData = {
                                         </div>
 
                                         {/* Main WhatsApp Receipt Action Button */}
-                                        <button 
+                                        <button
                                             onClick={() => {
                                                 const message = encodeURIComponent("Mother's Assistant PRO: මම රු. 99/- බැංකු ගිණුමට තැන්පත් කළා. මෙන්න ගෙවීම් රිසිට්පත.");
                                                 window.open(`https://wa.me/94774206088?text=${message}`, '_blank');
-                                            }} 
+                                            }}
                                             className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black py-2.5 rounded-xl shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-xs select-none"
                                         >
                                             <i className="fa-brands fa-whatsapp text-sm"></i> රිසිට්පත එවන්න (WhatsApp)
@@ -2415,40 +2974,40 @@ const weeksData = {
                                             <label className="text-[10px] text-brand-chocolate font-black block uppercase tracking-wide">
                                                 <i className="fa-solid fa-key text-brand-darkpink mr-1"></i> රිසිට්පත එවා ලැබුණු Passcode එක ඇතුළත් කරන්න
                                             </label>
-                                            
+
                                             <div className="flex flex-col gap-2">
-                                                <input 
-                                                    type="text" 
+                                                <input
+                                                    type="text"
                                                     id="dailyPromoInput"
-                                                    placeholder="Passcode එක මෙතන ගහන්න..." 
+                                                    placeholder="Passcode එක මෙතන ගහන්න..."
                                                     className="w-full px-3 py-2 border border-pink-200 rounded-xl text-xs focus:outline-none focus:border-brand-pink text-center uppercase font-bold tracking-wider bg-white shadow-inner"
                                                 />
-                                                <button 
+                                                <button
                                                     onClick={async (e) => {
                                                         const inputVal = document.getElementById('dailyPromoInput').value.trim().toUpperCase();
                                                         const errorBox = document.getElementById('promoErrorBox');
                                                         const successBox = document.getElementById('promoSuccessBox');
                                                         const btn = e.currentTarget;
 
-                                                        if(!inputVal) return;
+                                                        if (!inputVal) return;
 
                                                         try {
                                                             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> පරීක්ෂා කරමින්...';
-                                                            
+
                                                             // Firebase එකෙන් Code එක තියෙනවද සහ පාවිච්චි කරලා නැද්ද බලනවා
                                                             const docRef = db.collection("activation_codes").doc(inputVal);
                                                             const docSnap = await docRef.get();
-                                                            
+
                                                             if (docSnap.exists && docSnap.data().isUsed === false) {
                                                                 // Code එක හරියටම මැච් වුණා නම්, ඒක පාවිච්චි කරා කියලා Update කරනවා
                                                                 await docRef.update({ isUsed: true });
-                                                                
+
                                                                 errorBox.classList.add('hidden');
                                                                 successBox.classList.remove('hidden');
-                                                                
+
                                                                 // LocalStorage එකේ Save කරනවා
                                                                 localStorage.setItem('isProUser', 'true');
-                                                                
+
                                                                 setTimeout(() => {
                                                                     setIsSubscribed(true);
                                                                     setShowPaywall(false);
@@ -2500,13 +3059,15 @@ const weeksData = {
                         </div>
                     )}
 
-                   {/* 🏥 Friendly Medical Disclaimer (No secret clicks anymore) */}
-                    <div className="bg-red-50/60 border border-red-100 rounded-2xl p-4 mt-2 select-none mx-5 mb-6">
-                        <p className="text-[11px] text-red-700 leading-relaxed font-medium">
-                            <i className="fa-solid fa-circle-exclamation mr-1 text-xs"></i> <strong>සෞඛ්‍ය උපදේශය:</strong> මෙහි අඩංගු සියලුම ලිපි සහ උපදෙස් මූලික අවබෝධය සඳහා පමණි. යම් වෛද්‍ය ගැටලුවකදී වහාම ඔබේ පවුල් සෞඛ්‍ය සේවා නිලධාරිනිය හෝ වෛද්‍යවරයා හමුවන්න.
-                        </p>
-                    </div>
-                    
+                    {/* 🏥 Friendly Medical Disclaimer */}
+                    {!['names', 'gender', 'music'].includes(activeTab) && (
+                        <div className="bg-red-50/60 border border-red-100 rounded-2xl p-4 mt-2 select-none mx-5 mb-6">
+                            <p className="text-[11px] text-red-700 leading-relaxed font-medium">
+                                <i className="fa-solid fa-circle-exclamation mr-1 text-xs"></i> <strong>සෞඛ්‍ය උපදේශය:</strong> මෙහි අඩංගු සියලුම ලිපි සහ උපදෙස් මූලික අවබෝධය සඳහා පමණි. යම් වෛද්‍ය ගැටලුවකදී වහාම ඔබේ පවුල් සෞඛ්‍ය සේවා නිලධාරිනිය හෝ වෛද්‍යවරයා හමුවන්න.
+                            </p>
+                        </div>
+                    )}
+
                     {/* 🌸 BOTTOM NAVIGATION BAR */}
                     <nav className="fixed bottom-0 max-w-[450px] w-full bg-white/70 backdrop-blur-lg border-t border-pink-100/40 flex py-3 justify-around items-center z-10 shadow-[0_-5px_20px_rgba(0,0,0,0.02)] rounded-t-3xl">
                         <button onClick={() => setActiveTab('home')} className={`flex flex-col items-center gap-1 text-[10px] font-black tracking-wide transition-all ${activeTab === 'home' ? 'text-brand-darkpink scale-105' : 'text-brand-slate opacity-70 hover:opacity-100'}`}>
@@ -2535,4 +3096,5 @@ const weeksData = {
         root.render(<App />);
     </script>
 </body>
+
 </html>
