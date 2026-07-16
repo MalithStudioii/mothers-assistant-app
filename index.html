@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mother's Assistant - අම්මගේ අත්උදව්ව</title>
+    <!-- PWA Setup -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff85a1">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    
     <!-- SEO and OpenGraph Meta Tags -->
     <meta name="description"
         content="Mother's Assistant (අම්මගේ අත්උදව්ව) - ගැබ්ගත් මුල්ම දින සිට දරු ප්‍රසූතිය දක්වා ඔබට අවශ්‍ය සියලුම සෞඛ්‍ය උපදෙස්, ළදරු බර මාපක, එන්නත් දින දර්ශනය සහ මඟපෙන්වීම් එකම තැනකින් සිංහලෙන්.">
@@ -84,7 +89,6 @@
             box-shadow: 0 25px 50px -12px rgba(219, 39, 119, 0.12), 0 0 50px rgba(0, 0, 0, 0.02);
             border-left: 1px solid rgba(255, 255, 255, 0.6);
             border-right: 1px solid rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(20px);
             display: flex;
             flex-direction: column;
             position: relative;
@@ -228,6 +232,32 @@
         ];
 
         function App() {
+            // PWA Install State
+            const [deferredPrompt, setDeferredPrompt] = useState(null);
+            
+            useEffect(() => {
+                const handleBeforeInstallPrompt = (e) => {
+                    e.preventDefault();
+                    setDeferredPrompt(e);
+                };
+                window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+                
+                // Register Service Worker for PWA
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+                }
+                
+                return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+            }, []);
+
+            const handleInstallApp = async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') setDeferredPrompt(null);
+                }
+            };
+
             // App state management
             const [activeTab, setActiveTab] = useState('home');
 
@@ -922,10 +952,17 @@
                             {/* Premium Welcome Hero Card */}
                             <div className="bg-gradient-to-br from-pink-400 via-rose-400 to-brand-pink rounded-3xl p-5 text-white border border-pink-300/30 shadow-md relative overflow-hidden group">
                                 <div className="absolute -right-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
-                                <span className="text-[9px] bg-white/25 backdrop-blur-md px-2.5 py-1 rounded-full font-bold uppercase tracking-wider inline-block mb-2">
-                                    Welcome • පිළිගැනීම
-                                </span>
-                                <h2 className="text-xl font-black mb-1.5 drop-shadow-sm leading-tight">ඔබේ ගර්භණී සමයේ සමීපතම සහකරු</h2>
+                                <div className="flex justify-between items-start mb-2 relative z-10">
+                                    <span className="text-[9px] bg-white/25 backdrop-blur-md px-2.5 py-1 rounded-full font-bold uppercase tracking-wider inline-block">
+                                        Welcome • පිළිගැනීම
+                                    </span>
+                                    {deferredPrompt && (
+                                        <button onClick={handleInstallApp} className="text-[9px] bg-white text-brand-darkpink px-3 py-1.5 rounded-full font-black uppercase tracking-wider shadow-sm animate-pulse flex items-center gap-1.5 active:scale-95 transition-all">
+                                            <i className="fa-solid fa-download"></i> Install App
+                                        </button>
+                                    )}
+                                </div>
+                                <h2 className="text-xl font-black mb-1.5 drop-shadow-sm leading-tight relative z-10">ඔබේ ගර්භණී සමයේ සමීපතම සහකරු</h2>
                                 <p className="text-xs text-white/90 mb-4 leading-relaxed font-medium">ගැබ්ගත් මුල්ම දින සිට දරු ප්‍රසූතිය දක්වා ඔබට අවශ්‍ය සියලුම සෞඛ්‍ය උපදෙස් සහ මඟපෙන්වීම් එකම තැනකින් සිංහලෙන්.</p>
                                 <button onClick={() => setActiveTab('strips')} className="bg-white hover:bg-pink-50 text-brand-darkpink font-black text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all active:scale-[0.98] flex items-center gap-1">
                                     Strips පරීක්ෂාව <i className="fa-solid fa-chevron-right text-[10px]"></i>
