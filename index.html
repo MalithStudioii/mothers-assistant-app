@@ -2913,10 +2913,10 @@
                         </div>
                     )}
 
-                    {/* 🔒 PREMIUM SUBSCRIPTION PAYWALL MODAL (PERFECT SCROLLABLE LUXURY IOS LAYOUT) */}
+                    {/* 🔒 PREMIUM SUBSCRIPTION PAYWALL MODAL */}
                     {showPaywall && (
-                        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex justify-center items-end sm:items-center p-0 sm:p-4 z-[9999] animate-fade-in">
-                            <div className="bg-gradient-to-b from-white to-pink-50 rounded-t-3xl sm:rounded-3xl w-full max-w-[400px] border-t border-pink-200/80 shadow-2xl relative max-h-[90vh] flex flex-col shadow-pink-950/20 overflow-hidden animate-[slideUp_0.3s_ease-out]">
+                        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex justify-center items-center p-4 z-[9999] animate-fade-in">
+                            <div className="bg-gradient-to-b from-white to-pink-50 rounded-3xl w-full max-w-[400px] border border-pink-200/80 shadow-2xl relative max-h-[90vh] flex flex-col shadow-pink-950/20 overflow-hidden animate-[scaleUp_0.3s_ease-out]">
 
                                 {/* Close Button */}
                                 <button onClick={() => setShowPaywall(false)} className="absolute right-3 top-3 text-gray-500 hover:text-brand-chocolate transition-all active:scale-90 bg-white/80 backdrop-blur-md w-7 h-7 rounded-full flex items-center justify-center z-50 shadow-sm border border-gray-100">
@@ -2924,9 +2924,7 @@
                                 </button>
 
                                 {/* 📜 MAIN SCROLLABLE WRAPPER */}
-                                <div className="overflow-y-auto flex-1 no-scrollbar pb-6 pt-1">
-                                    {/* Bottom sheet drag handle (mobile only) */}
-                                    <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto my-2 sm:hidden opacity-70"></div>
+                                <div className="overflow-y-auto flex-1 no-scrollbar pb-6">
 
                                     {/* Top Header Gradient Design */}
                                     <div className="bg-gradient-to-br from-purple-600 via-brand-pink to-brand-darkpink p-4 pb-5 text-center text-white relative mb-4 rounded-b-3xl shadow-sm">
@@ -2946,18 +2944,16 @@
                                             <span className="text-[11px] text-brand-darkpink font-black uppercase tracking-wider block border-b border-pink-50 pb-1.5 mb-2.5">
                                                 <i className="fa-solid fa-gem mr-1"></i> PRO පහසුකම්
                                             </span>
-                                            <ul className="text-[11px] text-brand-chocolate space-y-2 font-medium">
+                                            <ul className="text-[11px] text-brand-chocolate space-y-3 font-medium">
                                                 <li className="flex items-start gap-2">
-                                                    <i className="fa-solid fa-ban text-red-400 mt-0.5 w-4 text-center"></i>
-                                                    <span>වෙහෙසකර <strong>දැන්වීම් (Ads) සම්පූර්ණයෙන්ම ඉවත් වේ</strong>.</span>
+                                                    <i className="fa-solid fa-ban text-red-500 mt-1 w-4 text-center text-sm"></i>
+                                                    <span className="leading-relaxed">වෙහෙසකර 
+                                                        <span className="inline-block bg-gradient-to-r from-red-500 to-rose-600 text-white px-2 py-0.5 rounded shadow-[0_2px_0_#9f1239] text-[9px] font-black tracking-wider uppercase mx-1.5 align-middle transform -skew-x-6 border border-red-400">Ads</span>
+                                                        සම්පූර්ණයෙන්ම ඉවත් වේ.</span>
                                                 </li>
                                                 <li className="flex items-start gap-2">
-                                                    <i className="fa-solid fa-notes-medical text-brand-pink mt-0.5 w-4 text-center"></i>
-                                                    <span><strong>සායන කාඩ්පත් සහයකයා</strong> (Clinic Card Assistant) භාවිතා කළ හැක.</span>
-                                                </li>
-                                                <li className="flex items-start gap-2">
-                                                    <i className="fa-solid fa-music text-purple-400 mt-0.5 w-4 text-center"></i>
-                                                    <span><strong>සම්පූර්ණ සංගීත එකතුව</strong> සහ Premium Player එක සඳහා ප්‍රවේශය.</span>
+                                                    <i className="fa-solid fa-star text-amber-400 mt-0.5 w-4 text-center"></i>
+                                                    <span className="leading-relaxed">සතිපතා දරුවාගේ වර්ධනය බලා ගැනීමේ සිට <strong>Pro පහසුකම් වලට අදාල සියළුම ප්‍රවේශය</strong> හිමිවේ.</span>
                                                 </li>
                                             </ul>
                                         </div>
