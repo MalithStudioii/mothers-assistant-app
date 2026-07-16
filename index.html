@@ -9,7 +9,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ff85a1">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-    
+
     <!-- SEO and OpenGraph Meta Tags -->
     <meta name="description"
         content="Mother's Assistant (අම්මගේ අත්උදව්ව) - ගැබ්ගත් මුල්ම දින සිට දරු ප්‍රසූතිය දක්වා ඔබට අවශ්‍ය සියලුම සෞඛ්‍ය උපදෙස්, ළදරු බර මාපක, එන්නත් දින දර්ශනය සහ මඟපෙන්වීම් එකම තැනකින් සිංහලෙන්.">
@@ -138,6 +138,7 @@
             from {
                 transform: translateY(100%);
             }
+
             to {
                 transform: translateY(0);
             }
@@ -234,19 +235,19 @@
         function App() {
             // PWA Install State
             const [deferredPrompt, setDeferredPrompt] = useState(null);
-            
+
             useEffect(() => {
                 const handleBeforeInstallPrompt = (e) => {
                     e.preventDefault();
                     setDeferredPrompt(e);
                 };
                 window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-                
+
                 // Register Service Worker for PWA
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
                 }
-                
+
                 return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
             }, []);
 
@@ -2975,7 +2976,7 @@
 
                                     {/* Inner content wrapper with padding */}
                                     <div className="px-5 space-y-4">
-                                        
+
                                         {/* PRO Features List */}
                                         <div className="bg-white border border-pink-100 rounded-2xl p-3.5 shadow-sm text-left">
                                             <span className="text-[11px] text-brand-darkpink font-black uppercase tracking-wider block border-b border-pink-50 pb-1.5 mb-2.5">
@@ -2984,7 +2985,7 @@
                                             <ul className="text-[11px] text-brand-chocolate space-y-3 font-medium">
                                                 <li className="flex items-start gap-2">
                                                     <i className="fa-solid fa-ban text-red-500 mt-1 w-4 text-center text-sm"></i>
-                                                    <span className="leading-relaxed">වෙහෙසකර 
+                                                    <span className="leading-relaxed">වෙහෙසකර
                                                         <span className="inline-block bg-gradient-to-r from-red-500 to-rose-600 text-white px-2 py-0.5 rounded shadow-[0_2px_0_#9f1239] text-[9px] font-black tracking-wider uppercase mx-1.5 align-middle transform -skew-x-6 border border-red-400">Ads</span>
                                                         සම්පූර්ණයෙන්ම ඉවත් වේ.</span>
                                                 </li>
@@ -3063,12 +3064,12 @@
                                                         try {
                                                             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> පරීක්ෂා කරමින්...';
 
-                                                            // Firebase එකෙන් Code එක තියෙනවද සහ පාවිච්චි කරලා නැද්ද බලනවා
+
                                                             const docRef = db.collection("activation_codes").doc(inputVal);
                                                             const docSnap = await docRef.get();
 
                                                             if (docSnap.exists && docSnap.data().isUsed === false) {
-                                                                // Code එක හරියටම මැච් වුණා නම්, ඒක පාවිච්චි කරා කියලා Update කරනවා
+
                                                                 await docRef.update({ isUsed: true });
 
                                                                 errorBox.classList.add('hidden');
@@ -3083,7 +3084,7 @@
                                                                     btn.innerHTML = 'ඇතුළු වන්න';
                                                                 }, 2000);
                                                             } else {
-                                                                // වැරදි හෝ පාවිච්චි කරපු Code එකක් නම්
+
                                                                 successBox.classList.add('hidden');
                                                                 errorBox.classList.remove('hidden');
                                                                 btn.innerHTML = 'ඇතුළු වන්න';
@@ -3104,7 +3105,7 @@
                                             <div id="promoErrorBox" className="hidden bg-red-50 border border-red-200 rounded-xl p-2.5 text-left flex items-start gap-2.5 animate-fade-in">
                                                 <i className="fa-solid fa-circle-xmark text-red-500 text-sm mt-0.5 flex-shrink-0"></i>
                                                 <p className="text-[11px] text-red-900 leading-tight font-medium">
-                                                    <strong>වැරදි Passcode එකක්!</strong> කරුණාකර රිසිට්පත ලබාදී අද දිනට වලංගු නිවැරදිම Passcode එක ලබාගන්න.
+                                                    <strong>වැරදි Passcode එකක්!</strong> කරුණාකර රිසිට්පත ලබාදී නිවැරදි Passcode එක ලබාගන්න.
                                                 </p>
                                             </div>
 
@@ -3112,7 +3113,7 @@
                                             <div id="promoSuccessBox" className="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-left flex items-start gap-2.5 animate-fade-in">
                                                 <i className="fa-solid fa-circle-check text-emerald-500 text-sm mt-0.5 flex-shrink-0"></i>
                                                 <p className="text-[11px] text-emerald-900 leading-tight font-medium">
-                                                    <strong>Passcode එක නිවැරදියි!</strong> ස්තූතියි මවක් විදිහට අප කෙරෙහි තැබූ විශ්වාසයට. PRO විශේෂාංග දැන් සක්‍රීය වේ...
+                                                    <strong>Passcode එක නිවැරදියි!</strong> මවක් විදිහට අප කෙරෙහි තැබූ විශ්වාසයට ස්තූතියි. PRO විශේෂාංග දැන් සක්‍රීය වේ...
                                                 </p>
                                             </div>
                                         </div>
