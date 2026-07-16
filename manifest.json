@@ -1,12 +1,19 @@
 {
-  "name": "Mother's Assistant",
+  "name": "Mother's Assistant - අම්මගේ අත්උදව්ව",
   "short_name": "MothersAsst",
+  "description": "ගැබ්ගත් මුල්ම දින සිට දරු ප්‍රසූතිය දක්වා සෞඛ්‍ය උපදෙස් සහ මඟපෙන්වීම් සිංහලෙන්.",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ff85a1",
   "orientation": "portrait",
   "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3069/3069172.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3069/3069172.png",
       "sizes": "512x512",
