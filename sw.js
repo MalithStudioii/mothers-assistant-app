@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mothers-app-v2';
+const CACHE_NAME = 'mothers-app-v3';
 const urlsToCache = [
   './',
   './index.html',
@@ -27,5 +27,20 @@ self.addEventListener('fetch', event => {
         }
         return fetch(event.request);
       })
+  );
+});
+
+self.addEventListener('activate', event => {
+  const cacheAllowlist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheAllowlist.indexOf(cacheName) === -1) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
   );
 });
